@@ -213,7 +213,7 @@ namespace Defter2Fis.ForMikro.Services
         /// <summary>
         /// DB mevcut durum istatistiğini döner.
         /// </summary>
-        public DbDurumBilgisi DbDurumGetir(MikroDbService dbService, DateTime donemBas, DateTime donemBit, int maliYil)
+        public DbDurumBilgisi DbDurumGetir(IMikroDbService dbService, DateTime donemBas, DateTime donemBit, int maliYil)
         {
             return new DbDurumBilgisi
             {

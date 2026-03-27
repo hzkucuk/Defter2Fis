@@ -1,5 +1,14 @@
 # Özellikler (Features)
 
+## v2.4.0 — IMikroDbService Interface Extraction
+
+### Mimari İyileştirme
+- **IMikroDbService** interface — veritabanı servisini soyutlayarak test edilebilirlik sağlar
+- Tüm servisler (FisOlusturmaServisi, OnizlemeServisi, DefterAnalyzer) interface'e bağımlı
+- Concrete MikroDbService sadece MainForm'da `new MikroDbService()` ile oluşturulur
+- Mock tabanlı unit test yazılabilir hale geldi (Moq ile IMikroDbService mock'lanabilir)
+- YedeklemeSonucu bağımsız top-level DTO olarak refactor edildi
+
 ## v2.3.1 — Dark Tema
 
 ### Dark Tema (YENİ)

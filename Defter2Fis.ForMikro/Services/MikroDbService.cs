@@ -13,7 +13,7 @@ namespace Defter2Fis.ForMikro.Services
     /// Mikro ERP V16 Jump MSSQL veritabanı servis katmanı.
     /// MUHASEBE_FISLERI, MUHASEBE_HESAP_PLANI tabloları üzerinde okuma/yazma işlemleri.
     /// </summary>
-    public class MikroDbService
+    public class MikroDbService : IMikroDbService
     {
         private readonly string _connectionString;
 
@@ -732,44 +732,44 @@ namespace Defter2Fis.ForMikro.Services
             return sonuc;
         }
 
+        #endregion
+    }
+
+    /// <summary>
+    /// Yedekleme sonuç bilgisi.
+    /// </summary>
+    public class YedeklemeSonucu
+    {
+        public string VeritabaniAdi { get; set; }
+        public string DosyaYolu { get; set; }
+        public long DosyaBoyutu { get; set; }
+        public DateTime BaslangicZamani { get; set; }
+        public DateTime BitisZamani { get; set; }
+        public bool Basarili { get; set; }
+
         /// <summary>
-        /// Yedekleme sonuç bilgisi.
+        /// İnsan okunabilir dosya boyutu.
         /// </summary>
-        public class YedeklemeSonucu
+        public string DosyaBoyutuFormatli
         {
-            public string VeritabaniAdi { get; set; }
-            public string DosyaYolu { get; set; }
-            public long DosyaBoyutu { get; set; }
-            public DateTime BaslangicZamani { get; set; }
-            public DateTime BitisZamani { get; set; }
-            public bool Basarili { get; set; }
-
-            /// <summary>
-            /// İnsan okunabilir dosya boyutu.
-            /// </summary>
-            public string DosyaBoyutuFormatli
+            get
             {
-                get
+                if (DosyaBoyutu <= 0) return "?";
+                string[] birimler = { "B", "KB", "MB", "GB" };
+                double boyut = DosyaBoyutu;
+                int birimIdx = 0;
+                while (boyut >= 1024 && birimIdx < birimler.Length - 1)
                 {
-                    if (DosyaBoyutu <= 0) return "?";
-                    string[] birimler = { "B", "KB", "MB", "GB" };
-                    double boyut = DosyaBoyutu;
-                    int birimIdx = 0;
-                    while (boyut >= 1024 && birimIdx < birimler.Length - 1)
-                    {
-                        boyut /= 1024;
-                        birimIdx++;
-                    }
-                    return $"{boyut:N1} {birimler[birimIdx]}";
+                    boyut /= 1024;
+                    birimIdx++;
                 }
+                return $"{boyut:N1} {birimler[birimIdx]}";
             }
-
-            /// <summary>
-            /// Yedekleme süresi.
-            /// </summary>
-            public TimeSpan Sure => BitisZamani - BaslangicZamani;
         }
 
-        #endregion
+        /// <summary>
+        /// Yedekleme süresi.
+        /// </summary>
+        public TimeSpan Sure => BitisZamani - BaslangicZamani;
     }
 }

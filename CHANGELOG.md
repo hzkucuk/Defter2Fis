@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.4.0] - 2025-08-23 — IMikroDbService Interface Extraction
+
+### Eklenenler
+- **IMikroDbService** interface — MikroDbService için soyutlama katmanı
+- Tüm 19 public instance method interface'e taşındı
+- FisOlusturmaServisi, OnizlemeServisi, DefterAnalyzer artık IMikroDbService'e bağımlı
+- YedeklemeSonucu nested class'tan top-level class'a taşındı
+- Mock tabanlı unit test altyapısına hazırlık
+
+### Değişiklikler
+- MikroDbService artık IMikroDbService implement ediyor
+- MainForm._dbService field tipi IMikroDbService olarak güncellendi
+- Static yardımcı methodlar (CariIndexOlustur, StokIndexOlustur) concrete class üzerinde kaldı
+
 ## [2.3.2] - 2025-08-23 — BGW Eşzamanlılık Düzeltmesi
 
 ### Düzeltmeler

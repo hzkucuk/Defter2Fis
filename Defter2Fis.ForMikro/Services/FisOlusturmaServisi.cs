@@ -11,12 +11,12 @@ namespace Defter2Fis.ForMikro.Services
     /// </summary>
     public class FisOlusturmaServisi
     {
-        private readonly MikroDbService _dbService;
+        private readonly IMikroDbService _dbService;
         private readonly DefterAnalyzer _analyzer;
         private readonly EvrakBilgisiParser _evrakParser;
         private readonly LogService _log;
 
-        public FisOlusturmaServisi(MikroDbService dbService, LogService log)
+        public FisOlusturmaServisi(IMikroDbService dbService, LogService log)
         {
             if (dbService == null) throw new ArgumentNullException(nameof(dbService));
             if (log == null) throw new ArgumentNullException(nameof(log));

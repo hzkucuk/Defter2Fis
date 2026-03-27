@@ -19,7 +19,7 @@ namespace Defter2Fis.ForMikro.Forms
     public partial class MainForm : KryptonForm
     {
         private readonly LogService _log = new LogService();
-        private MikroDbService _dbService;
+        private IMikroDbService _dbService;
         private List<YevmiyeDefteri> _defterler;
         private OnizlemeSonucu _sonOnizleme;
         private bool _islemDevam;
