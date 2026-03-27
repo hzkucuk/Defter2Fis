@@ -130,6 +130,7 @@ namespace Defter2Fis.ForMikro.Forms
         private void BtnAnalizEt_Click(object sender, EventArgs e)
         {
             if (_islemDevam) return;
+            IslemDurumuAyarla(true);
             _bgwIslem.RunWorkerAsync("analiz");
         }
 
@@ -208,6 +209,7 @@ namespace Defter2Fis.ForMikro.Forms
         private void BtnMevcutVeriKontrol_Click(object sender, EventArgs e)
         {
             if (_islemDevam) return;
+            IslemDurumuAyarla(true);
             _bgwIslem.RunWorkerAsync("precheck");
         }
 
@@ -298,6 +300,7 @@ namespace Defter2Fis.ForMikro.Forms
             if (!YedekTeklifEt("Donem Verisi Silme"))
                 return;
 
+            IslemDurumuAyarla(true);
             _bgwIslem.RunWorkerAsync("sil");
         }
 
@@ -338,6 +341,7 @@ namespace Defter2Fis.ForMikro.Forms
                     "Uyari", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
+            IslemDurumuAyarla(true);
             _bgwIslem.RunWorkerAsync("onizleme");
         }
 
@@ -497,6 +501,7 @@ namespace Defter2Fis.ForMikro.Forms
         private void BtnYedekAl_Click(object sender, EventArgs e)
         {
             if (_islemDevam) return;
+            IslemDurumuAyarla(true);
             _bgwIslem.RunWorkerAsync("yedek");
         }
 
@@ -615,6 +620,7 @@ namespace Defter2Fis.ForMikro.Forms
             if (!YedekTeklifEt("Fis Olusturma"))
                 return;
 
+            IslemDurumuAyarla(true);
             _bgwIslem.RunWorkerAsync("fisolustur");
         }
 

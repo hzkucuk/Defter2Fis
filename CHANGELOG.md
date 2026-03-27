@@ -1,6 +1,14 @@
 # Changelog
 
-## [2.3.1] - 2025-08-23 - Dark Tema
+## [2.3.2] - 2025-08-23 — BGW Eşzamanlılık Düzeltmesi
+
+### Düzeltmeler
+- **Kritik:** Tüm buton handler'larına `IslemDurumuAyarla(true)` eklendi (RunWorkerAsync öncesi)
+- BGW çalışırken butonların devre dışı kalmaması sorunu giderildi
+- Etkilenen handler'lar: BtnAnalizEt, BtnMevcutVeriKontrol, BtnDonemVerisiSil, BtnOnizleme, BtnYedekAl, BtnFisOlustur
+- `InvalidOperationException: BackgroundWorker is currently busy` hatası önlendi
+
+## [2.3.1] - 2025-08-23 — Dark Tema
 
 ### Eklenenler
 - **Dark Tema** - Tum uygulama dark temaya gecirildi
