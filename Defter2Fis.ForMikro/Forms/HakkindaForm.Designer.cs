@@ -47,6 +47,7 @@ namespace Defter2Fis.ForMikro.Forms
             _lblBaslik.Text = "DEFTER2F\u0130\u015E";
 
             // _tblAna
+            _tblAna.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             _tblAna.ColumnCount = 1;
             _tblAna.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             _tblAna.Controls.Add(_lblAciklama, 0, 0);
@@ -67,6 +68,7 @@ namespace Defter2Fis.ForMikro.Forms
             // _lblAciklama
             _lblAciklama.AutoSize = true;
             _lblAciklama.Font = new System.Drawing.Font("Segoe UI", 9F);
+            _lblAciklama.ForeColor = System.Drawing.Color.FromArgb(220, 220, 220);
             _lblAciklama.Margin = new System.Windows.Forms.Padding(3, 8, 3, 8);
             _lblAciklama.Name = "_lblAciklama";
             _lblAciklama.Size = new System.Drawing.Size(360, 30);
@@ -75,6 +77,7 @@ namespace Defter2Fis.ForMikro.Forms
             // _lblVersiyon
             _lblVersiyon.AutoSize = true;
             _lblVersiyon.Font = new System.Drawing.Font("Segoe UI", 9F);
+            _lblVersiyon.ForeColor = System.Drawing.Color.FromArgb(220, 220, 220);
             _lblVersiyon.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             _lblVersiyon.Name = "_lblVersiyon";
             _lblVersiyon.Size = new System.Drawing.Size(100, 15);
@@ -83,7 +86,7 @@ namespace Defter2Fis.ForMikro.Forms
             // _lblTelif
             _lblTelif.AutoSize = true;
             _lblTelif.Font = new System.Drawing.Font("Segoe UI", 8F);
-            _lblTelif.ForeColor = System.Drawing.SystemColors.GrayText;
+            _lblTelif.ForeColor = System.Drawing.Color.FromArgb(150, 150, 150);
             _lblTelif.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             _lblTelif.Name = "_lblTelif";
             _lblTelif.Size = new System.Drawing.Size(200, 15);
@@ -91,18 +94,22 @@ namespace Defter2Fis.ForMikro.Forms
 
             // _btnTamam
             _btnTamam.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+            _btnTamam.BackColor = System.Drawing.Color.FromArgb(62, 62, 64);
             _btnTamam.DialogResult = System.Windows.Forms.DialogResult.OK;
+            _btnTamam.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(63, 63, 70);
+            _btnTamam.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            _btnTamam.ForeColor = System.Drawing.Color.FromArgb(220, 220, 220);
             _btnTamam.Location = new System.Drawing.Point(301, 140);
             _btnTamam.Name = "_btnTamam";
             _btnTamam.Size = new System.Drawing.Size(80, 28);
             _btnTamam.Text = "Tamam";
-            _btnTamam.UseVisualStyleBackColor = true;
             _btnTamam.Click += BtnTamam_Click;
 
             // HakkindaForm
             AcceptButton = _btnTamam;
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             ClientSize = new System.Drawing.Size(400, 250);
             Controls.Add(_tblAna);
             Controls.Add(_pnlUst);

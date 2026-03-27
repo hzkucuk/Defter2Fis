@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.3.1] - 2025-08-23 - Dark Tema
+
+### Eklenenler
+- **Dark Tema** - Tum uygulama dark temaya gecirildi
+- Krypton palette: Microsoft365BlackDarkMode
+- DarkMenuColorTable - MenuStrip icin ozel dark renk tablosu
+- Tum non-Krypton kontrollere dark BackColor/ForeColor
+- DataGridView dark tema: koyu arka plan, acik metin, mavi secim vurgusu
+- Log renkleri dark arka plan icin optimize edildi (LimeGreen, Orange, Tomato)
+- AyarlarForm dark tema: GroupBox, TextBox, Button dark renklendirme
+- HakkindaForm dark tema: panel, label, buton dark renklendirme
+- StatusStrip VS-style mavi arka plan (0, 122, 204)
+
 ## [2.3.0] - 2025-08-23 — Veritabanı Yedekleme + Hata Yönetimi + Refactoring
 
 ### Eklenenler

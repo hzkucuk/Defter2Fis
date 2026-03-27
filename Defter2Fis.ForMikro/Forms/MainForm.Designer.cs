@@ -111,7 +111,7 @@ namespace Defter2Fis.ForMikro.Forms
             SuspendLayout();
 
             // _kryptonManager
-            _kryptonManager.GlobalPaletteMode = PaletteMode.Microsoft365Blue;
+            _kryptonManager.GlobalPaletteMode = PaletteMode.Microsoft365BlackDarkMode;
 
             // _menuStrip
             _menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -120,6 +120,11 @@ namespace Defter2Fis.ForMikro.Forms
             _menuStrip.Location = new System.Drawing.Point(0, 0);
             _menuStrip.Name = "_menuStrip";
             _menuStrip.Size = new System.Drawing.Size(1000, 24);
+            _menuStrip.BackColor = System.Drawing.Color.FromArgb(45, 45, 48);
+            _menuStrip.ForeColor = System.Drawing.Color.FromArgb(220, 220, 220);
+            _menuStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
+            _menuStrip.Renderer = new System.Windows.Forms.ToolStripProfessionalRenderer(
+                new DarkMenuColorTable());
 
             _tsmDosya.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { _tsmCikis });
             _tsmDosya.Name = "_tsmDosya";
@@ -153,6 +158,7 @@ namespace Defter2Fis.ForMikro.Forms
             _tblAna.Controls.Add(_flpButonlar, 0, 1);
             _tblAna.Controls.Add(_tabControl, 0, 2);
             _tblAna.Dock = System.Windows.Forms.DockStyle.Fill;
+            _tblAna.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             _tblAna.Location = new System.Drawing.Point(0, 24);
             _tblAna.Name = "_tblAna";
             _tblAna.Padding = new System.Windows.Forms.Padding(6, 4, 6, 0);
@@ -179,6 +185,7 @@ namespace Defter2Fis.ForMikro.Forms
             _tblAyarOzet.Controls.Add(_lblDbBilgi, 0, 1);
             _tblAyarOzet.Controls.Add(_lblFirmaBilgi, 0, 2);
             _tblAyarOzet.Dock = System.Windows.Forms.DockStyle.Fill;
+            _tblAyarOzet.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             _tblAyarOzet.Name = "_tblAyarOzet";
             _tblAyarOzet.RowCount = 3;
             _tblAyarOzet.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
@@ -195,6 +202,7 @@ namespace Defter2Fis.ForMikro.Forms
             // _flpButonlar
             _flpButonlar.AutoSize = true;
             _flpButonlar.Dock = System.Windows.Forms.DockStyle.Fill;
+            _flpButonlar.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             _flpButonlar.Controls.Add(_btnAnalizEt);
             _flpButonlar.Controls.Add(_btnMevcutVeriKontrol);
             _flpButonlar.Controls.Add(_btnOnizleme);
@@ -242,6 +250,7 @@ namespace Defter2Fis.ForMikro.Forms
 
             // _tabLoglar
             _tabLoglar.Controls.Add(_rtbLog);
+            _tabLoglar.BackColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _tabLoglar.Name = "_tabLoglar";
             _tabLoglar.Padding = new System.Windows.Forms.Padding(3);
             _tabLoglar.Text = "\u0130\u015Flem Loglar\u0131";
@@ -249,18 +258,22 @@ namespace Defter2Fis.ForMikro.Forms
             _rtbLog.Dock = System.Windows.Forms.DockStyle.Fill;
             _rtbLog.Name = "_rtbLog";
             _rtbLog.StateCommon.Content.Font = new System.Drawing.Font("Consolas", 9F);
+            _rtbLog.StateCommon.Back.Color1 = System.Drawing.Color.FromArgb(30, 30, 30);
+            _rtbLog.StateCommon.Content.Color1 = System.Drawing.Color.FromArgb(220, 220, 220);
 
             // _tabMevcutVeri
             _tabMevcutVeri.Controls.Add(_tblMevcutVeri);
             _tabMevcutVeri.Name = "_tabMevcutVeri";
             _tabMevcutVeri.Padding = new System.Windows.Forms.Padding(3);
             _tabMevcutVeri.Text = "Mevcut D\u00f6nem Verisi";
+            _tabMevcutVeri.BackColor = System.Drawing.Color.FromArgb(37, 37, 38);
 
             _tblMevcutVeri.ColumnCount = 1;
             _tblMevcutVeri.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             _tblMevcutVeri.Controls.Add(_dgvMevcutVeri, 0, 0);
             _tblMevcutVeri.Controls.Add(_flpMevcutVeriAlt, 0, 1);
             _tblMevcutVeri.Dock = System.Windows.Forms.DockStyle.Fill;
+            _tblMevcutVeri.BackColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _tblMevcutVeri.Name = "_tblMevcutVeri";
             _tblMevcutVeri.RowCount = 2;
             _tblMevcutVeri.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -280,6 +293,7 @@ namespace Defter2Fis.ForMikro.Forms
             _flpMevcutVeriAlt.Controls.Add(_lblMevcutVeriOzet);
             _flpMevcutVeriAlt.Controls.Add(_btnDonemVerisiSil);
             _flpMevcutVeriAlt.Dock = System.Windows.Forms.DockStyle.Fill;
+            _flpMevcutVeriAlt.BackColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _flpMevcutVeriAlt.Name = "_flpMevcutVeriAlt";
             _flpMevcutVeriAlt.Padding = new System.Windows.Forms.Padding(0, 4, 0, 0);
 
@@ -301,12 +315,14 @@ namespace Defter2Fis.ForMikro.Forms
             _tabOnizleme.Name = "_tabOnizleme";
             _tabOnizleme.Padding = new System.Windows.Forms.Padding(3);
             _tabOnizleme.Text = "\u00D6nizleme / Test";
+            _tabOnizleme.BackColor = System.Drawing.Color.FromArgb(37, 37, 38);
 
             _tblOnizleme.ColumnCount = 1;
             _tblOnizleme.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             _tblOnizleme.Controls.Add(_grpOnizlemeOzet, 0, 0);
             _tblOnizleme.Controls.Add(_tabOnizlemeDetay, 0, 1);
             _tblOnizleme.Dock = System.Windows.Forms.DockStyle.Fill;
+            _tblOnizleme.BackColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _tblOnizleme.Name = "_tblOnizleme";
             _tblOnizleme.RowCount = 2;
             _tblOnizleme.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
@@ -334,6 +350,7 @@ namespace Defter2Fis.ForMikro.Forms
             _tblOnizlemeOzet.Controls.Add(_lblOzMukerrer, 4, 0);
             _tblOnizlemeOzet.Controls.Add(_lblOzEksikHesap, 5, 0);
             _tblOnizlemeOzet.Dock = System.Windows.Forms.DockStyle.Fill;
+            _tblOnizlemeOzet.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             _tblOnizlemeOzet.Name = "_tblOnizlemeOzet";
             _tblOnizlemeOzet.RowCount = 1;
             _tblOnizlemeOzet.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
@@ -361,35 +378,45 @@ namespace Defter2Fis.ForMikro.Forms
             _tabOnizlemeDetay.Name = "_tabOnizlemeDetay";
 
             _tabOzFisler.Controls.Add(_dgvOzFisler);
+            _tabOzFisler.BackColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _tabOzFisler.Name = "_tabOzFisler";
             _tabOzFisler.Padding = new System.Windows.Forms.Padding(2);
             _tabOzFisler.Text = "Fi\u015Fler";
 
             _tabOzCari.Controls.Add(_dgvOzCari);
+            _tabOzCari.BackColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _tabOzCari.Name = "_tabOzCari";
             _tabOzCari.Padding = new System.Windows.Forms.Padding(2);
             _tabOzCari.Text = "Cari E\u015Fle\u015Fmeleri";
 
             _tabOzStok.Controls.Add(_dgvOzStok);
+            _tabOzStok.BackColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _tabOzStok.Name = "_tabOzStok";
             _tabOzStok.Padding = new System.Windows.Forms.Padding(2);
             _tabOzStok.Text = "Stok E\u015Fle\u015Fmeleri";
 
             _tabOzHesap.Controls.Add(_dgvOzHesap);
+            _tabOzHesap.BackColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _tabOzHesap.Name = "_tabOzHesap";
             _tabOzHesap.Padding = new System.Windows.Forms.Padding(2);
             _tabOzHesap.Text = "Eksik Hesaplar";
 
             _tabOzUyari.Controls.Add(_dgvOzUyari);
+            _tabOzUyari.BackColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _tabOzUyari.Name = "_tabOzUyari";
             _tabOzUyari.Padding = new System.Windows.Forms.Padding(2);
             _tabOzUyari.Text = "Uyar\u0131lar";
 
             _dgvOzFisler.AllowUserToAddRows = false;
             _dgvOzFisler.AllowUserToDeleteRows = false;
+            _dgvOzFisler.BackgroundColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _dgvOzFisler.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            _dgvOzFisler.ColumnHeadersDefaultCellStyle = new System.Windows.Forms.DataGridViewCellStyle { BackColor = System.Drawing.Color.FromArgb(45, 45, 48), ForeColor = System.Drawing.Color.FromArgb(220, 220, 220) };
             _dgvOzFisler.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            _dgvOzFisler.DefaultCellStyle = new System.Windows.Forms.DataGridViewCellStyle { BackColor = System.Drawing.Color.FromArgb(30, 30, 30), ForeColor = System.Drawing.Color.FromArgb(220, 220, 220), SelectionBackColor = System.Drawing.Color.FromArgb(0, 122, 204), SelectionForeColor = System.Drawing.Color.White };
             _dgvOzFisler.Dock = System.Windows.Forms.DockStyle.Fill;
+            _dgvOzFisler.EnableHeadersVisualStyles = false;
+            _dgvOzFisler.GridColor = System.Drawing.Color.FromArgb(63, 63, 70);
             _dgvOzFisler.Name = "_dgvOzFisler";
             _dgvOzFisler.ReadOnly = true;
             _dgvOzFisler.RowHeadersVisible = false;
@@ -397,9 +424,14 @@ namespace Defter2Fis.ForMikro.Forms
 
             _dgvOzCari.AllowUserToAddRows = false;
             _dgvOzCari.AllowUserToDeleteRows = false;
+            _dgvOzCari.BackgroundColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _dgvOzCari.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            _dgvOzCari.ColumnHeadersDefaultCellStyle = new System.Windows.Forms.DataGridViewCellStyle { BackColor = System.Drawing.Color.FromArgb(45, 45, 48), ForeColor = System.Drawing.Color.FromArgb(220, 220, 220) };
             _dgvOzCari.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            _dgvOzCari.DefaultCellStyle = new System.Windows.Forms.DataGridViewCellStyle { BackColor = System.Drawing.Color.FromArgb(30, 30, 30), ForeColor = System.Drawing.Color.FromArgb(220, 220, 220), SelectionBackColor = System.Drawing.Color.FromArgb(0, 122, 204), SelectionForeColor = System.Drawing.Color.White };
             _dgvOzCari.Dock = System.Windows.Forms.DockStyle.Fill;
+            _dgvOzCari.EnableHeadersVisualStyles = false;
+            _dgvOzCari.GridColor = System.Drawing.Color.FromArgb(63, 63, 70);
             _dgvOzCari.Name = "_dgvOzCari";
             _dgvOzCari.ReadOnly = true;
             _dgvOzCari.RowHeadersVisible = false;
@@ -407,9 +439,14 @@ namespace Defter2Fis.ForMikro.Forms
 
             _dgvOzStok.AllowUserToAddRows = false;
             _dgvOzStok.AllowUserToDeleteRows = false;
+            _dgvOzStok.BackgroundColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _dgvOzStok.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            _dgvOzStok.ColumnHeadersDefaultCellStyle = new System.Windows.Forms.DataGridViewCellStyle { BackColor = System.Drawing.Color.FromArgb(45, 45, 48), ForeColor = System.Drawing.Color.FromArgb(220, 220, 220) };
             _dgvOzStok.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            _dgvOzStok.DefaultCellStyle = new System.Windows.Forms.DataGridViewCellStyle { BackColor = System.Drawing.Color.FromArgb(30, 30, 30), ForeColor = System.Drawing.Color.FromArgb(220, 220, 220), SelectionBackColor = System.Drawing.Color.FromArgb(0, 122, 204), SelectionForeColor = System.Drawing.Color.White };
             _dgvOzStok.Dock = System.Windows.Forms.DockStyle.Fill;
+            _dgvOzStok.EnableHeadersVisualStyles = false;
+            _dgvOzStok.GridColor = System.Drawing.Color.FromArgb(63, 63, 70);
             _dgvOzStok.Name = "_dgvOzStok";
             _dgvOzStok.ReadOnly = true;
             _dgvOzStok.RowHeadersVisible = false;
@@ -417,9 +454,14 @@ namespace Defter2Fis.ForMikro.Forms
 
             _dgvOzHesap.AllowUserToAddRows = false;
             _dgvOzHesap.AllowUserToDeleteRows = false;
+            _dgvOzHesap.BackgroundColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _dgvOzHesap.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            _dgvOzHesap.ColumnHeadersDefaultCellStyle = new System.Windows.Forms.DataGridViewCellStyle { BackColor = System.Drawing.Color.FromArgb(45, 45, 48), ForeColor = System.Drawing.Color.FromArgb(220, 220, 220) };
             _dgvOzHesap.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            _dgvOzHesap.DefaultCellStyle = new System.Windows.Forms.DataGridViewCellStyle { BackColor = System.Drawing.Color.FromArgb(30, 30, 30), ForeColor = System.Drawing.Color.FromArgb(220, 220, 220), SelectionBackColor = System.Drawing.Color.FromArgb(0, 122, 204), SelectionForeColor = System.Drawing.Color.White };
             _dgvOzHesap.Dock = System.Windows.Forms.DockStyle.Fill;
+            _dgvOzHesap.EnableHeadersVisualStyles = false;
+            _dgvOzHesap.GridColor = System.Drawing.Color.FromArgb(63, 63, 70);
             _dgvOzHesap.Name = "_dgvOzHesap";
             _dgvOzHesap.ReadOnly = true;
             _dgvOzHesap.RowHeadersVisible = false;
@@ -427,9 +469,14 @@ namespace Defter2Fis.ForMikro.Forms
 
             _dgvOzUyari.AllowUserToAddRows = false;
             _dgvOzUyari.AllowUserToDeleteRows = false;
+            _dgvOzUyari.BackgroundColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _dgvOzUyari.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            _dgvOzUyari.ColumnHeadersDefaultCellStyle = new System.Windows.Forms.DataGridViewCellStyle { BackColor = System.Drawing.Color.FromArgb(45, 45, 48), ForeColor = System.Drawing.Color.FromArgb(220, 220, 220) };
             _dgvOzUyari.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            _dgvOzUyari.DefaultCellStyle = new System.Windows.Forms.DataGridViewCellStyle { BackColor = System.Drawing.Color.FromArgb(30, 30, 30), ForeColor = System.Drawing.Color.FromArgb(220, 220, 220), SelectionBackColor = System.Drawing.Color.FromArgb(0, 122, 204), SelectionForeColor = System.Drawing.Color.White };
             _dgvOzUyari.Dock = System.Windows.Forms.DockStyle.Fill;
+            _dgvOzUyari.EnableHeadersVisualStyles = false;
+            _dgvOzUyari.GridColor = System.Drawing.Color.FromArgb(63, 63, 70);
             _dgvOzUyari.Name = "_dgvOzUyari";
             _dgvOzUyari.ReadOnly = true;
             _dgvOzUyari.RowHeadersVisible = false;
@@ -440,6 +487,8 @@ namespace Defter2Fis.ForMikro.Forms
             _statusStrip.Location = new System.Drawing.Point(0, 650);
             _statusStrip.Name = "_statusStrip";
             _statusStrip.Size = new System.Drawing.Size(1000, 22);
+            _statusStrip.BackColor = System.Drawing.Color.FromArgb(0, 122, 204);
+            _statusStrip.ForeColor = System.Drawing.Color.White;
 
             _lblDurum.Name = "_lblDurum";
             _lblDurum.Size = new System.Drawing.Size(780, 17);
@@ -464,6 +513,7 @@ namespace Defter2Fis.ForMikro.Forms
             Controls.Add(_statusStrip);
             Controls.Add(_menuStrip);
             Font = new System.Drawing.Font("Segoe UI", 9F);
+            BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             MainMenuStrip = _menuStrip;
             MinimumSize = new System.Drawing.Size(800, 550);
             Name = "MainForm";

@@ -1,5 +1,15 @@
 # Özellikler (Features)
 
+## v2.3.1 — Dark Tema
+
+### Dark Tema (YENİ)
+- **Krypton Microsoft365BlackDarkMode** palette
+- Tüm formlar (MainForm, AyarlarForm, HakkindaForm) dark temada
+- `DarkMenuColorTable` — MenuStrip özel dark renk tablosu
+- DataGridView dark renklendirme (koyu bg, açık text, mavi seçim)
+- Log renkleri dark arka plan için optimize (LimeGreen/Orange/Tomato)
+- StatusStrip VS-style mavi (0, 122, 204)
+
 ## v2.3.0 — Veritabanı Yedekleme + Hata Yönetimi + Refactoring
 
 ### Veritabanı Yedekleme (YENİ — KRİTİK)

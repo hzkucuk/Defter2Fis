@@ -75,10 +75,10 @@ namespace Defter2Fis.ForMikro.Forms
             Color renk;
             switch (e.Seviye)
             {
-                case LogSeviye.Basari: renk = Color.DarkGreen; break;
-                case LogSeviye.Uyari: renk = Color.DarkOrange; break;
-                case LogSeviye.Hata: renk = Color.Red; break;
-                default: renk = Color.Black; break;
+                case LogSeviye.Basari: renk = Color.LimeGreen; break;
+                case LogSeviye.Uyari: renk = Color.Orange; break;
+                case LogSeviye.Hata: renk = Color.Tomato; break;
+                default: renk = Color.FromArgb(220, 220, 220); break;
             }
 
             var rtb = _rtbLog.RichTextBox;

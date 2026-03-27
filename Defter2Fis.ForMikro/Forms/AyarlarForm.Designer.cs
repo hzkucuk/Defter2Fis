@@ -58,6 +58,7 @@ namespace Defter2Fis.ForMikro.Forms
             SuspendLayout();
 
             // _tblAna
+            _tblAna.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             _tblAna.ColumnCount = 1;
             _tblAna.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             _tblAna.Controls.Add(_grpVeritabani, 0, 0);
@@ -79,6 +80,7 @@ namespace Defter2Fis.ForMikro.Forms
             _grpVeritabani.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowOnly;
             _grpVeritabani.Controls.Add(_tblDb);
             _grpVeritabani.Dock = System.Windows.Forms.DockStyle.Fill;
+            _grpVeritabani.ForeColor = System.Drawing.Color.FromArgb(220, 220, 220);
             _grpVeritabani.Margin = new System.Windows.Forms.Padding(3, 3, 3, 6);
             _grpVeritabani.Name = "_grpVeritabani";
             _grpVeritabani.Padding = new System.Windows.Forms.Padding(8, 4, 8, 8);
@@ -104,7 +106,9 @@ namespace Defter2Fis.ForMikro.Forms
             _lblConnectionString.Text = "Ba\u011flant\u0131:";
 
             // _txtConnectionString
+            _txtConnectionString.BackColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _txtConnectionString.Dock = System.Windows.Forms.DockStyle.Fill;
+            _txtConnectionString.ForeColor = System.Drawing.Color.FromArgb(220, 220, 220);
             _txtConnectionString.Margin = new System.Windows.Forms.Padding(3);
             _txtConnectionString.Name = "_txtConnectionString";
 
@@ -113,6 +117,7 @@ namespace Defter2Fis.ForMikro.Forms
             _grpEdDefter.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowOnly;
             _grpEdDefter.Controls.Add(_tblEdDefter);
             _grpEdDefter.Dock = System.Windows.Forms.DockStyle.Fill;
+            _grpEdDefter.ForeColor = System.Drawing.Color.FromArgb(220, 220, 220);
             _grpEdDefter.Margin = new System.Windows.Forms.Padding(3, 3, 3, 6);
             _grpEdDefter.Name = "_grpEdDefter";
             _grpEdDefter.Padding = new System.Windows.Forms.Padding(8, 4, 8, 8);
@@ -148,14 +153,19 @@ namespace Defter2Fis.ForMikro.Forms
             _lblEdDefterKok.Name = "_lblEdDefterKok";
             _lblEdDefterKok.Text = "K\u00f6k Dizin:";
 
+            _txtEdDefterKok.BackColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _txtEdDefterKok.Dock = System.Windows.Forms.DockStyle.Fill;
+            _txtEdDefterKok.ForeColor = System.Drawing.Color.FromArgb(220, 220, 220);
             _txtEdDefterKok.Margin = new System.Windows.Forms.Padding(3);
             _txtEdDefterKok.Name = "_txtEdDefterKok";
 
+            _btnGozat.BackColor = System.Drawing.Color.FromArgb(62, 62, 64);
+            _btnGozat.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(63, 63, 70);
+            _btnGozat.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            _btnGozat.ForeColor = System.Drawing.Color.FromArgb(220, 220, 220);
             _btnGozat.Name = "_btnGozat";
             _btnGozat.Size = new System.Drawing.Size(30, 23);
             _btnGozat.Text = "...";
-            _btnGozat.UseVisualStyleBackColor = true;
             _btnGozat.Click += BtnGozat_Click;
 
             _lblSicilNo.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
@@ -163,7 +173,9 @@ namespace Defter2Fis.ForMikro.Forms
             _lblSicilNo.Name = "_lblSicilNo";
             _lblSicilNo.Text = "Sicil No:";
 
+            _txtSicilNo.BackColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _txtSicilNo.Dock = System.Windows.Forms.DockStyle.Fill;
+            _txtSicilNo.ForeColor = System.Drawing.Color.FromArgb(220, 220, 220);
             _txtSicilNo.Margin = new System.Windows.Forms.Padding(3);
             _txtSicilNo.Name = "_txtSicilNo";
 
@@ -172,7 +184,9 @@ namespace Defter2Fis.ForMikro.Forms
             _lblMaliYil.Name = "_lblMaliYil";
             _lblMaliYil.Text = "Mali Y\u0131l:";
 
+            _txtMaliYil.BackColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _txtMaliYil.Dock = System.Windows.Forms.DockStyle.Fill;
+            _txtMaliYil.ForeColor = System.Drawing.Color.FromArgb(220, 220, 220);
             _txtMaliYil.Margin = new System.Windows.Forms.Padding(3);
             _txtMaliYil.Name = "_txtMaliYil";
 
@@ -181,7 +195,9 @@ namespace Defter2Fis.ForMikro.Forms
             _lblAyKlasoru.Name = "_lblAyKlasoru";
             _lblAyKlasoru.Text = "Ay:";
 
+            _txtAyKlasoru.BackColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _txtAyKlasoru.Dock = System.Windows.Forms.DockStyle.Fill;
+            _txtAyKlasoru.ForeColor = System.Drawing.Color.FromArgb(220, 220, 220);
             _txtAyKlasoru.Margin = new System.Windows.Forms.Padding(3);
             _txtAyKlasoru.Name = "_txtAyKlasoru";
             _txtAyKlasoru.Size = new System.Drawing.Size(80, 23);
@@ -191,6 +207,7 @@ namespace Defter2Fis.ForMikro.Forms
             _grpMikro.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowOnly;
             _grpMikro.Controls.Add(_tblMikro);
             _grpMikro.Dock = System.Windows.Forms.DockStyle.Fill;
+            _grpMikro.ForeColor = System.Drawing.Color.FromArgb(220, 220, 220);
             _grpMikro.Margin = new System.Windows.Forms.Padding(3, 3, 3, 6);
             _grpMikro.Name = "_grpMikro";
             _grpMikro.Padding = new System.Windows.Forms.Padding(8, 4, 8, 8);
@@ -222,7 +239,9 @@ namespace Defter2Fis.ForMikro.Forms
             _lblFirmaNo.Name = "_lblFirmaNo";
             _lblFirmaNo.Text = "Firma No:";
 
+            _txtFirmaNo.BackColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _txtFirmaNo.Dock = System.Windows.Forms.DockStyle.Fill;
+            _txtFirmaNo.ForeColor = System.Drawing.Color.FromArgb(220, 220, 220);
             _txtFirmaNo.Margin = new System.Windows.Forms.Padding(3);
             _txtFirmaNo.Name = "_txtFirmaNo";
 
@@ -231,7 +250,9 @@ namespace Defter2Fis.ForMikro.Forms
             _lblSubeNo.Name = "_lblSubeNo";
             _lblSubeNo.Text = "\u015Eube No:";
 
+            _txtSubeNo.BackColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _txtSubeNo.Dock = System.Windows.Forms.DockStyle.Fill;
+            _txtSubeNo.ForeColor = System.Drawing.Color.FromArgb(220, 220, 220);
             _txtSubeNo.Margin = new System.Windows.Forms.Padding(3);
             _txtSubeNo.Name = "_txtSubeNo";
 
@@ -240,12 +261,15 @@ namespace Defter2Fis.ForMikro.Forms
             _lblDBCNo.Name = "_lblDBCNo";
             _lblDBCNo.Text = "DBC No:";
 
+            _txtDBCNo.BackColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _txtDBCNo.Dock = System.Windows.Forms.DockStyle.Fill;
+            _txtDBCNo.ForeColor = System.Drawing.Color.FromArgb(220, 220, 220);
             _txtDBCNo.Margin = new System.Windows.Forms.Padding(3);
             _txtDBCNo.Name = "_txtDBCNo";
 
             // _flpButonlar
             _flpButonlar.AutoSize = true;
+            _flpButonlar.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             _flpButonlar.Dock = System.Windows.Forms.DockStyle.Fill;
             _flpButonlar.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
             _flpButonlar.Controls.Add(_btnIptal);
@@ -254,18 +278,24 @@ namespace Defter2Fis.ForMikro.Forms
             _flpButonlar.Padding = new System.Windows.Forms.Padding(0, 6, 0, 0);
 
             // _btnIptal
+            _btnIptal.BackColor = System.Drawing.Color.FromArgb(62, 62, 64);
             _btnIptal.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            _btnIptal.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(63, 63, 70);
+            _btnIptal.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            _btnIptal.ForeColor = System.Drawing.Color.FromArgb(220, 220, 220);
             _btnIptal.Name = "_btnIptal";
             _btnIptal.Size = new System.Drawing.Size(85, 30);
             _btnIptal.Text = "\u0130ptal";
-            _btnIptal.UseVisualStyleBackColor = true;
             _btnIptal.Click += BtnIptal_Click;
 
             // _btnKaydet
+            _btnKaydet.BackColor = System.Drawing.Color.FromArgb(0, 122, 204);
+            _btnKaydet.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(0, 100, 180);
+            _btnKaydet.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            _btnKaydet.ForeColor = System.Drawing.Color.White;
             _btnKaydet.Name = "_btnKaydet";
             _btnKaydet.Size = new System.Drawing.Size(85, 30);
             _btnKaydet.Text = "Kaydet";
-            _btnKaydet.UseVisualStyleBackColor = true;
             _btnKaydet.Click += BtnKaydet_Click;
 
             // AyarlarForm
@@ -273,6 +303,7 @@ namespace Defter2Fis.ForMikro.Forms
             CancelButton = _btnIptal;
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             ClientSize = new System.Drawing.Size(500, 470);
             Controls.Add(_tblAna);
             Font = new System.Drawing.Font("Segoe UI", 9F);

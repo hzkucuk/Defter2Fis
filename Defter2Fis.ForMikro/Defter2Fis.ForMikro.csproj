@@ -53,6 +53,7 @@
     <Compile Include="Forms\AyarlarForm.Designer.cs">
       <DependentUpon>AyarlarForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\DarkMenuColorTable.cs" />
     <Compile Include="Forms\HakkindaForm.cs">
       <SubType>Form</SubType>
     </Compile>
