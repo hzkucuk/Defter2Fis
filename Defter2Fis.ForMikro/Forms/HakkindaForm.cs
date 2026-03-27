@@ -1,13 +1,14 @@
 using System;
 using System.Reflection;
 using System.Windows.Forms;
+using Krypton.Toolkit;
 
 namespace Defter2Fis.ForMikro.Forms
 {
     /// <summary>
     /// Hakkında iletişim kutusu.
     /// </summary>
-    public partial class HakkindaForm : Form
+    public partial class HakkindaForm : KryptonForm
     {
         public HakkindaForm()
         {
@@ -28,3 +29,4 @@ namespace Defter2Fis.ForMikro.Forms
         }
     }
 }
+

@@ -1,5 +1,38 @@
 # Özellikler (Features)
 
+## v2.2.0 — Krypton UI + Önizleme/Test Modülü
+
+### Krypton Toolkit Entegrasyonu (YENİ)
+- **Krypton.Toolkit v85.24.6.176** — Modern Microsoft 365 Blue temalı arayüz
+- Tüm formlar `KryptonForm` tabanlı (MainForm, AyarlarForm, HakkındaForm)
+- `KryptonManager` ile uygulama geneli tema yönetimi (Microsoft365Blue palette)
+- Krypton kontrolleri: KryptonButton, KryptonLabel, KryptonGroupBox, KryptonDataGridView, KryptonRichTextBox
+
+### Önizleme/Test Modülü (YENİ — KRİTİK)
+- **Önizleme** butonu — Fiş oluşturma öncesi kuru çalıştırma (dry-run), veritabanına yazma yapılmaz
+- `OnizlemeServisi` — FisOlusturmaServisi mantığını simüle eden önizleme servisi
+- **Özet İstatistikler** paneli:
+  - Oluşturulacak fiş sayısı, fiş satır sayısı
+  - Eşleşen cari hareket ve stok hareket sayısı
+  - Eksik hesap sayısı, uyarı sayısı
+- **5 Detay Sekmesi:**
+  - **Fişler** — Oluşturulacak muhasebe fiş kayıtları (yevmiye no, tarih, hesap, tutar, B/A)
+  - **Cari Eşleşmeleri** — Cari hareket ↔ muhasebe fişi eşleştirme önizlemesi
+  - **Stok Eşleşmeleri** — Stok hareket ↔ muhasebe fişi eşleştirme önizlemesi
+  - **Eksik Hesaplar** — Hesap planına eklenecek eksik hesaplar listesi
+  - **Uyarılar** — Mükerrer yevmiye, denge hatası, düşük eşleşme oranı, üzerine yazma uyarıları
+- Uyarı seviyeleri: Bilgi, Uyarı, Kritik (renk kodlu)
+
+### Önizleme Veri Modelleri (YENİ)
+- `OnizlemeSonucu` — Hesaplanmış özellikler (OlusturulacakFisSayisi, EslesenCariSayisi, KritikUyariVar)
+- `OnizlemeFisKaydi`, `OnizlemeCariEslesmesi`, `OnizlemeStokEslesmesi`, `OnizlemeEksikHesap`
+- `OnizlemeUyari` + `UyariSeviye` enum (Bilgi/Uyari/Kritik)
+
+### UI Geliştirmeleri
+- 3 ana sekme yapısı: Loglar / Mevcut Dönem Verisi / Önizleme
+- Önizleme sekmesi: Özet panel (üst) + 5 detay sekmesi (alt)
+- KryptonDataGridView ile zengin veri gösterimi (sıralama, kolon boyutlandırma)
+
 ## v2.1.0 — Fiş Oluşturma ve Cari/Stok Senkronizasyonu
 
 ### Fiş Oluşturma (YENİ)

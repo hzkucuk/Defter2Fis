@@ -1,6 +1,6 @@
 # Defter2Fis — E-Defter → Mikro ERP Muhasebe Fişi Oluşturucu
 
-![Version](https://img.shields.io/badge/version-2.1.0-blue)
+![Version](https://img.shields.io/badge/version-2.2.0-blue)
 ![.NET](https://img.shields.io/badge/.NET%20Framework-4.8-purple)
 
 ## Açıklama
@@ -9,8 +9,9 @@ E-Defter Yevmiye XML dosyalarını (XBRL-GL formatı) parse edip **Mikro ERP V16
 
 ## Özellikler
 
-- **WinForms masaüstü arayüzü** — Menü, ayar özeti, log paneli, mevcut veri grid
+- **WinForms masaüstü arayüzü** — Krypton Toolkit temalı modern UI (Microsoft 365 Blue)
 - E-Defter Yevmiye XML dosyalarını otomatik bulma ve parse etme (XBRL-GL)
+- **Önizleme / Test** — Fiş oluşturma öncesi dry-run simülasyonu (cari/stok eşleşme, uyarılar)
 - **Fiş Oluşturma** — E-Defter'den Mikro ERP muhasebe fişleri oluşturma
 - **Cari/Stok Senkronizasyonu** — Evrak seri/no ile cari hesap ve stok hareketleri eşleştirme
 - Borç-Alacak denge kontrolü
@@ -45,7 +46,8 @@ E-Defter Yevmiye XML dosyalarını (XBRL-GL formatı) parse edip **Mikro ERP V16
 1. **Analiz Et** — XML dosyalarını parse edip analiz raporu oluşturur (DB'ye yazma yok)
 2. **Mevcut Veri Kontrol** — Dönemdeki mevcut fiş verilerini listeler
 3. **Dönem Verisini Sil** — Mevcut veriyi çift onay ile güvenli siler (opsiyonel)
-4. **Fiş Oluştur** — Muhasebe fişlerini oluşturur, cari/stok hareketleri ile senkronize eder
+4. **Önizleme** — Fiş oluşturma simülasyonu: ne oluşacak, ne eşleşecek, hangi uyarılar var
+5. **Fiş Oluştur** — Muhasebe fişlerini oluşturur, cari/stok hareketleri ile senkronize eder
 
 ## Yapı
 

@@ -6,20 +6,22 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using Krypton.Toolkit;
 using Defter2Fis.ForMikro.Models;
 using Defter2Fis.ForMikro.Services;
 
 namespace Defter2Fis.ForMikro.Forms
 {
     /// <summary>
-    /// Defter2Fiş ana uygulama formu.
-    /// E-Defter analiz, mevcut veri kontrol, fiş oluşturma işlemlerini yönetir.
+    /// Defter2Fis ana uygulama formu (Krypton temalI).
+    /// E-Defter analiz, mevcut veri kontrol, onizleme ve fis olusturma islemlerini yonetir.
     /// </summary>
-    public partial class MainForm : Form
+    public partial class MainForm : KryptonForm
     {
         private readonly LogService _log = new LogService();
         private MikroDbService _dbService;
         private List<YevmiyeDefteri> _defterler;
+        private OnizlemeSonucu _sonOnizleme;
         private bool _islemDevam;
 
         public MainForm()
@@ -43,13 +45,13 @@ namespace Defter2Fis.ForMikro.Forms
 
         #endregion
 
-        #region Ayar Özeti
+        #region Ayar Ozeti
 
         private void AyarOzetiniGuncelle()
         {
-            _lblEdDefterYolu.Text = $"E-Defter: {KlasorYolu}";
-            _lblDbBilgi.Text = $"DB: {ConfigurationManager.ConnectionStrings["MikroDB"]?.ConnectionString ?? "?"}";
-            _lblFirmaBilgi.Text = $"Sicil: {SicilNo}  |  Mali Yıl: {MaliYilAraligi}  |  Ay: {AyKlasoru}  |  Firma: {FirmaNo}/{SubeNo}  DBC: {DBCNo}";
+            _lblEdDefterYolu.Values.Text = $"E-Defter: {KlasorYolu}";
+            _lblDbBilgi.Values.Text = $"DB: {ConfigurationManager.ConnectionStrings["MikroDB"]?.ConnectionString ?? "?"}";
+            _lblFirmaBilgi.Values.Text = $"Sicil: {SicilNo}  |  Mali YIl: {MaliYilAraligi}  |  Ay: {AyKlasoru}  |  Firma: {FirmaNo}/{SubeNo}  DBC: {DBCNo}";
         }
 
         #endregion
@@ -79,16 +81,17 @@ namespace Defter2Fis.ForMikro.Forms
                 default: renk = Color.Black; break;
             }
 
-            _rtbLog.SelectionStart = _rtbLog.TextLength;
-            _rtbLog.SelectionLength = 0;
-            _rtbLog.SelectionColor = renk;
-            _rtbLog.AppendText(e.Formatla() + Environment.NewLine);
-            _rtbLog.ScrollToCaret();
+            var rtb = _rtbLog.RichTextBox;
+            rtb.SelectionStart = rtb.TextLength;
+            rtb.SelectionLength = 0;
+            rtb.SelectionColor = renk;
+            rtb.AppendText(e.Formatla() + Environment.NewLine);
+            rtb.ScrollToCaret();
         }
 
         #endregion
 
-        #region Menü Olayları
+        #region Menu Olaylari
 
         private void TsmAyarlar_Click(object sender, EventArgs e)
         {
@@ -97,7 +100,7 @@ namespace Defter2Fis.ForMikro.Forms
                 if (frm.ShowDialog(this) == DialogResult.OK)
                 {
                     AyarOzetiniGuncelle();
-                    _log.Bilgi("Ayarlar güncellendi.");
+                    _log.Bilgi("Ayarlar guncellendi.");
                 }
             }
         }
@@ -117,12 +120,12 @@ namespace Defter2Fis.ForMikro.Forms
 
         private void TsmLoglariTemizle_Click(object sender, EventArgs e)
         {
-            _rtbLog.Clear();
+            _rtbLog.RichTextBox.Clear();
         }
 
         #endregion
 
-        #region Analiz İşlemi
+        #region Analiz Islemi
 
         private void BtnAnalizEt_Click(object sender, EventArgs e)
         {
@@ -132,74 +135,58 @@ namespace Defter2Fis.ForMikro.Forms
 
         private void AnalizCalistir(BackgroundWorker worker, DoWorkEventArgs e)
         {
-            // 1. DB bağlantı testi
-            worker.ReportProgress(0, "Veritabanı bağlantısı test ediliyor...");
+            worker.ReportProgress(0, "Veritabani baglantisi test ediliyor...");
             _dbService = new MikroDbService();
             if (!_dbService.BaglantıTest(out string hataMesaji))
             {
-                _log.Hata($"Veritabanına bağlanılamadı: {hataMesaji}");
+                _log.Hata($"Veritabanina baglanamadi: {hataMesaji}");
                 return;
             }
-            _log.Basari("Veritabanı bağlantısı başarılı.");
+            _log.Basari("Veritabani baglantisi basarili.");
 
-            // 2. XML parse
-            worker.ReportProgress(20, "E-Defter XML dosyaları okunuyor...");
-            _log.Bilgi($"Klasör: {KlasorYolu}");
-
+            worker.ReportProgress(20, "E-Defter XML dosyalari okunuyor...");
+            _log.Bilgi($"Klasor: {KlasorYolu}");
             var parser = new EdDefterXmlParser();
             _defterler = parser.KlasordenOku(KlasorYolu, SicilNo, dosya => _log.Basari(dosya));
 
-            // 3. Analiz
-            worker.ReportProgress(50, "Analiz yapılıyor...");
+            worker.ReportProgress(50, "Analiz yapiliyor...");
             var analyzer = new DefterAnalyzer();
 
-            // Özet
             var ozet = analyzer.OzetHesapla(_defterler);
-            _log.Bilgi("══════════════════════════════════════════");
-            _log.Bilgi("         E-DEFTER ANALİZ RAPORU           ");
-            _log.Bilgi("══════════════════════════════════════════");
+            _log.Bilgi("===== E-DEFTER ANALIZ RAPORU =====");
             foreach (var dosyaOzet in ozet.DosyaOzetleri)
             {
                 _log.Bilgi($"  Dosya   : {dosyaOzet.DosyaAdi}");
                 _log.Bilgi($"  Firma   : {dosyaOzet.FirmaUnvani} ({dosyaOzet.SicilNo})");
-                _log.Bilgi($"  Dönem   : {dosyaOzet.DonemBaslangic:dd.MM.yyyy} - {dosyaOzet.DonemBitis:dd.MM.yyyy}");
-                _log.Bilgi($"  Fiş/Satır: {dosyaOzet.FisSayisi:N0} / {dosyaOzet.SatirSayisi:N0}");
+                _log.Bilgi($"  Donem   : {dosyaOzet.DonemBaslangic:dd.MM.yyyy} - {dosyaOzet.DonemBitis:dd.MM.yyyy}");
+                _log.Bilgi($"  Fis/Satir: {dosyaOzet.FisSayisi:N0} / {dosyaOzet.SatirSayisi:N0}");
                 _log.Bilgi(string.Empty);
             }
-            _log.Basari($"TOPLAM: {ozet.DosyaSayisi} dosya, {ozet.ToplamFis:N0} fiş, {ozet.ToplamSatir:N0} satır");
+            _log.Basari($"TOPLAM: {ozet.DosyaSayisi} dosya, {ozet.ToplamFis:N0} fis, {ozet.ToplamSatir:N0} satir");
 
-            // Borç-Alacak denge kontrolü
-            worker.ReportProgress(70, "Borç-Alacak denge kontrolü...");
+            worker.ReportProgress(70, "Borc-Alacak denge kontrolu...");
             var dengesizler = analyzer.DengeKontrolu(_defterler);
             if (dengesizler.Count == 0)
-            {
-                _log.Basari("Tüm fişler dengeli. Borç = Alacak");
-            }
+                _log.Basari("Tum fisler dengeli. Borc = Alacak");
             else
             {
-                _log.Uyari($"{dengesizler.Count} adet dengesiz fiş tespit edildi!");
+                _log.Uyari($"{dengesizler.Count} adet dengesiz fis tespit edildi!");
                 foreach (var d in dengesizler)
-                {
-                    _log.Uyari($"  Yevmiye: {d.YevmiyeNo} (#{d.YevmiyeNoSayac}) — Borç: {d.ToplamBorc:N2} Alacak: {d.ToplamAlacak:N2} Fark: {d.Fark:N2}");
-                }
+                    _log.Uyari($"  Yevmiye: {d.YevmiyeNo} (#{d.YevmiyeNoSayac}) — Borc: {d.ToplamBorc:N2} Alacak: {d.ToplamAlacak:N2} Fark: {d.Fark:N2}");
             }
 
-            // DB mevcut durum
             var ilkDefter = _defterler[0];
             var dbDurum = analyzer.DbDurumGetir(_dbService, ilkDefter.DonemBaslangic, ilkDefter.DonemBitis, ilkDefter.MaliYilBaslangic.Year);
-            _log.Bilgi($"DB Hesap Planı: {dbDurum.HesapSayisi:N0} kayıt");
-            _log.Bilgi($"DB Mevcut Fişler: {dbDurum.FisSayisi:N0} yevmiye ({dbDurum.DonemBaslangic:dd.MM.yyyy} - {dbDurum.DonemBitis:dd.MM.yyyy})");
+            _log.Bilgi($"DB Hesap Plani: {dbDurum.HesapSayisi:N0} kayit");
+            _log.Bilgi($"DB Mevcut Fisler: {dbDurum.FisSayisi:N0} yevmiye ({dbDurum.DonemBaslangic:dd.MM.yyyy} - {dbDurum.DonemBitis:dd.MM.yyyy})");
 
-            // Eksik hesap planı
-            worker.ReportProgress(85, "Hesap planı kontrolü...");
+            worker.ReportProgress(85, "Hesap plani kontrolu...");
             HashSet<string> mevcutKodlar = _dbService.TumHesapKodlariniGetir();
-            _log.Bilgi($"DB'de mevcut hesap sayısı: {mevcutKodlar.Count:N0}");
+            _log.Bilgi($"DB mevcut hesap sayisi: {mevcutKodlar.Count:N0}");
 
             var eksikHesaplar = analyzer.EksikHesaplariGetir(_defterler, mevcutKodlar);
             if (eksikHesaplar.Count == 0)
-            {
-                _log.Basari("Tüm hesaplar hesap planında mevcut. Eksik hesap yok.");
-            }
+                _log.Basari("Tum hesaplar hesap planinda mevcut.");
             else
             {
                 _log.Uyari($"{eksikHesaplar.Count} eksik hesap tespit edildi:");
@@ -210,11 +197,8 @@ namespace Defter2Fis.ForMikro.Forms
                 }
             }
 
-            // Sonuç
-            worker.ReportProgress(100, "Analiz tamamlandı.");
-            _log.Bilgi("══════════════════════════════════════════");
-            _log.Basari($"ANALİZ TAMAMLANDI — Dengesiz: {dengesizler.Count}, Eksik hesap: {eksikHesaplar.Count}");
-            _log.Bilgi("══════════════════════════════════════════");
+            worker.ReportProgress(100, "Analiz tamamlandi.");
+            _log.Basari($"ANALIZ TAMAMLANDI — Dengesiz: {dengesizler.Count}, Eksik hesap: {eksikHesaplar.Count}");
         }
 
         #endregion
@@ -229,22 +213,17 @@ namespace Defter2Fis.ForMikro.Forms
 
         private void PrecheckCalistir(BackgroundWorker worker, DoWorkEventArgs e)
         {
-            worker.ReportProgress(0, "Veritabanı kontrol ediliyor...");
-
-            if (_dbService == null)
-            {
-                _dbService = new MikroDbService();
-            }
-
+            worker.ReportProgress(0, "Veritabani kontrol ediliyor...");
+            if (_dbService == null) _dbService = new MikroDbService();
             if (!_dbService.BaglantıTest(out string hataMesaji))
             {
-                _log.Hata($"Veritabanına bağlanılamadı: {hataMesaji}");
+                _log.Hata($"Veritabanina baglanamadi: {hataMesaji}");
                 return;
             }
 
             if (_defterler == null || _defterler.Count == 0)
             {
-                _log.Uyari("Önce 'Analiz Et' ile XML dosyalarını okuyun.");
+                _log.Uyari("Once 'Analiz Et' ile XML dosyalarini okuyun.");
                 return;
             }
 
@@ -253,24 +232,18 @@ namespace Defter2Fis.ForMikro.Forms
             DateTime donemBas = ilkDefter.DonemBaslangic;
             DateTime donemBit = ilkDefter.DonemBitis;
 
-            worker.ReportProgress(30, "Dönem verileri sorgulanıyor...");
-            _log.Bilgi($"Dönem: {donemBas:dd.MM.yyyy} - {donemBit:dd.MM.yyyy}, Mali Yıl: {maliYil}");
-
+            worker.ReportProgress(30, "Donem verileri sorgulaniyor...");
+            _log.Bilgi($"Donem: {donemBas:dd.MM.yyyy} - {donemBit:dd.MM.yyyy}, Mali Yil: {maliYil}");
             var mevcutVeriler = _dbService.DonemVerileriGetir(maliYil, donemBas, donemBit, FirmaNo, SubeNo);
-
-            worker.ReportProgress(100, "Kontrol tamamlandı.");
+            worker.ReportProgress(100, "Kontrol tamamlandi.");
 
             if (mevcutVeriler.Count == 0)
-            {
-                _log.Basari("Bu dönemde mevcut fiş verisi yok. İşleme devam edilebilir.");
-            }
+                _log.Basari("Bu donemde mevcut fis verisi yok.");
             else
             {
                 int toplamSatir = mevcutVeriler.Sum(v => v.SatirSayisi);
-                _log.Uyari($"Bu dönemde {mevcutVeriler.Count} yevmiye fişi ({toplamSatir:N0} satır) mevcut!");
-                _log.Bilgi("Mevcut dönem verisi 'Mevcut Veri' sekmesinde listeleniyor...");
+                _log.Uyari($"Bu donemde {mevcutVeriler.Count} yevmiye fisi ({toplamSatir:N0} satir) mevcut!");
 
-                // DataGridView'e yükle (UI thread'de)
                 BeginInvoke(new Action(() =>
                 {
                     MevcutVeriGridYukle(mevcutVeriler);
@@ -283,34 +256,25 @@ namespace Defter2Fis.ForMikro.Forms
         {
             _dgvMevcutVeri.DataSource = null;
             _dgvMevcutVeri.Columns.Clear();
-
             var bs = new BindingSource();
             bs.DataSource = veriler;
             _dgvMevcutVeri.DataSource = bs;
 
-            // Kolon başlıklarını Türkçe yap
             if (_dgvMevcutVeri.Columns.Count > 0)
             {
                 _dgvMevcutVeri.Columns["YevmiyeNo"].HeaderText = "Yevmiye No";
                 _dgvMevcutVeri.Columns["Tarih"].HeaderText = "Tarih";
                 _dgvMevcutVeri.Columns["Tarih"].DefaultCellStyle.Format = "dd.MM.yyyy";
-                _dgvMevcutVeri.Columns["SatirSayisi"].HeaderText = "Satır Sayısı";
-                _dgvMevcutVeri.Columns["ToplamBorc"].HeaderText = "Toplam Borç";
+                _dgvMevcutVeri.Columns["SatirSayisi"].HeaderText = "Satir Sayisi";
+                _dgvMevcutVeri.Columns["ToplamBorc"].HeaderText = "Toplam Borc";
                 _dgvMevcutVeri.Columns["ToplamBorc"].DefaultCellStyle.Format = "N2";
                 _dgvMevcutVeri.Columns["ToplamAlacak"].HeaderText = "Toplam Alacak";
                 _dgvMevcutVeri.Columns["ToplamAlacak"].DefaultCellStyle.Format = "N2";
-                _dgvMevcutVeri.Columns["Aciklama"].HeaderText = "Açıklama";
-
-                // Kolon genişlikleri
-                _dgvMevcutVeri.Columns["YevmiyeNo"].Width = 90;
-                _dgvMevcutVeri.Columns["Tarih"].Width = 90;
-                _dgvMevcutVeri.Columns["SatirSayisi"].Width = 80;
-                _dgvMevcutVeri.Columns["ToplamBorc"].Width = 110;
-                _dgvMevcutVeri.Columns["ToplamAlacak"].Width = 110;
+                _dgvMevcutVeri.Columns["Aciklama"].HeaderText = "Aciklama";
                 _dgvMevcutVeri.Columns["Aciklama"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             }
 
-            _lblMevcutVeriOzet.Text = $"Toplam: {veriler.Count} yevmiye, {veriler.Sum(v => v.SatirSayisi):N0} satır";
+            _lblMevcutVeriOzet.Values.Text = $"Toplam: {veriler.Count} yevmiye, {veriler.Sum(v => v.SatirSayisi):N0} satir";
             _btnDonemVerisiSil.Enabled = veriler.Count > 0;
         }
 
@@ -323,23 +287,12 @@ namespace Defter2Fis.ForMikro.Forms
             string donemStr = $"{ilkDefter.DonemBaslangic:dd.MM.yyyy} - {ilkDefter.DonemBitis:dd.MM.yyyy}";
 
             var sonuc = MessageBox.Show(
-                $"DİKKAT: {donemStr} dönemine ait tüm muhasebe fişleri (mahsup) silinecektir!\n\n" +
-                "Bu işlem geri alınamaz. Devam etmek istiyor musunuz?",
-                "Dönem Verisi Silme Onayı",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Warning,
-                MessageBoxDefaultButton.Button2);
-
+                $"DIKKAT: {donemStr} donemine ait tum muhasebe fisleri silinecektir!\n\nBu islem geri alinamaz. Devam?",
+                "Donem Verisi Silme Onayi", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
             if (sonuc != DialogResult.Yes) return;
 
-            // İkinci onay (çift güvenlik)
-            var sonuc2 = MessageBox.Show(
-                "Son onay: Veriler kalıcı olarak silinecek.\n\nEmin misiniz?",
-                "Son Onay",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Exclamation,
-                MessageBoxDefaultButton.Button2);
-
+            var sonuc2 = MessageBox.Show("Son onay: Veriler kalici olarak silinecek.\n\nEmin misiniz?",
+                "Son Onay", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button2);
             if (sonuc2 != DialogResult.Yes) return;
 
             _bgwIslem.RunWorkerAsync("sil");
@@ -347,76 +300,219 @@ namespace Defter2Fis.ForMikro.Forms
 
         private void SilmeCalistir(BackgroundWorker worker, DoWorkEventArgs e)
         {
-            worker.ReportProgress(0, "Dönem verisi siliniyor...");
-
+            worker.ReportProgress(0, "Donem verisi siliniyor...");
             var ilkDefter = _defterler[0];
             int maliYil = ilkDefter.MaliYilBaslangic.Year;
 
             try
             {
-                int silinenSatir = _dbService.DonemVerileriSil(
-                    maliYil,
-                    ilkDefter.DonemBaslangic,
-                    ilkDefter.DonemBitis,
-                    FirmaNo,
-                    SubeNo);
-
-                worker.ReportProgress(100, "Silme tamamlandı.");
-                _log.Basari($"{silinenSatir:N0} fiş satırı başarıyla silindi.");
-
-                // Grid'i temizle
+                int silinenSatir = _dbService.DonemVerileriSil(maliYil, ilkDefter.DonemBaslangic, ilkDefter.DonemBitis, FirmaNo, SubeNo);
+                worker.ReportProgress(100, "Silme tamamlandi.");
+                _log.Basari($"{silinenSatir:N0} fis satiri basariyla silindi.");
                 BeginInvoke(new Action(() =>
                 {
                     _dgvMevcutVeri.DataSource = null;
-                    _lblMevcutVeriOzet.Text = "Dönem verisi silindi.";
+                    _lblMevcutVeriOzet.Values.Text = "Donem verisi silindi.";
                     _btnDonemVerisiSil.Enabled = false;
                 }));
             }
             catch (Exception ex)
             {
-                _log.Hata($"Silme işlemi başarısız (rollback yapıldı): {ex.Message}");
+                _log.Hata($"Silme islemi basarisiz (rollback yapildi): {ex.Message}");
             }
         }
 
         #endregion
 
-        #region Fiş Oluşturma
+        #region Onizleme (Test Modulu)
+
+        private void BtnOnizleme_Click(object sender, EventArgs e)
+        {
+            if (_islemDevam) return;
+            if (_defterler == null || _defterler.Count == 0)
+            {
+                MessageBox.Show("Once 'Analiz Et' ile XML dosyalarini okuyun.",
+                    "Uyari", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            _bgwIslem.RunWorkerAsync("onizleme");
+        }
+
+        private void OnizlemeCalistir(BackgroundWorker worker, DoWorkEventArgs e)
+        {
+            worker.ReportProgress(0, "Onizleme baslatiliyor...");
+            if (_dbService == null) _dbService = new MikroDbService();
+            if (!_dbService.BaglantıTest(out string hataMesaji))
+            {
+                _log.Hata($"Veritabanina baglanamadi: {hataMesaji}");
+                return;
+            }
+
+            var servis = new OnizlemeServisi(_dbService, _log);
+            _sonOnizleme = servis.Calistir(_defterler, FirmaNo, SubeNo, DBCNo,
+                (yuzde, durum) => worker.ReportProgress(yuzde, durum));
+
+            worker.ReportProgress(100, "Onizleme tamamlandi.");
+
+            BeginInvoke(new Action(() =>
+            {
+                OnizlemeGridleriYukle(_sonOnizleme);
+                _tabControl.SelectedTab = _tabOnizleme;
+            }));
+        }
+
+        private void OnizlemeGridleriYukle(OnizlemeSonucu oz)
+        {
+            // Ozet istatistikler
+            _lblOzFisSayisi.Values.Text = $"Fis: {oz.OlusturulacakFisSayisi:N0}";
+            _lblOzSatirSayisi.Values.Text = $"Satir: {oz.ToplamSatirSayisi:N0}";
+            _lblOzCariEslesen.Values.Text = $"Cari: {oz.EslesenCariSayisi:N0} / {oz.ToplamCariHareket:N0}";
+            _lblOzStokEslesen.Values.Text = $"Stok: {oz.EslesenStokSayisi:N0} / {oz.ToplamStokHareket:N0}";
+            _lblOzMukerrer.Values.Text = $"Mukerrer: {oz.MukerrerSayisi:N0}";
+            _lblOzEksikHesap.Values.Text = $"Eksik Hesap: {oz.EksikHesaplar.Count:N0}";
+
+            // Fisler grid
+            GridYukle(_dgvOzFisler, oz.FisKayitlari, col =>
+            {
+                col["YevmiyeNo"].HeaderText = "Yevmiye No";
+                col["Tarih"].HeaderText = "Tarih";
+                col["Tarih"].DefaultCellStyle.Format = "dd.MM.yyyy";
+                col["SatirSayisi"].HeaderText = "Satir";
+                col["ToplamBorc"].HeaderText = "Borc";
+                col["ToplamBorc"].DefaultCellStyle.Format = "N2";
+                col["ToplamAlacak"].HeaderText = "Alacak";
+                col["ToplamAlacak"].DefaultCellStyle.Format = "N2";
+                col["AtanacakSiraNo"].HeaderText = "Sira No";
+                col["EslesmeDurumu"].HeaderText = "Esleme";
+                col["EvrakSeri"].HeaderText = "Evrak Seri";
+                col["EvrakSira"].HeaderText = "Evrak No";
+                col["Mukerrer"].HeaderText = "Mukerrer";
+                col["Aciklama"].HeaderText = "Aciklama";
+                col["Aciklama"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            });
+
+            // Mukerrer satirlari kirmizi yap
+            foreach (DataGridViewRow row in _dgvOzFisler.Rows)
+            {
+                if (row.Cells["Mukerrer"].Value is bool m && m)
+                    row.DefaultCellStyle.BackColor = Color.FromArgb(255, 230, 230);
+            }
+
+            // Cari grid
+            GridYukle(_dgvOzCari, oz.CariEslesmeleri, col =>
+            {
+                col["YevmiyeNo"].HeaderText = "Yevmiye No";
+                col["EvrakSeri"].HeaderText = "Evrak Seri";
+                col["EvrakSira"].HeaderText = "Evrak No";
+                col["CariHesapKod"].HeaderText = "Cari Hesap";
+                col["IslemTarihi"].HeaderText = "Tarih";
+                col["IslemTarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
+                col["MevcutMuhFisNo"].HeaderText = "Mevcut Fis No";
+                col["AtanacakMuhFisNo"].HeaderText = "Yeni Fis No";
+                col["UzerineYazilacak"].HeaderText = "Uzerine Yaz";
+            });
+
+            // Stok grid
+            GridYukle(_dgvOzStok, oz.StokEslesmeleri, col =>
+            {
+                col["YevmiyeNo"].HeaderText = "Yevmiye No";
+                col["EvrakSeri"].HeaderText = "Evrak Seri";
+                col["EvrakSira"].HeaderText = "Evrak No";
+                col["IslemTarihi"].HeaderText = "Tarih";
+                col["IslemTarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
+                col["MevcutMuhFisNo"].HeaderText = "Mevcut Fis No";
+                col["AtanacakMuhFisNo"].HeaderText = "Yeni Fis No";
+                col["UzerineYazilacak"].HeaderText = "Uzerine Yaz";
+            });
+
+            // Eksik hesaplar grid
+            GridYukle(_dgvOzHesap, oz.EksikHesaplar, col =>
+            {
+                col["HesapKod"].HeaderText = "Hesap Kodu";
+                col["HesapIsim"].HeaderText = "Hesap Adi";
+                col["HesapTip"].HeaderText = "Tip";
+                col["TipAciklama"].HeaderText = "Tip Aciklama";
+            });
+
+            // Uyarilar grid
+            GridYukle(_dgvOzUyari, oz.Uyarilar, col =>
+            {
+                col["SeviyeIkon"].HeaderText = "";
+                col["SeviyeIkon"].Width = 30;
+                col["Seviye"].HeaderText = "Seviye";
+                col["Mesaj"].HeaderText = "Mesaj";
+                col["Mesaj"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                if (col.Contains("YevmiyeNo"))
+                    col["YevmiyeNo"].HeaderText = "Yevmiye No";
+            });
+
+            // Uyari satirlarini renklendir
+            foreach (DataGridViewRow row in _dgvOzUyari.Rows)
+            {
+                if (row.Cells["Seviye"].Value is UyariSeviye sev)
+                {
+                    switch (sev)
+                    {
+                        case UyariSeviye.Kritik:
+                            row.DefaultCellStyle.BackColor = Color.FromArgb(255, 220, 220);
+                            break;
+                        case UyariSeviye.Uyari:
+                            row.DefaultCellStyle.BackColor = Color.FromArgb(255, 248, 220);
+                            break;
+                    }
+                }
+            }
+
+            // Tab basliklarini sayilarla guncelle
+            _tabOzFisler.Text = $"Fisler ({oz.FisKayitlari.Count})";
+            _tabOzCari.Text = $"Cari ({oz.CariEslesmeleri.Count})";
+            _tabOzStok.Text = $"Stok ({oz.StokEslesmeleri.Count})";
+            _tabOzHesap.Text = $"Eksik Hesap ({oz.EksikHesaplar.Count})";
+            _tabOzUyari.Text = $"Uyarilar ({oz.Uyarilar.Count})";
+
+            _log.Basari($"Onizleme: {oz.OlusturulacakFisSayisi} fis, {oz.EslesenCariSayisi} cari, {oz.EslesenStokSayisi} stok eslesmesi.");
+        }
+
+        private void GridYukle<T>(KryptonDataGridView dgv, List<T> veri, Action<DataGridViewColumnCollection> kolonAyarla)
+        {
+            dgv.DataSource = null;
+            dgv.Columns.Clear();
+            if (veri == null || veri.Count == 0) return;
+
+            var bs = new BindingSource();
+            bs.DataSource = veri;
+            dgv.DataSource = bs;
+
+            if (dgv.Columns.Count > 0)
+                kolonAyarla(dgv.Columns);
+        }
+
+        #endregion
+
+        #region Fis Olusturma
 
         private void BtnFisOlustur_Click(object sender, EventArgs e)
         {
             if (_islemDevam) return;
-
             if (_defterler == null || _defterler.Count == 0)
             {
-                MessageBox.Show(
-                    "Önce 'Analiz Et' ile XML dosyalarını okuyun.",
-                    "Uyarı",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
+                MessageBox.Show("Once 'Analiz Et' ile XML dosyalarini okuyun.",
+                    "Uyari", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             var ilkDefter = _defterler[0];
             string donemStr = $"{ilkDefter.DonemBaslangic:dd.MM.yyyy} - {ilkDefter.DonemBitis:dd.MM.yyyy}";
-            int toplamFis = 0;
-            int toplamSatir = 0;
-            foreach (var defter in _defterler)
-            {
-                toplamFis += defter.Fisler.Count;
-                foreach (var fis in defter.Fisler)
-                    toplamSatir += fis.Satirlar.Count;
-            }
+            int toplamFis = _defterler.Sum(d => d.Fisler.Count);
+            int toplamSatir = _defterler.Sum(d => d.Fisler.Sum(f => f.Satirlar.Count));
+
+            string onizlemeBilgi = _sonOnizleme != null
+                ? $"\n\nOnizleme: {_sonOnizleme.EslesenCariSayisi} cari, {_sonOnizleme.EslesenStokSayisi} stok eslesmesi"
+                : "\n\n(Onerilen: Once 'Onizleme' ile kontrol edin)";
 
             var sonuc = MessageBox.Show(
-                $"Dönem: {donemStr}\n" +
-                $"Oluşturulacak: {toplamFis:N0} fiş, {toplamSatir:N0} satır\n\n" +
-                "Cari hesap ve stok hareketleri ile senkronizasyon yapılacak.\n\n" +
-                "Devam etmek istiyor musunuz?",
-                "Fiş Oluşturma Onayı",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question,
-                MessageBoxDefaultButton.Button2);
-
+                $"Donem: {donemStr}\nOlusturulacak: {toplamFis:N0} fis, {toplamSatir:N0} satir{onizlemeBilgi}\n\nDevam?",
+                "Fis Olusturma Onayi", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
             if (sonuc != DialogResult.Yes) return;
 
             _bgwIslem.RunWorkerAsync("fisolustur");
@@ -424,28 +520,19 @@ namespace Defter2Fis.ForMikro.Forms
 
         private void FisOlusturmaCalistir(BackgroundWorker worker, DoWorkEventArgs e)
         {
-            worker.ReportProgress(0, "Fiş oluşturma başlatılıyor...");
-
-            if (_dbService == null)
-            {
-                _dbService = new MikroDbService();
-            }
-
+            worker.ReportProgress(0, "Fis olusturma baslatiliyor...");
+            if (_dbService == null) _dbService = new MikroDbService();
             if (!_dbService.BaglantıTest(out string hataMesaji))
             {
-                _log.Hata($"Veritabanına bağlanamadı: {hataMesaji}");
+                _log.Hata($"Veritabanina baglanamadi: {hataMesaji}");
                 return;
             }
 
             var servis = new FisOlusturmaServisi(_dbService, _log);
-            var sonuc = servis.FisleriOlustur(
-                _defterler,
-                FirmaNo,
-                SubeNo,
-                DBCNo,
+            var sonuc = servis.FisleriOlustur(_defterler, FirmaNo, SubeNo, DBCNo,
                 (yuzde, durum) => worker.ReportProgress(yuzde, durum));
 
-            worker.ReportProgress(100, sonuc.Basarili ? "Fiş oluşturma tamamlandı." : "Fiş oluşturma hatalarla tamamlandı.");
+            worker.ReportProgress(100, sonuc.Basarili ? "Fis olusturma tamamlandi." : "Fis olusturma hatalarla tamamlandi.");
         }
 
         #endregion
@@ -459,18 +546,11 @@ namespace Defter2Fis.ForMikro.Forms
 
             switch (islem)
             {
-                case "analiz":
-                    AnalizCalistir(worker, e);
-                    break;
-                case "precheck":
-                    PrecheckCalistir(worker, e);
-                    break;
-                case "sil":
-                    SilmeCalistir(worker, e);
-                    break;
-                case "fisolustur":
-                    FisOlusturmaCalistir(worker, e);
-                    break;
+                case "analiz": AnalizCalistir(worker, e); break;
+                case "precheck": PrecheckCalistir(worker, e); break;
+                case "sil": SilmeCalistir(worker, e); break;
+                case "onizleme": OnizlemeCalistir(worker, e); break;
+                case "fisolustur": FisOlusturmaCalistir(worker, e); break;
             }
         }
 
@@ -478,9 +558,7 @@ namespace Defter2Fis.ForMikro.Forms
         {
             _progressBar.Value = Math.Min(e.ProgressPercentage, 100);
             if (e.UserState is string durum)
-            {
                 _lblDurum.Text = durum;
-            }
         }
 
         private void BgwIslem_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -490,13 +568,13 @@ namespace Defter2Fis.ForMikro.Forms
 
             if (e.Error != null)
             {
-                _log.Hata($"İşlem hatası: {e.Error.Message}");
-                _lblDurum.Text = "Hata oluştu!";
+                _log.Hata($"Islem hatasi: {e.Error.Message}");
+                _lblDurum.Text = "Hata olustu!";
                 _progressBar.Value = 0;
             }
             else
             {
-                _lblDurum.Text = "Hazır";
+                _lblDurum.Text = "Hazir";
             }
         }
 
@@ -505,34 +583,31 @@ namespace Defter2Fis.ForMikro.Forms
             _islemDevam = calisiyor;
             _btnAnalizEt.Enabled = !calisiyor;
             _btnMevcutVeriKontrol.Enabled = !calisiyor;
+            _btnOnizleme.Enabled = !calisiyor;
             _btnFisOlustur.Enabled = !calisiyor;
             _btnDonemVerisiSil.Enabled = !calisiyor && _dgvMevcutVeri.RowCount > 0;
         }
 
         #endregion
 
-        #region Form Olayları
+        #region Form Olaylari
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             if (_islemDevam)
             {
-                var sonuc = MessageBox.Show(
-                    "İşlem devam ediyor. Çıkmak istiyor musunuz?",
-                    "Çıkış Onayı",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question);
-
+                var sonuc = MessageBox.Show("Islem devam ediyor. Cikmak istiyor musunuz?",
+                    "Cikis Onayi", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (sonuc != DialogResult.Yes)
                 {
                     e.Cancel = true;
                     return;
                 }
             }
-
             base.OnFormClosing(e);
         }
 
         #endregion
     }
 }
+

@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.2.0] - 2025-08-22 — Krypton UI + Önizleme/Test Modülü
+
+### Eklenenler
+- **Krypton Toolkit** entegrasyonu — Microsoft 365 Blue temalı modern UI
+- **Önizleme / Test** modülü — Fiş oluşturma öncesi dry-run simülasyonu
+- `OnizlemeServisi` — DB'ye yazmadan tam fiş oluşturma simülasyonu
+- `OnizlemeSonucu` model ailesi — Önizleme DTO'ları (fiş, cari, stok, hesap, uyarı)
+- Önizleme sekmesi: 5 alt tab (Fişler, Cari Eşleşmeleri, Stok Eşleşmeleri, Eksik Hesaplar, Uyarılar)
+- İstatistik özet paneli (fiş/satır/cari/stok/mükerrer/eksik hesap sayıları)
+- Mükerrer satırlar kırmızı, kritik uyarılar renkli gösterim
+- Tüm formlar KryptonForm base class'a dönüştürüldü
+
+### Değişenler
+- `MainForm` — `Form` → `KryptonForm` + Krypton kontrolleri (Button, Label, GroupBox, DataGridView, RichTextBox)
+- `AyarlarForm`, `HakkindaForm` — KryptonForm base class
+- KryptonManager ile global Microsoft365Blue tema
+- Krypton.Toolkit 85.24.6.176 NuGet paketi eklendi (PackageReference)
+
 ## [2.1.0] - 2025-08-22 — Fiş Oluşturma ve Cari/Stok Senkronizasyonu
 
 ### Eklenenler

@@ -1,6 +1,7 @@
 using System;
 using System.Configuration;
 using System.Windows.Forms;
+using Krypton.Toolkit;
 
 namespace Defter2Fis.ForMikro.Forms
 {
@@ -8,7 +9,7 @@ namespace Defter2Fis.ForMikro.Forms
     /// Uygulama ayarları düzenleme formu.
     /// App.config appSettings ve connectionStrings değerlerini düzenler.
     /// </summary>
-    public partial class AyarlarForm : Form
+    public partial class AyarlarForm : KryptonForm
     {
         public AyarlarForm()
         {
@@ -87,3 +88,4 @@ namespace Defter2Fis.ForMikro.Forms
         }
     }
 }
+

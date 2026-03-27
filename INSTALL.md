@@ -1,9 +1,10 @@
-# Kurulum (Installation)
+﻿# Kurulum (Installation)
 
 ## Gereksinimler
 - .NET Framework 4.8 Runtime
 - MSSQL Server (Mikro ERP V16 Jump veritabanı erişimi)
 - E-Defter Yevmiye XML dosyaları
+- NuGet: **Krypton.Toolkit** v85.24.6.176 (otomatik restore edilir)
 
 ## Yapılandırma
 
@@ -53,4 +54,5 @@ Defter2Fis.ForMikro\bin\Debug\Defter2Fis.ForMikro.exe
 1. **Analiz Et** → XML dosyalarını parse et, raporu incele
 2. **Mevcut Veri Kontrol** → Dönemde mevcut veri varsa listele
 3. Gerekirse **Dönem Verisini Sil** → Çift onay ile mevcut veriyi temizle
-4. **Fiş Oluştur** → Muhasebe fişlerini oluştur, cari/stok senkronize et
+4. **Önizleme** → Kuru çalıştırma ile oluşacak kayıtları önizle
+5. **Fiş Oluştur** → Muhasebe fişlerini oluştur, cari/stok senkronize et
