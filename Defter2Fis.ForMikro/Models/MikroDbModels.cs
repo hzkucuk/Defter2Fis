@@ -389,7 +389,7 @@ namespace Defter2Fis.ForMikro.Models
         /// <summary>Kayıt benzersiz kimliği (sth_Guid)</summary>
         public Guid SthGuid { get; set; }
 
-        /// <summary>Evrak tipi (sth_evrak_tip)</summary>
+        /// <summary>Evrak tipi (sth_evraktip)</summary>
         public byte SthEvrakTip { get; set; }
 
         /// <summary>Evrak seri (sth_evrakno_seri). Ör: "A"</summary>
@@ -398,7 +398,7 @@ namespace Defter2Fis.ForMikro.Models
         /// <summary>Evrak sıra numarası (sth_evrakno_sira). Ör: 123</summary>
         public int SthEvraknoSira { get; set; }
 
-        /// <summary>İşlem tarihi (sth_tarihi)</summary>
+        /// <summary>İşlem tarihi (sth_tarih)</summary>
         public DateTime SthTarihi { get; set; }
 
         /// <summary>Muhasebe fiş sıra numarası (sth_fis_sirano)</summary>

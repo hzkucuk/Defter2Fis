@@ -619,11 +619,11 @@ namespace Defter2Fis.ForMikro.Services
             var sonuc = new List<StokHareketi>();
 
             const string sql = @"SELECT 
-                sth_Guid, sth_evrak_tip, sth_evrakno_seri, sth_evrakno_sira,
-                sth_tarihi, sth_fis_sirano, sth_fis_tarihi
+                sth_Guid, sth_evraktip, sth_evrakno_seri, sth_evrakno_sira,
+                sth_tarih, sth_fis_sirano, sth_fis_tarihi
             FROM STOK_HAREKETLERI
-            WHERE sth_tarihi >= @baslangic 
-                AND sth_tarihi <= @bitis
+            WHERE sth_tarih >= @baslangic 
+                AND sth_tarih <= @bitis
                 AND sth_firmano = @firmaNo
                 AND sth_subeno = @subeNo
                 AND sth_iptal = 0

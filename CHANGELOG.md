@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.7.2] - 2025-08-25 — Stok Hareketleri Kolon Adı Düzeltmesi
+
+### Düzeltmeler
+- **Stok hareketleri SQL sorgusu** — Yanlış kolon adları düzeltildi:
+  - `sth_tarihi` → `sth_tarih` (Mikro ERP gerçek kolon adı)
+  - `sth_evrak_tip` → `sth_evraktip` (Mikro ERP gerçek kolon adı)
+- Önizleme ekranında "Invalid column name" hatası giderildi
+
+### Etkilenen dosyalar
+- Defter2Fis.ForMikro\Services\MikroDbService.cs (DonemStokHareketleriGetir SQL sorgusu)
+- Defter2Fis.ForMikro\Models\MikroDbModels.cs (StokHareketi XML doc yorumları)
+
 ## [2.7.1] - 2025-08-25 — Analiz Raporu Birleşik Gösterim
 
 ### Değişenler
