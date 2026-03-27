@@ -1,5 +1,12 @@
 # Özellikler (Features)
 
+## v2.9.2 — Mükerrer Dönem Filtresi Düzeltmesi
+
+### Dönem Bazlı Mükerrer Kontrol
+- `YevmiyeNoMevcutMu` sorgusu artık dönem tarih aralığı ile filtreleniyor
+- Farklı aylardaki aynı yevmiye numaraları yanlış mükerrer olarak işaretlenmiyor
+- Önizleme ve fiş oluşturma her ikisi de dönem filtresi kullanıyor
+
 ## v2.9.1 — Sıra No ve Evrak Parse Düzeltmesi
 
 ### Mükerrer SıraNo Düzeltmesi

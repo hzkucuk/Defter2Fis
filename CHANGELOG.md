@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.9.2] - 2025-08-26 — Mükerrer Dönem Filtresi Düzeltmesi
+
+### Düzeltmeler
+- **Yanlış mükerrer tespiti** — YevmiyeNoMevcutMu sorgusu artık dönem tarih aralığı (fis_tarih >= donemBas AND fis_tarih <= donemBit) ile filtreleniyor. Farklı aylardaki aynı yevmiye numaraları artık mükerrer olarak işaretlenmiyor.
+
+### Etkilenen dosyalar
+- Defter2Fis.ForMikro\Services\IMikroDbService.cs (dönem parametreleri eklendi)
+- Defter2Fis.ForMikro\Services\MikroDbService.cs (SQL dönem filtresi eklendi)
+- Defter2Fis.ForMikro\Services\OnizlemeServisi.cs (dönem parametreleri geçiliyor)
+- Defter2Fis.ForMikro\Services\FisOlusturmaServisi.cs (dönem parametreleri geçiliyor)
+
 ## [2.9.1] - 2025-08-26 — Sıra No ve Evrak Parse Düzeltmesi
 
 ### Düzeltmeler

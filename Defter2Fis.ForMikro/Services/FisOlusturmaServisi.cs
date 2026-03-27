@@ -109,7 +109,8 @@ namespace Defter2Fis.ForMikro.Services
 
                 var simulasyonFisler = SimulasyonCalistir(
                     defterler, firmaNo, subeNo, dbcNo, maliYil,
-                    cariIndex, stokIndex, sonuc, ilerlemeRaporla);
+                    cariIndex, stokIndex, sonuc, ilerlemeRaporla,
+                    donemBas, donemBit);
 
                 if (sonuc.Hatalar.Count > 0)
                 {
@@ -162,7 +163,8 @@ namespace Defter2Fis.ForMikro.Services
             Dictionary<string, List<CariHesapHareketi>> cariIndex,
             Dictionary<string, List<StokHareketi>> stokIndex,
             OlusturmaSonucu sonuc,
-            Action<int, string> ilerlemeRaporla)
+            Action<int, string> ilerlemeRaporla,
+            DateTime donemBas, DateTime donemBit)
         {
             var simulasyonFisler = new List<SimulasyonFis>();
 
@@ -190,8 +192,9 @@ namespace Defter2Fis.ForMikro.Services
                     ilerlemeRaporla?.Invoke(yuzde,
                         $"Simülasyon: Yevmiye #{yevmiyeFisi.YevmiyeNoSayac} ({islenenFis}/{toplamFis})");
 
-                    // Mükerrer kontrolü
-                    if (_dbService.YevmiyeNoMevcutMu(yevmiyeFisi.YevmiyeNoSayac, maliYil, firmaNo, subeNo))
+                    // Mükerrer kontrolü (dönem bazlı)
+                    if (_dbService.YevmiyeNoMevcutMu(yevmiyeFisi.YevmiyeNoSayac, maliYil, firmaNo, subeNo,
+                        donemBas, donemBit))
                     {
                         _log.Uyari($"Yevmiye #{yevmiyeFisi.YevmiyeNoSayac} zaten mevcut — atlanıyor.");
                         sonuc.AtlananFisSayisi++;

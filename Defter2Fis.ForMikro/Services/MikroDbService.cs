@@ -172,7 +172,8 @@ namespace Defter2Fis.ForMikro.Services
         /// <summary>
         /// Belirtilen yevmiye numarasının zaten DB'de olup olmadığını kontrol eder (mükerrer koruma).
         /// </summary>
-        public bool YevmiyeNoMevcutMu(int yevmiyeNo, int maliYil, int firmaNo, int subeNo)
+        public bool YevmiyeNoMevcutMu(int yevmiyeNo, int maliYil, int firmaNo, int subeNo,
+            DateTime donemBaslangic, DateTime donemBitis)
         {
             const string sql = @"SELECT COUNT(1) FROM MUHASEBE_FISLERI 
                                  WHERE fis_yevmiye_no = @yevNo
@@ -181,7 +182,9 @@ namespace Defter2Fis.ForMikro.Services
                                    AND fis_subeno = @subeNo
                                    AND fis_tur = 0
                                    AND fis_iptal = 0
-                                   AND fis_DBCno = 0";
+                                   AND fis_DBCno = 0
+                                   AND fis_tarih >= @donemBas
+                                   AND fis_tarih <= @donemBit";
 
             using (var conn = new SqlConnection(_connectionString))
             using (var cmd = new SqlCommand(sql, conn))
@@ -190,6 +193,8 @@ namespace Defter2Fis.ForMikro.Services
                 cmd.Parameters.Add("@maliYil", SqlDbType.Int).Value = maliYil;
                 cmd.Parameters.Add("@firmaNo", SqlDbType.Int).Value = firmaNo;
                 cmd.Parameters.Add("@subeNo", SqlDbType.Int).Value = subeNo;
+                cmd.Parameters.Add("@donemBas", SqlDbType.DateTime).Value = donemBaslangic;
+                cmd.Parameters.Add("@donemBit", SqlDbType.DateTime).Value = donemBitis;
                 conn.Open();
                 return (int)cmd.ExecuteScalar() > 0;
             }
