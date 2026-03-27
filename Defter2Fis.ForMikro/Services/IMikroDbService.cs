@@ -75,6 +75,18 @@ namespace Defter2Fis.ForMikro.Services
         /// </summary>
         int HesapPlaniSayisi();
 
+        /// <summary>
+        /// Belirtilen tarih aralığındaki muhasebe fişlerinin özet bilgisini döner.
+        /// Bilgilendirme amaçlı kullanılır (tarih bazlı).
+        /// </summary>
+        AyFisBilgisi AyFisBilgisiGetir(int maliYil, DateTime donemBas, DateTime donemBit, int firmaNo, int subeNo);
+
+        /// <summary>
+        /// Belirtilen yevmiye numarasından önceki tüm yevmiyelerin süreklilik bilgisini döner.
+        /// Tarihten bağımsız, yevmiye numarası bazlı kontrol için kullanılır.
+        /// </summary>
+        YevmiyeSureklilkBilgisi YevmiyeSureklilkBilgisiGetir(int maliYil, int calislanMinYevmiye, int firmaNo, int subeNo);
+
         #endregion
 
         #region Dönem Veri Kontrolü

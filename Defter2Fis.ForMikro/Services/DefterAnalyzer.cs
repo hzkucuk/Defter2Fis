@@ -223,6 +223,169 @@ namespace Defter2Fis.ForMikro.Services
                 DonemBitis = donemBit
             };
         }
+
+        /// <summary>
+        /// Yevmiye numarası bazlı süreklilik kontrolü yapar.
+        /// DB'deki mevcut yevmiye numaralarının, çalışılan ayın ilk yevmiyesiyle
+        /// boşluksuz devam ettiğini doğrular (tarihten bağımsız).
+        /// </summary>
+        /// <param name="dbService">DB servis arayüzü</param>
+        /// <param name="defterler">Çalışılan ayın E-Defter verileri</param>
+        /// <param name="firmaNo">Firma numarası</param>
+        /// <param name="subeNo">Şube numarası</param>
+        public SureklilkKontrolSonucu OncekiAyDogrula(
+            IMikroDbService dbService,
+            List<YevmiyeDefteri> defterler,
+            int firmaNo,
+            int subeNo)
+        {
+            if (dbService == null) throw new ArgumentNullException(nameof(dbService));
+            if (defterler == null || defterler.Count == 0)
+                throw new ArgumentException("Defter listesi boş.", nameof(defterler));
+
+            var sonuc = new SureklilkKontrolSonucu();
+            var ilkDefter = defterler[0];
+            int maliYil = ilkDefter.MaliYilBaslangic.Year;
+            DateTime donemBas = ilkDefter.DonemBaslangic;
+            DateTime donemBit = ilkDefter.DonemBitis;
+
+            // Çalışılan ayın E-Defter yevmiye bilgisi
+            var tumFisler = defterler.SelectMany(d => d.Fisler).ToList();
+            int calislanMinYevmiye = tumFisler.Min(f => f.YevmiyeNoSayac);
+            int calislanMaxYevmiye = tumFisler.Max(f => f.YevmiyeNoSayac);
+
+            sonuc.CalislanAyBilgisi = new AyFisBilgisi
+            {
+                DonemBaslangic = donemBas,
+                DonemBitis = donemBit,
+                FisSayisi = tumFisler.Count,
+                SatirSayisi = tumFisler.Sum(f => f.Satirlar.Count),
+                MinYevmiyeNo = calislanMinYevmiye,
+                MaxYevmiyeNo = calislanMaxYevmiye,
+                MinTarih = donemBas,
+                MaxTarih = donemBit
+            };
+
+            sonuc.Mesajlar.Add($"Çalışılan ay yevmiye aralığı: {calislanMinYevmiye} - {calislanMaxYevmiye} ({tumFisler.Count} fiş)");
+
+            // İlk ay kontrolü: yevmiye 1'den başlıyorsa ilk aydır
+            sonuc.IlkAy = calislanMinYevmiye == 1;
+
+            if (sonuc.IlkAy)
+            {
+                sonuc.Mesajlar.Add("Mali yıl ilk dönemi — yevmiye 1'den başlıyor, önceki dönem kontrolü gerekmiyor.");
+                sonuc.OncekiAyMevcut = true;
+                sonuc.Surekli = true;
+                sonuc.DbMaxYevmiyeNo = 0;
+                sonuc.DbYevmiyeSayisi = 0;
+
+                // Çalışılan ay içi süreklilik kontrolü
+                var yevmiyeNolar = tumFisler.Select(f => f.YevmiyeNoSayac).OrderBy(n => n).ToList();
+                bool icSurekli = YevmiyeIcSureklilkKontrol(yevmiyeNolar, sonuc.Mesajlar);
+
+                sonuc.AktarimIzinli = icSurekli;
+                if (icSurekli)
+                    sonuc.Mesajlar.Add("Tüm kontroller başarılı — aktarıma izin verildi.");
+                else
+                    sonuc.Mesajlar.Add("Aktarım ENGELLENDI — yevmiye numaralarında boşluk tespit edildi.");
+
+                return sonuc;
+            }
+
+            // Yevmiye numarası bazlı süreklilik sorgusu (tarihten bağımsız)
+            var dbBilgi = dbService.YevmiyeSureklilkBilgisiGetir(maliYil, calislanMinYevmiye, firmaNo, subeNo);
+            sonuc.DbMaxYevmiyeNo = dbBilgi.MaxYevmiyeNo;
+            sonuc.DbYevmiyeSayisi = dbBilgi.YevmiyeSayisi;
+            sonuc.OncekiAyMevcut = dbBilgi.VeriMevcut;
+
+            // Bilgilendirme amaçlı önceki ay tarih bazlı bilgisi
+            DateTime oncekiAyBas = donemBas.AddMonths(-1);
+            DateTime oncekiAyBit = donemBas.AddDays(-1);
+            sonuc.OncekiAyBilgisi = dbService.AyFisBilgisiGetir(maliYil, oncekiAyBas, oncekiAyBit, firmaNo, subeNo);
+
+            if (!sonuc.OncekiAyMevcut)
+            {
+                sonuc.Surekli = false;
+                sonuc.AktarimIzinli = false;
+                sonuc.Mesajlar.Add($"HATA: Yevmiye {calislanMinYevmiye} öncesinde DB'de hiç yevmiye bulunamadı!");
+                sonuc.Mesajlar.Add("Aktarım yapılamaz — önce önceki dönemlerin fişleri oluşturulmalıdır.");
+                return sonuc;
+            }
+
+            // DB bilgilerini logla
+            sonuc.Mesajlar.Add($"DB'deki yevmiye sayısı (yevmiye < {calislanMinYevmiye}): {dbBilgi.YevmiyeSayisi:N0}");
+            sonuc.Mesajlar.Add($"DB'deki son yevmiye no: {dbBilgi.MaxYevmiyeNo}");
+
+            // Süreklilik: DB'deki max yevmiye + 1 = çalışılan ayın ilk yevmiyesi
+            int beklenenBaslangic = dbBilgi.MaxYevmiyeNo + 1;
+            sonuc.Surekli = (calislanMinYevmiye == beklenenBaslangic);
+
+            if (sonuc.Surekli)
+            {
+                sonuc.Mesajlar.Add($"Yevmiye sürekliliği OK: DB son={dbBilgi.MaxYevmiyeNo}, " +
+                                   $"çalışılan ay ilk={calislanMinYevmiye}");
+            }
+            else
+            {
+                sonuc.Mesajlar.Add($"UYARI: Yevmiye sürekliliği BOZUK! " +
+                                   $"Beklenen başlangıç={beklenenBaslangic}, gerçek={calislanMinYevmiye}");
+
+                // Ek bilgi: eksik yevmiye sayısı
+                int beklenenSayisi = calislanMinYevmiye - 1;
+                if (dbBilgi.YevmiyeSayisi < beklenenSayisi)
+                {
+                    sonuc.Mesajlar.Add($"UYARI: DB'de {beklenenSayisi - dbBilgi.YevmiyeSayisi} adet eksik yevmiye var " +
+                                       $"(beklenen: {beklenenSayisi}, mevcut: {dbBilgi.YevmiyeSayisi})");
+                }
+            }
+
+            // Çalışılan ay içinde yevmiye numaralarının sıralı ve boşluksuz olduğunu kontrol et
+            var yevmiyeNolarList = tumFisler.Select(f => f.YevmiyeNoSayac).OrderBy(n => n).ToList();
+            bool icSurekliSonuc = YevmiyeIcSureklilkKontrol(yevmiyeNolarList, sonuc.Mesajlar);
+
+            sonuc.AktarimIzinli = sonuc.OncekiAyMevcut && sonuc.Surekli && icSurekliSonuc;
+
+            if (sonuc.AktarimIzinli)
+            {
+                sonuc.Mesajlar.Add("Tüm kontroller başarılı — aktarıma izin verildi.");
+            }
+            else if (!icSurekliSonuc)
+            {
+                sonuc.Mesajlar.Add("Aktarım ENGELLENDI — yevmiye numaralarında boşluk tespit edildi.");
+            }
+            else
+            {
+                sonuc.Mesajlar.Add("Aktarım ENGELLENDI — yevmiye sürekliliği sağlanamadı.");
+            }
+
+            return sonuc;
+        }
+
+        /// <summary>
+        /// Ay içindeki yevmiye numaralarının boşluksuz ve ardışık olduğunu kontrol eder.
+        /// </summary>
+        private bool YevmiyeIcSureklilkKontrol(List<int> siraliYevmiyeNolar, List<string> mesajlar)
+        {
+            if (siraliYevmiyeNolar.Count <= 1) return true;
+
+            bool surekli = true;
+            for (int i = 1; i < siraliYevmiyeNolar.Count; i++)
+            {
+                int fark = siraliYevmiyeNolar[i] - siraliYevmiyeNolar[i - 1];
+                if (fark != 1)
+                {
+                    surekli = false;
+                    mesajlar.Add($"UYARI: Yevmiye boşluğu: {siraliYevmiyeNolar[i - 1]} → {siraliYevmiyeNolar[i]} (fark: {fark})");
+                }
+            }
+
+            if (surekli)
+            {
+                mesajlar.Add($"Ay içi yevmiye sürekliliği OK: {siraliYevmiyeNolar.First()} - {siraliYevmiyeNolar.Last()} (boşluk yok)");
+            }
+
+            return surekli;
+        }
     }
 
     /// <summary>

@@ -38,17 +38,33 @@ namespace Defter2Fis.ForMikro.Services
             public int EslestirilenCariSayisi { get; set; }
             public int EslestirilenStokSayisi { get; set; }
             public int AtlananFisSayisi { get; set; }
+            public bool SimulasyonBasarili { get; set; }
             public List<string> Hatalar { get; } = new List<string>();
             public bool Basarili { get; set; }
         }
 
         /// <summary>
-        /// Tüm fiş oluşturma sürecini yönetir.
+        /// Simülasyonda oluşturulan tek bir fişin tüm verilerini taşır.
+        /// Bellekte saklanır, doğrulama sonrası toplu yazıma gönderilir.
+        /// </summary>
+        private class SimulasyonFis
+        {
+            public int YevmiyeNoSayac;
+            public int SiraNo;
+            public DateTime FisTarihi;
+            public List<MuhasebeFisi> FisSatirlari = new List<MuhasebeFisi>();
+            public List<Guid> EslesmeCariGuidler = new List<Guid>();
+            public List<Guid> EslesmeStokGuidler = new List<Guid>();
+        }
+
+        /// <summary>
+        /// Tüm fiş oluşturma sürecini yönetir (simülasyon-önce yaklaşım).
         /// 1. Eksik hesap planı kontrolü ve ekleme
         /// 2. Cari/Stok hareketleri sorgulama
-        /// 3. Evrak bilgisi parse ve eşleştirme
-        /// 4. Muhasebe fişleri oluşturma (ticari referanslarla)
+        /// 3. SİMÜLASYON: Tüm fişleri bellekte oluştur ve doğrula
+        /// 4. YAZIM: Tüm fişleri tek transaction içinde atomik yaz
         /// 5. Cari/Stok hareket muhasebe fiş referansları güncelleme
+        /// Hata durumunda tüm ay için rollback yapılır.
         /// </summary>
         public OlusturmaSonucu FisleriOlustur(
             List<YevmiyeDefteri> defterler,
@@ -82,58 +98,39 @@ namespace Defter2Fis.ForMikro.Services
                 var stokHareketler = _dbService.DonemStokHareketleriGetirGuvenli(donemBas, donemBit, firmaNo, subeNo);
                 _log.Bilgi($"Dönem stok hareketleri: {stokHareketler.Count} kayıt");
 
-                // Cari/Stok eşleştirme index'leri: EvrakAnahtar → liste
                 var cariIndex = MikroDbService.CariIndexOlustur(cariHareketler);
                 var stokIndex = MikroDbService.StokIndexOlustur(stokHareketler);
 
-                // Adım 3: Tüm fişleri tarihe göre grupla ve sıra no ata
-                ilerlemeRaporla?.Invoke(30, "Fişler sıralanıyor ve evrak bilgileri parse ediliyor...");
-                var tumFisler = defterler.SelectMany(d => d.Fisler).ToList();
-                var tarihGruplari = tumFisler
-                    .OrderBy(f => f.Satirlar.Count > 0 ? f.Satirlar[0].KayitTarihi : f.GirisTarihi)
-                    .ThenBy(f => f.YevmiyeNoSayac)
-                    .GroupBy(f => f.Satirlar.Count > 0 ? f.Satirlar[0].KayitTarihi.Date : f.GirisTarihi.Date)
-                    .OrderBy(g => g.Key)
-                    .ToList();
+                // Adım 3: SİMÜLASYON — tüm fişleri bellekte oluştur
+                ilerlemeRaporla?.Invoke(30, "Simülasyon başlatılıyor...");
+                _log.Bilgi("══════════════════════════════════════════");
+                _log.Bilgi("  SİMÜLASYON AŞAMASI (DB'ye yazılmıyor)  ");
+                _log.Bilgi("══════════════════════════════════════════");
 
-                // Adım 4: Fiş oluşturma
-                ilerlemeRaporla?.Invoke(40, "Muhasebe fişleri oluşturuluyor...");
-                int toplamFis = tumFisler.Count;
-                int islenenFis = 0;
+                var simulasyonFisler = SimulasyonCalistir(
+                    defterler, firmaNo, subeNo, dbcNo, maliYil,
+                    cariIndex, stokIndex, sonuc, ilerlemeRaporla);
 
-                foreach (var tarihGrubu in tarihGruplari)
+                if (sonuc.Hatalar.Count > 0)
                 {
-                    DateTime fisTarihi = tarihGrubu.Key;
-                    int mevcutMaxSira = _dbService.MaxSiraNoGetir(fisTarihi, maliYil, firmaNo, subeNo);
-                    int siradakiSiraNo = mevcutMaxSira + 1;
-
-                    foreach (var yevmiyeFisi in tarihGrubu)
-                    {
-                        islenenFis++;
-                        int yuzde = 40 + (islenenFis * 50 / toplamFis);
-                        ilerlemeRaporla?.Invoke(yuzde,
-                            $"Fiş yazılıyor: Yevmiye #{yevmiyeFisi.YevmiyeNoSayac} ({islenenFis}/{toplamFis})");
-
-                        // Mükerrer kontrolü
-                        if (_dbService.YevmiyeNoMevcutMu(yevmiyeFisi.YevmiyeNoSayac, maliYil, firmaNo, subeNo))
-                        {
-                            _log.Uyari($"Yevmiye #{yevmiyeFisi.YevmiyeNoSayac} zaten mevcut — atlanıyor.");
-                            sonuc.AtlananFisSayisi++;
-                            continue;
-                        }
-
-                        // Fiş satırlarını oluştur ve yaz
-                        int siraNo = siradakiSiraNo++;
-                        bool fisBasarili = TekFisYaz(
-                            yevmiyeFisi, firmaNo, subeNo, dbcNo, maliYil, siraNo,
-                            cariIndex, stokIndex, sonuc);
-
-                        if (fisBasarili)
-                        {
-                            sonuc.OlusturulanFisSayisi++;
-                        }
-                    }
+                    sonuc.SimulasyonBasarili = false;
+                    sonuc.Basarili = false;
+                    _log.Hata($"Simülasyon {sonuc.Hatalar.Count} hata ile başarısız — DB'ye yazım iptal edildi.");
+                    SonucRaporla(sonuc);
+                    return sonuc;
                 }
+
+                sonuc.SimulasyonBasarili = true;
+                _log.Basari($"Simülasyon başarılı: {simulasyonFisler.Count} fiş, " +
+                            $"{simulasyonFisler.Sum(f => f.FisSatirlari.Count)} satır hazırlandı.");
+
+                // Adım 4: ATOMIK YAZIM — tek transaction içinde tüm ayı yaz
+                ilerlemeRaporla?.Invoke(70, "Atomik yazım başlatılıyor...");
+                _log.Bilgi("══════════════════════════════════════════");
+                _log.Bilgi("  ATOMIK YAZIM (tek transaction)          ");
+                _log.Bilgi("══════════════════════════════════════════");
+
+                TopluFisYaz(simulasyonFisler, sonuc, ilerlemeRaporla);
 
                 sonuc.Basarili = sonuc.Hatalar.Count == 0;
 
@@ -156,120 +153,195 @@ namespace Defter2Fis.ForMikro.Services
         }
 
         /// <summary>
-        /// Tek bir yevmiye fişini transaction içinde yazar.
-        /// Ticari referansları ayarlar ve cari/stok referanslarını günceller.
+        /// Simülasyon: Tüm fişleri bellekte oluşturur, doğrular ama DB'ye yazmaz.
+        /// Mükerrer kontrolü, sıra no hesabı ve ticari eşleştirme bu aşamada yapılır.
         /// </summary>
-        private bool TekFisYaz(
-            YevmiyeFisi yevmiyeFisi,
-            int firmaNo, int subeNo, short dbcNo, int maliYil, int siraNo,
+        private List<SimulasyonFis> SimulasyonCalistir(
+            List<YevmiyeDefteri> defterler,
+            int firmaNo, int subeNo, short dbcNo, int maliYil,
             Dictionary<string, List<CariHesapHareketi>> cariIndex,
             Dictionary<string, List<StokHareketi>> stokIndex,
-            OlusturmaSonucu sonuc)
+            OlusturmaSonucu sonuc,
+            Action<int, string> ilerlemeRaporla)
         {
-            using (var conn = _dbService.YeniBaglanti())
-            using (var tran = conn.BeginTransaction())
+            var simulasyonFisler = new List<SimulasyonFis>();
+
+            var tumFisler = defterler.SelectMany(d => d.Fisler).ToList();
+            var tarihGruplari = tumFisler
+                .OrderBy(f => f.Satirlar.Count > 0 ? f.Satirlar[0].KayitTarihi : f.GirisTarihi)
+                .ThenBy(f => f.YevmiyeNoSayac)
+                .GroupBy(f => f.Satirlar.Count > 0 ? f.Satirlar[0].KayitTarihi.Date : f.GirisTarihi.Date)
+                .OrderBy(g => g.Key)
+                .ToList();
+
+            int toplamFis = tumFisler.Count;
+            int islenenFis = 0;
+
+            foreach (var tarihGrubu in tarihGruplari)
             {
-                try
+                DateTime fisTarihi = tarihGrubu.Key;
+                int mevcutMaxSira = _dbService.MaxSiraNoGetir(fisTarihi, maliYil, firmaNo, subeNo);
+                int siradakiSiraNo = mevcutMaxSira + 1;
+
+                foreach (var yevmiyeFisi in tarihGrubu)
                 {
+                    islenenFis++;
+                    int yuzde = 30 + (islenenFis * 35 / toplamFis);
+                    ilerlemeRaporla?.Invoke(yuzde,
+                        $"Simülasyon: Yevmiye #{yevmiyeFisi.YevmiyeNoSayac} ({islenenFis}/{toplamFis})");
+
+                    // Mükerrer kontrolü
+                    if (_dbService.YevmiyeNoMevcutMu(yevmiyeFisi.YevmiyeNoSayac, maliYil, firmaNo, subeNo))
+                    {
+                        _log.Uyari($"Yevmiye #{yevmiyeFisi.YevmiyeNoSayac} zaten mevcut — atlanıyor.");
+                        sonuc.AtlananFisSayisi++;
+                        continue;
+                    }
+
+                    int siraNo = siradakiSiraNo++;
+                    var simFis = new SimulasyonFis
+                    {
+                        YevmiyeNoSayac = yevmiyeFisi.YevmiyeNoSayac,
+                        SiraNo = siraNo,
+                        FisTarihi = fisTarihi
+                    };
+
                     int satirNo = 0;
-                    DateTime fisTarihi = DateTime.MinValue;
-
-                    // Her fiş satırı için evrak bilgisi parse et ve ticari referansları ayarla
-                    var eslesmeCariGuidler = new List<Guid>();
-                    var eslesmeStokGuidler = new List<Guid>();
-
                     foreach (var satir in yevmiyeFisi.Satirlar)
                     {
-                        // Evrak bilgisi parse
                         var evrak = _evrakParser.Parse(
                             satir.DetayAciklama, satir.BelgeNo, satir.BelgeReferansi);
 
-                        // Muhasebe fişi oluştur
                         var fis = MuhasebeFisi.FromEdDefter(
                             satir, firmaNo, subeNo, dbcNo, maliYil, siraNo, satirNo,
                             yevmiyeFisi.YevmiyeNoSayac);
 
-                        // Ticari referansları set et (evrak eşleşmesi varsa)
                         if (evrak != null)
                         {
                             fis.FisTicEvrakSeri = evrak.Seri;
                             fis.FisTicEvrakSira = evrak.Sira;
 
-                            // Cari eşleştirme
                             if (cariIndex.ContainsKey(evrak.Anahtar))
                             {
                                 var eslesenCariListe = cariIndex[evrak.Anahtar];
                                 if (eslesenCariListe.Count > 0)
                                 {
-                                    fis.FisTicariTip = 1; // Cari hareket
+                                    fis.FisTicariTip = 1;
                                     fis.FisTicariUid = eslesenCariListe[0].ChaGuid;
                                     fis.FisTicariEvrakTip = eslesenCariListe[0].ChaEvrakTip;
 
                                     foreach (var cha in eslesenCariListe)
                                     {
-                                        if (!eslesmeCariGuidler.Contains(cha.ChaGuid))
-                                            eslesmeCariGuidler.Add(cha.ChaGuid);
+                                        if (!simFis.EslesmeCariGuidler.Contains(cha.ChaGuid))
+                                            simFis.EslesmeCariGuidler.Add(cha.ChaGuid);
                                     }
                                 }
                             }
 
-                            // Stok eşleştirme
                             if (stokIndex.ContainsKey(evrak.Anahtar))
                             {
                                 var eslesenStokListe = stokIndex[evrak.Anahtar];
                                 foreach (var sth in eslesenStokListe)
                                 {
-                                    if (!eslesmeStokGuidler.Contains(sth.SthGuid))
-                                        eslesmeStokGuidler.Add(sth.SthGuid);
+                                    if (!simFis.EslesmeStokGuidler.Contains(sth.SthGuid))
+                                        simFis.EslesmeStokGuidler.Add(sth.SthGuid);
                                 }
 
-                                // Stok eşleşmesi varsa ve cari yoksa, ticari tip stok olarak ayarla
                                 if (fis.FisTicariTip == 0 && eslesenStokListe.Count > 0)
                                 {
-                                    fis.FisTicariTip = 2; // Stok hareket
+                                    fis.FisTicariTip = 2;
                                     fis.FisTicariUid = eslesenStokListe[0].SthGuid;
                                     fis.FisTicariEvrakTip = eslesenStokListe[0].SthEvrakTip;
                                 }
                             }
                         }
 
-                        // Fiş satırını yaz
-                        _dbService.FisSatiriEkle(fis, conn, tran);
+                        simFis.FisSatirlari.Add(fis);
                         satirNo++;
-                        fisTarihi = satir.KayitTarihi;
                     }
 
-                    // Cari hareket muhasebe fiş referanslarını güncelle
-                    foreach (var chaGuid in eslesmeCariGuidler)
+                    simulasyonFisler.Add(simFis);
+                }
+            }
+
+            return simulasyonFisler;
+        }
+
+        /// <summary>
+        /// Simülasyondaki tüm fişleri tek bir transaction içinde atomik olarak yazar.
+        /// Herhangi bir hata durumunda tüm ay rollback edilir.
+        /// </summary>
+        private void TopluFisYaz(
+            List<SimulasyonFis> simulasyonFisler,
+            OlusturmaSonucu sonuc,
+            Action<int, string> ilerlemeRaporla)
+        {
+            if (simulasyonFisler.Count == 0)
+            {
+                _log.Bilgi("Yazılacak fiş yok.");
+                return;
+            }
+
+            using (var conn = _dbService.YeniBaglanti())
+            using (var tran = conn.BeginTransaction())
+            {
+                try
+                {
+                    int toplamFis = simulasyonFisler.Count;
+                    int yazilan = 0;
+
+                    foreach (var simFis in simulasyonFisler)
                     {
-                        _dbService.CariHareketMuhFisGuncelle(chaGuid, siraNo, fisTarihi, conn, tran);
-                        sonuc.EslestirilenCariSayisi++;
+                        yazilan++;
+                        int yuzde = 70 + (yazilan * 20 / toplamFis);
+                        ilerlemeRaporla?.Invoke(yuzde,
+                            $"Yazılıyor: Yevmiye #{simFis.YevmiyeNoSayac} ({yazilan}/{toplamFis})");
+
+                        // Fiş satırlarını yaz
+                        foreach (var fis in simFis.FisSatirlari)
+                        {
+                            _dbService.FisSatiriEkle(fis, conn, tran);
+                        }
+
+                        sonuc.OlusturulanFisSayisi++;
+                        sonuc.OlusturulanSatirSayisi += simFis.FisSatirlari.Count;
+
+                        // Cari hareket muhasebe fiş referanslarını güncelle
+                        foreach (var chaGuid in simFis.EslesmeCariGuidler)
+                        {
+                            _dbService.CariHareketMuhFisGuncelle(chaGuid, simFis.SiraNo, simFis.FisTarihi, conn, tran);
+                            sonuc.EslestirilenCariSayisi++;
+                        }
+
+                        // Stok hareket muhasebe fiş referanslarını güncelle
+                        foreach (var sthGuid in simFis.EslesmeStokGuidler)
+                        {
+                            _dbService.StokHareketMuhFisGuncelle(sthGuid, simFis.SiraNo, simFis.FisTarihi, conn, tran);
+                            sonuc.EslestirilenStokSayisi++;
+                        }
                     }
 
-                    // Stok hareket muhasebe fiş referanslarını güncelle
-                    foreach (var sthGuid in eslesmeStokGuidler)
-                    {
-                        _dbService.StokHareketMuhFisGuncelle(sthGuid, siraNo, fisTarihi, conn, tran);
-                        sonuc.EslestirilenStokSayisi++;
-                    }
-
+                    // Tüm ay başarılı — commit
                     tran.Commit();
-                    sonuc.OlusturulanSatirSayisi += satirNo;
-
-                    return true;
+                    _log.Basari($"Atomik yazım başarılı: {yazilan} fiş, {sonuc.OlusturulanSatirSayisi} satır DB'ye yazıldı.");
                 }
                 catch (Exception ex)
                 {
+                    // Hata — tüm ay rollback
                     tran.Rollback();
+
                     string detay = ex.InnerException != null
                         ? $"{ex.Message} -> {ex.InnerException.Message}"
                         : ex.Message;
 
-                    string hata = $"Yevmiye #{yevmiyeFisi.YevmiyeNoSayac} yazma hatası: {detay}";
+                    string hata = $"Atomik yazım BAŞARISIZ — tüm ay ROLLBACK yapıldı: {detay}";
                     sonuc.Hatalar.Add(hata);
-                    _log.Hata(hata);
+                    sonuc.OlusturulanFisSayisi = 0;
+                    sonuc.OlusturulanSatirSayisi = 0;
+                    sonuc.EslestirilenCariSayisi = 0;
+                    sonuc.EslestirilenStokSayisi = 0;
 
-                    return false;
+                    _log.Hata(hata);
                 }
             }
         }
@@ -345,6 +417,7 @@ namespace Defter2Fis.ForMikro.Services
             _log.Bilgi("══════════════════════════════════════════");
             _log.Bilgi("      FİŞ OLUŞTURMA SONUÇ RAPORU         ");
             _log.Bilgi("══════════════════════════════════════════");
+            _log.Bilgi($"  Simülasyon          : {(sonuc.SimulasyonBasarili ? "BAŞARILI" : "BAŞARISIZ")}");
             _log.Bilgi($"  Oluşturulan fiş     : {sonuc.OlusturulanFisSayisi:N0}");
             _log.Bilgi($"  Toplam satır        : {sonuc.OlusturulanSatirSayisi:N0}");
             _log.Bilgi($"  Eklenen hesap       : {sonuc.EklenenHesapSayisi:N0}");

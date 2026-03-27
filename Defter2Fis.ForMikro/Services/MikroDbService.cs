@@ -318,6 +318,108 @@ namespace Defter2Fis.ForMikro.Services
             }
         }
 
+        /// <summary>
+        /// Belirtilen tarih aralığındaki muhasebe fişlerinin özet bilgisini döner.
+        /// Önceki ay doğrulama ve yevmiye sürekliliği kontrolü için kullanılır.
+        /// </summary>
+        public AyFisBilgisi AyFisBilgisiGetir(int maliYil, DateTime donemBas, DateTime donemBit, int firmaNo, int subeNo)
+        {
+            const string sql = @"SELECT 
+                COUNT(DISTINCT fis_yevmiye_no) AS FisSayisi,
+                COUNT(*) AS SatirSayisi,
+                ISNULL(MIN(fis_yevmiye_no), 0) AS MinYevmiyeNo,
+                ISNULL(MAX(fis_yevmiye_no), 0) AS MaxYevmiyeNo,
+                MIN(fis_tarih) AS MinTarih,
+                MAX(fis_tarih) AS MaxTarih
+            FROM MUHASEBE_FISLERI
+            WHERE fis_maliyil = @maliYil
+                AND fis_tarih >= @donemBas
+                AND fis_tarih <= @donemBit
+                AND fis_firmano = @firmaNo
+                AND fis_subeno = @subeNo
+                AND fis_tur = 0
+                AND fis_iptal = 0
+                AND fis_DBCno = 0";
+
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.Add("@maliYil", SqlDbType.Int).Value = maliYil;
+                cmd.Parameters.Add("@donemBas", SqlDbType.DateTime).Value = donemBas.Date;
+                cmd.Parameters.Add("@donemBit", SqlDbType.DateTime).Value = donemBit.Date;
+                cmd.Parameters.Add("@firmaNo", SqlDbType.Int).Value = firmaNo;
+                cmd.Parameters.Add("@subeNo", SqlDbType.Int).Value = subeNo;
+                conn.Open();
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return new AyFisBilgisi
+                        {
+                            DonemBaslangic = donemBas,
+                            DonemBitis = donemBit,
+                            FisSayisi = reader.GetInt32(0),
+                            SatirSayisi = reader.GetInt32(1),
+                            MinYevmiyeNo = reader.GetInt32(2),
+                            MaxYevmiyeNo = reader.GetInt32(3),
+                            MinTarih = reader.IsDBNull(4) ? donemBas : reader.GetDateTime(4),
+                            MaxTarih = reader.IsDBNull(5) ? donemBit : reader.GetDateTime(5)
+                        };
+                    }
+                }
+            }
+
+            return new AyFisBilgisi
+            {
+                DonemBaslangic = donemBas,
+                DonemBitis = donemBit
+            };
+        }
+
+        /// <summary>
+        /// Belirtilen yevmiye numarasından önceki tüm yevmiyelerin süreklilik bilgisini döner.
+        /// Tarihten bağımsız, yevmiye numarası bazlı kontrol.
+        /// </summary>
+        public YevmiyeSureklilkBilgisi YevmiyeSureklilkBilgisiGetir(int maliYil, int calislanMinYevmiye, int firmaNo, int subeNo)
+        {
+            const string sql = @"SELECT 
+                COUNT(DISTINCT fis_yevmiye_no) AS YevmiyeSayisi,
+                ISNULL(MAX(fis_yevmiye_no), 0) AS MaxYevmiyeNo
+            FROM MUHASEBE_FISLERI
+            WHERE fis_maliyil = @maliYil
+                AND fis_yevmiye_no < @calislanMinYevmiye
+                AND fis_firmano = @firmaNo
+                AND fis_subeno = @subeNo
+                AND fis_tur = 0
+                AND fis_iptal = 0
+                AND fis_DBCno = 0";
+
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.Add("@maliYil", SqlDbType.Int).Value = maliYil;
+                cmd.Parameters.Add("@calislanMinYevmiye", SqlDbType.Int).Value = calislanMinYevmiye;
+                cmd.Parameters.Add("@firmaNo", SqlDbType.Int).Value = firmaNo;
+                cmd.Parameters.Add("@subeNo", SqlDbType.Int).Value = subeNo;
+                conn.Open();
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return new YevmiyeSureklilkBilgisi
+                        {
+                            YevmiyeSayisi = reader.GetInt32(0),
+                            MaxYevmiyeNo = reader.GetInt32(1)
+                        };
+                    }
+                }
+            }
+
+            return new YevmiyeSureklilkBilgisi();
+        }
+
         #endregion
 
         #region Dönem Veri Kontrolü (Pre-check)

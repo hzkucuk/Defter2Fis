@@ -22,6 +22,7 @@ namespace Defter2Fis.ForMikro.Forms
         private IMikroDbService _dbService;
         private List<YevmiyeDefteri> _defterler;
         private OnizlemeSonucu _sonOnizleme;
+        private SureklilkKontrolSonucu _sureklilkSonucu;
         private bool _islemDevam;
 
         public MainForm()
@@ -198,11 +199,34 @@ namespace Defter2Fis.ForMikro.Forms
                 }
             }
 
+            // Önceki ay doğrulama ve yevmiye sürekliliği kontrolü
+            worker.ReportProgress(90, "Onceki ay ve yevmiye surekliligi kontrol ediliyor...");
+            _log.Bilgi(string.Empty);
+            _log.Bilgi("===== ONCEKI AY & YEVMIYE SUREKLILIGI =====");
+
+            _sureklilkSonucu = analyzer.OncekiAyDogrula(_dbService, _defterler, FirmaNo, SubeNo);
+
+            foreach (string mesaj in _sureklilkSonucu.Mesajlar)
+            {
+                if (mesaj.StartsWith("HATA:"))
+                    _log.Hata(mesaj);
+                else if (mesaj.StartsWith("UYARI:"))
+                    _log.Uyari(mesaj);
+                else
+                    _log.Bilgi($"  {mesaj}");
+            }
+
+            if (_sureklilkSonucu.AktarimIzinli)
+                _log.Basari("Yevmiye surekliligi kontrolu BASARILI — aktarim yapilabilir.");
+            else
+                _log.Hata("Yevmiye surekliligi kontrolu BASARISIZ — aktarim ENGELLENDI!");
+
             worker.ReportProgress(100, "Analiz tamamlandi.");
-            _log.Basari($"ANALIZ TAMAMLANDI — Dengesiz: {dengesizler.Count}, Eksik hesap: {eksikHesaplar.Count}");
+            string sureklilkDurum = _sureklilkSonucu.AktarimIzinli ? "IZINLI" : "ENGELLI";
+            _log.Basari($"ANALIZ TAMAMLANDI — Dengesiz: {dengesizler.Count}, Eksik hesap: {eksikHesaplar.Count}, Aktarim: {sureklilkDurum}");
 
             e.Result = new IslemSonucBilgisi("analiz",
-                $"Analiz tamamlandi — {ozet.ToplamFis:N0} fis, {eksikHesaplar.Count} eksik hesap");
+                $"Analiz tamamlandi — {ozet.ToplamFis:N0} fis, Eksik: {eksikHesaplar.Count}, Aktarim: {sureklilkDurum}");
         }
 
         #endregion
@@ -612,17 +636,45 @@ namespace Defter2Fis.ForMikro.Forms
                 return;
             }
 
+            // Süreklilik kontrolü — analiz yapılmamışsa veya aktarım engelliyse
+            if (_sureklilkSonucu == null)
+            {
+                MessageBox.Show(
+                    "Once 'Analiz Et' ile onceki ay dogrulamasi yapilmalidir.",
+                    "Analiz Gerekli", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (!_sureklilkSonucu.AktarimIzinli)
+            {
+                string engel = _sureklilkSonucu.OncekiAyMevcut
+                    ? "Yevmiye numarasi surekliligi saglanamadi."
+                    : "Onceki ay muhasebe fisleri DB'de bulunamadi.";
+
+                MessageBox.Show(
+                    $"Aktarim engellendi:\n\n{engel}\n\nOnce onceki ayin fislerini olusturun, sonra tekrar deneyin.",
+                    "Aktarim Engellendi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             var ilkDefter = _defterler[0];
             string donemStr = $"{ilkDefter.DonemBaslangic:dd.MM.yyyy} - {ilkDefter.DonemBitis:dd.MM.yyyy}";
             int toplamFis = _defterler.Sum(d => d.Fisler.Count);
             int toplamSatir = _defterler.Sum(d => d.Fisler.Sum(f => f.Satirlar.Count));
+
+            string sureklilkBilgi = _sureklilkSonucu.IlkAy
+                ? "\nYevmiye surekliligi: Ilk ay (kontrol gerekmiyor)"
+                : $"\nYevmiye surekliligi: DB son={_sureklilkSonucu.DbMaxYevmiyeNo}, " +
+                  $"bu ay ilk={_sureklilkSonucu.CalislanAyBilgisi.MinYevmiyeNo}";
 
             string onizlemeBilgi = _sonOnizleme != null
                 ? $"\n\nOnizleme: {_sonOnizleme.EslesenCariSayisi} cari, {_sonOnizleme.EslesenStokSayisi} stok eslesmesi"
                 : "\n\n(Onerilen: Once 'Onizleme' ile kontrol edin)";
 
             var sonuc = MessageBox.Show(
-                $"Donem: {donemStr}\nOlusturulacak: {toplamFis:N0} fis, {toplamSatir:N0} satir{onizlemeBilgi}\n\nDevam?",
+                $"Donem: {donemStr}\nOlusturulacak: {toplamFis:N0} fis, {toplamSatir:N0} satir" +
+                $"{sureklilkBilgi}{onizlemeBilgi}" +
+                $"\n\nOnce simulasyon yapilacak, sonra atomik yazim baslatilacak.\nDevam?",
                 "Fis Olusturma Onayi", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
             if (sonuc != DialogResult.Yes) return;
 
@@ -635,7 +687,7 @@ namespace Defter2Fis.ForMikro.Forms
 
         private void FisOlusturmaCalistir(BackgroundWorker worker, DoWorkEventArgs e)
         {
-            worker.ReportProgress(0, "Fis olusturma baslatiliyor...");
+            worker.ReportProgress(0, "Fis olusturma baslatiliyor (simulasyon-once yaklasim)...");
             if (_dbService == null) _dbService = new MikroDbService();
             if (!_dbService.BaglantıTest(out string hataMesaji))
             {
@@ -647,9 +699,15 @@ namespace Defter2Fis.ForMikro.Forms
             var sonuc = servis.FisleriOlustur(_defterler, FirmaNo, SubeNo, DBCNo,
                 (yuzde, durum) => worker.ReportProgress(yuzde, durum));
 
-            string durumMetni = sonuc.Basarili ? "Fis olusturma tamamlandi." : "Fis olusturma hatalarla tamamlandi.";
-            worker.ReportProgress(100, durumMetni);
+            string durumMetni;
+            if (!sonuc.SimulasyonBasarili)
+                durumMetni = "Simulasyon basarisiz — DB'ye yazim yapilmadi.";
+            else if (sonuc.Basarili)
+                durumMetni = $"Fis olusturma tamamlandi ({sonuc.OlusturulanFisSayisi} fis, {sonuc.OlusturulanSatirSayisi} satir).";
+            else
+                durumMetni = "Atomik yazim basarisiz — tum ay ROLLBACK yapildi.";
 
+            worker.ReportProgress(100, durumMetni);
             e.Result = new IslemSonucBilgisi("fisolustur", durumMetni);
         }
 

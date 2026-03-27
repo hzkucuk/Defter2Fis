@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Defter2Fis.ForMikro.Models
 {
@@ -294,6 +295,89 @@ namespace Defter2Fis.ForMikro.Models
                 return string.IsNullOrEmpty(seri) ? ChaEvraknoSira.ToString() : $"{seri}-{ChaEvraknoSira}";
             }
         }
+    }
+
+    /// <summary>
+    /// Belirli bir ay dönemine ait muhasebe fişi özet bilgisi.
+    /// Önceki ay doğrulama ve yevmiye sürekliliği kontrolü için kullanılır.
+    /// </summary>
+    public class AyFisBilgisi
+    {
+        /// <summary>Dönem başlangıç tarihi</summary>
+        public DateTime DonemBaslangic { get; set; }
+
+        /// <summary>Dönem bitiş tarihi</summary>
+        public DateTime DonemBitis { get; set; }
+
+        /// <summary>Benzersiz yevmiye (fiş) sayısı</summary>
+        public int FisSayisi { get; set; }
+
+        /// <summary>Toplam fiş satır sayısı</summary>
+        public int SatirSayisi { get; set; }
+
+        /// <summary>En küçük yevmiye numarası</summary>
+        public int MinYevmiyeNo { get; set; }
+
+        /// <summary>En büyük yevmiye numarası</summary>
+        public int MaxYevmiyeNo { get; set; }
+
+        /// <summary>En erken fiş tarihi</summary>
+        public DateTime MinTarih { get; set; }
+
+        /// <summary>En geç fiş tarihi</summary>
+        public DateTime MaxTarih { get; set; }
+
+        /// <summary>DB'de veri var mı?</summary>
+        public bool VeriMevcut => FisSayisi > 0;
+    }
+
+    /// <summary>
+    /// Ay sürekliliği kontrol sonucu.
+    /// Önceki ay ile çalışılan ay arasındaki yevmiye numarası sürekliliğini doğrular.
+    /// </summary>
+    public class SureklilkKontrolSonucu
+    {
+        /// <summary>Önceki yevmiyeler DB'de mevcut mu?</summary>
+        public bool OncekiAyMevcut { get; set; }
+
+        /// <summary>Yevmiye numaraları sürekli mi (boşluk yok)?</summary>
+        public bool Surekli { get; set; }
+
+        /// <summary>Aktarıma izin verilir mi?</summary>
+        public bool AktarimIzinli { get; set; }
+
+        /// <summary>İlk ay mı (yevmiye 1'den başlıyor)?</summary>
+        public bool IlkAy { get; set; }
+
+        /// <summary>DB'deki mevcut max yevmiye numarası (mali yıl genelinde)</summary>
+        public int DbMaxYevmiyeNo { get; set; }
+
+        /// <summary>DB'deki toplam benzersiz yevmiye sayısı (çalışılan aydan önceki)</summary>
+        public int DbYevmiyeSayisi { get; set; }
+
+        /// <summary>Önceki aya ait DB bilgisi (tarih bazlı, bilgilendirme amaçlı)</summary>
+        public AyFisBilgisi OncekiAyBilgisi { get; set; }
+
+        /// <summary>Çalışılan aya ait E-Defter bilgisi</summary>
+        public AyFisBilgisi CalislanAyBilgisi { get; set; }
+
+        /// <summary>Kontrol mesajları (log için)</summary>
+        public List<string> Mesajlar { get; } = new List<string>();
+    }
+
+    /// <summary>
+    /// Mali yıl genelinde yevmiye süreklilik bilgisi (tarihten bağımsız).
+    /// </summary>
+    public class YevmiyeSureklilkBilgisi
+    {
+        /// <summary>Belirtilen yevmiye numarasından önceki benzersiz yevmiye sayısı</summary>
+        public int YevmiyeSayisi { get; set; }
+
+        /// <summary>Belirtilen yevmiye numarasından önceki en büyük yevmiye numarası</summary>
+        public int MaxYevmiyeNo { get; set; }
+
+        /// <summary>DB'de hiç yevmiye var mı?</summary>
+        public bool VeriMevcut => YevmiyeSayisi > 0;
     }
 
     /// <summary>

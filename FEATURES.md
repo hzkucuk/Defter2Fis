@@ -1,5 +1,41 @@
 # Özellikler (Features)
 
+## v2.6.1 — Yevmiye Sürekliliği Bug Fix (Tarih → Yevmiye Bazlı)
+
+### Yevmiye-Numarası-Bazlı Süreklilik Kontrolü (DÜZELTİLDİ — KRİTİK)
+- **Tarih-bazlı sorgu kaldırıldı** — `postingDate` takvim ayı sınırlarıyla örtüşmediği için yanlış yevmiye aralıkları döndürüyordu
+- **Yevmiye-numarası-bazlı sorgu** — `MAX(fis_yevmiye_no)` ve `COUNT(DISTINCT fis_yevmiye_no)` ile `WHERE fis_yevmiye_no < çalışılanMinYevmiye`
+- **İlk ay tespiti** — `xmlMinYevmiye == 1` kontrolü (takvim ayı karşılaştırması yerine)
+- **YevmiyeSureklilkBilgisi** DTO — Mali yıl genelinde yevmiye count/max (tarihten bağımsız)
+- `AyFisBilgisiGetir` yalnızca bilgilendirme amaçlı korundu
+
+## v2.6.0 — Önceki Ay Doğrulama, Yevmiye Sürekliliği, Atomik Ay Operasyonları
+
+### Önceki Ay Doğrulama (YENİ — KRİTİK)
+- **Analiz aşamasında önceki dönem kontrolü** — Çalışılan aydan önceki yevmiyelerin DB'de mevcut olup olmadığı kontrol edilir
+- **Mali yıl ilk dönem istisnası** — Yevmiye 1'den başlıyorsa önceki dönem kontrolü gerekmez
+- **YevmiyeSureklilkBilgisiGetir** DB sorgusu — Yevmiye numarası bazlı: yevmiye sayısı, MAX yevmiye no
+
+### Yevmiye Sürekliliği (YENİ — KRİTİK)
+- **Dönemler-arası süreklilik** — DB'deki son yevmiye numarası + 1 = çalışılan ayın ilk yevmiye numarası
+- **Ay-içi süreklilik** — Yevmiye numaralarının ardışık ve boşluksuz olduğu doğrulanır
+- Detaylı log mesajları: yevmiye aralıkları, beklenen başlangıç, boşluk tespiti
+
+### Simülasyon-Önce Yaklaşım (YENİ)
+- **Faz 1 — Simülasyon**: Tüm MuhasebeFisi objeleri bellekte oluşturulur, mükerrer kontrolü yapılır, sıra no hesaplanır
+- **Faz 2 — Atomik Yazım**: Simülasyon başarılıysa tüm fişler tek transaction içinde DB'ye yazılır
+- Simülasyon başarısızsa DB'ye hiç yazım yapılmaz
+
+### Atomik Ay Operasyonları (YENİ — KRİTİK)
+- **Tek transaction** — Tüm ayın fişleri + cari/stok referans güncellemeleri tek transaction içinde
+- **Tam rollback** — Herhangi bir hata durumunda tüm ay geri alınır, kısmi veri bırakılmaz
+- Eski per-fiş transaction yaklaşımı kaldırıldı
+
+### Fiş Oluşturma Güvenlik Kontrolleri (YENİ)
+- Analiz yapılmadan fiş oluşturma engellenir
+- Aktarım izni yoksa (süreklilik sağlanamadıysa) fiş oluşturma butonu bloklanır
+- Onay diyaloğunda yevmiye süreklilik bilgisi gösterilir
+
 ## v2.5.0 — Yedekleme Düzeltme + İlerleme ve Bilgilendirme İyileştirmesi
 
 ### Yedekleme Düzeltmesi

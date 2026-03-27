@@ -1,6 +1,6 @@
 # Defter2Fis — E-Defter → Mikro ERP Muhasebe Fişi Oluşturucu
 
-![Version](https://img.shields.io/badge/version-2.5.5-blue)
+![Version](https://img.shields.io/badge/version-2.6.1-blue)
 ![.NET](https://img.shields.io/badge/.NET%20Framework-4.8-purple)
 
 ## Açıklama
@@ -14,6 +14,10 @@ E-Defter Yevmiye XML dosyalarını (XBRL-GL formatı) parse edip **Mikro ERP V16
 - **Önizleme / Test** — Fiş oluşturma öncesi dry-run simülasyonu (cari/stok eşleşme, uyarılar)
 - **Fiş Oluşturma** — E-Defter'den Mikro ERP muhasebe fişleri oluşturma
 - **Cari/Stok Senkronizasyonu** — Evrak seri/no ile cari hesap ve stok hareketleri eşleştirme
+- **Önceki Ay Doğrulama** — Fiş oluşturma öncesi önceki ayın DB'de mevcut olup olmadığını kontrol eder
+- **Yevmiye Sürekliliği** — Ay-ay arası ve ay içi yevmiye numarası boşluk kontrolü
+- **Simülasyon-Önce Yaklaşım** — Tüm fişler bellekte oluşturulup doğrulanır, ardından DB'ye yazılır
+- **Atomik Ay Operasyonları** — Tüm ay tek transaction, hata durumunda tam rollback
 - **Veritabanı Yedekleme** — BACKUP DATABASE ile tam DB yedek alma (INIT, COMPRESSION)
 - **İşlem öncesi otomatik yedek teklifi** — Fiş oluşturma ve dönem silme öncesi güvenlik
 - Borç-Alacak denge kontrolü

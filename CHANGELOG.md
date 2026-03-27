@@ -1,5 +1,61 @@
 # Changelog
 
+## [2.6.1] - 2025-08-25 — Yevmiye Sürekliliği: Tarih-Bazlı → Yevmiye-Bazlı Düzeltme
+
+### Düzeltmeler
+- **KRİTİK BUG FIX:** Önceki ay doğrulama tarih bazlı sorguda yanlış yevmiye aralığı döndürüyordu
+  - Sorun: `postingDate` takvim ayı sınırlarıyla örtüşmüyor; Temmuz fişleri Ağustos tarihli, Ağustos fişleri Temmuz tarihli olabiliyor
+  - Örnek: DB Ağustos tarih aralığı sorgusu yevmiye 8085-9033 dönerken, XML Ağustos yevmiyesi 8290-9663
+  - Çözüm: Tarih-bazlı `AyFisBilgisiGetir` yerine yevmiye-numarası-bazlı `YevmiyeSureklilkBilgisiGetir` kullanılır
+- **İlk ay tespiti düzeltildi:** Takvim ayı karşılaştırması yerine `xmlMinYevmiye == 1` kontrolü
+
+### Eklenenler
+- `YevmiyeSureklilkBilgisi` DTO — Mali yıl genelinde yevmiye count/max bilgisi (tarihten bağımsız)
+- `IMikroDbService.YevmiyeSureklilkBilgisiGetir()` — Yevmiye numarası bazlı süreklilik sorgusu
+- `SureklilkKontrolSonucu.DbMaxYevmiyeNo` — DB'deki mevcut max yevmiye numarası
+- `SureklilkKontrolSonucu.DbYevmiyeSayisi` — DB'deki toplam benzersiz yevmiye sayısı
+
+### Değişenler
+- `DefterAnalyzer.OncekiAyDogrula()` — Tarih-bazlı → yevmiye-numarası-bazlı süreklilik kontrolü
+- `AyFisBilgisiGetir` yalnızca bilgilendirme amaçlı tutuldu (aktif kontrol için kullanılmıyor)
+- Onay diyaloğunda `DbMaxYevmiyeNo` gösterilir
+
+### Etkilenen dosyalar
+- Defter2Fis.ForMikro\Models\MikroDbModels.cs (yeni DTO + mevcut güncelleme)
+- Defter2Fis.ForMikro\Services\IMikroDbService.cs (yeni metot)
+- Defter2Fis.ForMikro\Services\MikroDbService.cs (yeni metot implementasyonu)
+- Defter2Fis.ForMikro\Services\DefterAnalyzer.cs (OncekiAyDogrula yeniden yazıldı)
+- Defter2Fis.ForMikro\Forms\MainForm.cs (onay diyaloğu güncelleme)
+
+## [2.6.0] - 2025-08-24 — Önceki Ay Doğrulama, Yevmiye Sürekliliği, Atomik Ay Operasyonları
+
+### Eklenenler
+- **Önceki ay doğrulama** — Analiz aşamasında önceki ayın muhasebe fişlerinin DB'de mevcut olup olmadığı kontrol edilir
+- **Yevmiye sürekliliği kontrolü** — Önceki ayın son yevmiye numarasının çalışılan ayın ilk yevmiyesiyle uyumu doğrulanır
+- **Ay içi yevmiye boşluk kontrolü** — Yevmiye numaralarının ardışık ve boşluksuz olduğu doğrulanır
+- **Simülasyon-önce yaklaşım** — Tüm fişler bellekte oluşturulup doğrulandıktan sonra DB'ye yazılır
+- **Atomik ay-seviyesi transaction** — Tüm ayın fişleri tek transaction içinde yazılır; hata durumunda tüm ay rollback yapılır
+- **AyFisBilgisi DTO** — Ay bazlı fiş özet bilgisi (fiş sayısı, yevmiye aralığı, tarih aralığı)
+- **SureklilkKontrolSonucu DTO** — Süreklilik kontrol sonucu (önceki ay mevcut mu, sürekli mi, aktarım izinli mi)
+- `IMikroDbService.AyFisBilgisiGetir()` — Belirtilen ay döneminin DB özet bilgisini döner
+- `DefterAnalyzer.OncekiAyDogrula()` — Önceki ay + yevmiye sürekliliği + iç süreklilik kontrolü
+- Fiş oluşturma butonunda analiz zorunluluğu ve aktarım engeli kontrolü
+- Onay diyaloğunda yevmiye süreklilik bilgisi gösterimi
+
+### Değişenler
+- `FisOlusturmaServisi.FisleriOlustur()` — Per-fiş transaction yerine simülasyon + atomik yazım
+- `MainForm.AnalizCalistir` — Önceki ay doğrulama adımı eklendi (%90 ilerleme)
+- `MainForm.BtnFisOlustur_Click` — Süreklilik kontrolü ve engelleme mantığı
+- `MainForm.FisOlusturmaCalistir` — Simülasyon durum mesajları
+
+### Etkilenen dosyalar
+- Defter2Fis.ForMikro\Models\MikroDbModels.cs (yeni DTO'lar)
+- Defter2Fis.ForMikro\Services\IMikroDbService.cs (yeni metot)
+- Defter2Fis.ForMikro\Services\MikroDbService.cs (yeni metot implementasyonu)
+- Defter2Fis.ForMikro\Services\DefterAnalyzer.cs (yeni doğrulama metotları)
+- Defter2Fis.ForMikro\Services\FisOlusturmaServisi.cs (simülasyon + atomik refactor)
+- Defter2Fis.ForMikro\Forms\MainForm.cs (analiz + fiş oluşturma güncelleme)
+
 ## [2.5.5] - 2025-08-24 — Akıllı Yedek Sıkıştırma
 
 ### Eklenenler
