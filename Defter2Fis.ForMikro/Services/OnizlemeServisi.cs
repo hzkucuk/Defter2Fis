@@ -243,13 +243,13 @@ namespace Defter2Fis.ForMikro.Services
         /// </summary>
         private void UyarilariOlustur(OnizlemeSonucu sonuc)
         {
-            // Mükerrer uyarısı
+            // Mükerrer bilgisi (sadece bilgilendirme — yazımda üzerine yazılacak)
             if (sonuc.MukerrerSayisi > 0)
             {
                 sonuc.Uyarilar.Add(new OnizlemeUyari
                 {
-                    Seviye = UyariSeviye.Uyari,
-                    Mesaj = $"{sonuc.MukerrerSayisi} yevmiye DB'de zaten mevcut — atlanacak."
+                    Seviye = UyariSeviye.Bilgi,
+                    Mesaj = $"{sonuc.MukerrerSayisi} yevmiye DB'de zaten mevcut — üzerine yazılacak."
                 });
             }
 

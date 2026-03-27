@@ -187,12 +187,10 @@ namespace Defter2Fis.ForMikro.Services
                     ilerlemeRaporla?.Invoke(yuzde,
                         $"Simülasyon: Yevmiye #{yevmiyeFisi.YevmiyeNoSayac} ({islenenFis}/{toplamFis})");
 
-                    // Mükerrer kontrolü (unique index uyumlu: firmano + maliyil + yevmiye_no)
+                    // Mükerrer kontrolü (bilgi amaçlı — yazım engellenmez, üzerine yazılır)
                     if (_dbService.YevmiyeNoMevcutMu(yevmiyeFisi.YevmiyeNoSayac, maliYil, firmaNo, subeNo))
                     {
-                        _log.Uyari($"Yevmiye #{yevmiyeFisi.YevmiyeNoSayac} zaten mevcut — atlanıyor.");
                         sonuc.AtlananFisSayisi++;
-                        continue;
                     }
 
                     int siraNo = siradakiSiraNo++;
@@ -273,12 +271,24 @@ namespace Defter2Fis.ForMikro.Services
                     int toplamFis = simulasyonFisler.Count;
                     int yazilan = 0;
 
+                    // İlk fişten firma/mali yıl bilgisini al (toplu DELETE için)
+                    var ornekFis = simulasyonFisler[0].FisSatirlari[0];
+                    int firmaNo = ornekFis.FisFirmaNo;
+                    int subeNo = ornekFis.FisSubeNo;
+                    int maliYil = ornekFis.FisMaliYil;
+                    int silinenToplam = 0;
+
                     foreach (var simFis in simulasyonFisler)
                     {
                         yazilan++;
                         int yuzde = 70 + (yazilan * 20 / toplamFis);
                         ilerlemeRaporla?.Invoke(yuzde,
                             $"Yazılıyor: Yevmiye #{simFis.YevmiyeNoSayac} ({yazilan}/{toplamFis})");
+
+                        // Mevcut yevmiye kaydını sil (üzerine yazma)
+                        int silinen = _dbService.YevmiyeFisleriniSil(
+                            simFis.YevmiyeNoSayac, maliYil, firmaNo, subeNo, conn, tran);
+                        silinenToplam += silinen;
 
                         // Fiş satırlarını yaz
                         foreach (var fis in simFis.FisSatirlari)
@@ -306,7 +316,10 @@ namespace Defter2Fis.ForMikro.Services
 
                     // Tüm ay başarılı — commit
                     tran.Commit();
-                    _log.Basari($"Atomik yazım başarılı: {yazilan} fiş, {sonuc.OlusturulanSatirSayisi} satır DB'ye yazıldı.");
+                    string silinenBilgi = silinenToplam > 0
+                        ? $" ({silinenToplam} eski satır silindi, üzerine yazıldı)"
+                        : string.Empty;
+                    _log.Basari($"Atomik yazım başarılı: {yazilan} fiş, {sonuc.OlusturulanSatirSayisi} satır DB'ye yazıldı.{silinenBilgi}");
                 }
                 catch (Exception ex)
                 {
@@ -416,7 +429,7 @@ namespace Defter2Fis.ForMikro.Services
             _log.Bilgi($"  Oluşturulan fiş     : {sonuc.OlusturulanFisSayisi:N0}");
             _log.Bilgi($"  Toplam satır        : {sonuc.OlusturulanSatirSayisi:N0}");
             _log.Bilgi($"  Eklenen hesap       : {sonuc.EklenenHesapSayisi:N0}");
-            _log.Bilgi($"  Atlanan (mükerrer)   : {sonuc.AtlananFisSayisi:N0}");
+            _log.Bilgi($"  Üzerine yazılan      : {sonuc.AtlananFisSayisi:N0}");
 
             if (sonuc.Hatalar.Count > 0)
             {

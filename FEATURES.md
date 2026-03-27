@@ -1,5 +1,17 @@
 # Özellikler (Features)
 
+## v2.12.0 — Mükerrer Kontrolü Bilgi Amaçlı + Üzerine Yazma
+
+### Üzerine Yazma (DELETE-before-INSERT)
+- DB'de mevcut yevmiye fişleri atlanmak yerine silinip yeniden yazılır
+- `YevmiyeFisleriniSil`: Yevmiye numarasına göre mevcut satırları transaction içinde siler
+- Tüm e-Defter kayıtları eksiksiz MUHASEBE_FISLERI tablosuna kaydedilir
+- Mükerrer sayısı kullanıcıya bilgi olarak gösterilir (döküm/rapor amaçlı)
+
+### Önizleme Güncelleme
+- Mükerrer uyarısı: "atlanacak" → "üzerine yazılacak" (Bilgi seviyesi)
+- Sonuç raporu: "Atlanan (mükerrer)" → "Üzerine yazılan"
+
 ## v2.11.1 — Mükerrer Kontrol ve SQL INSERT Düzeltmesi
 
 ### Mükerrer Kontrol İyileştirmesi

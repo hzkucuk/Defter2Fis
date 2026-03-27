@@ -1,6 +1,6 @@
 # Defter2Fis — E-Defter → Mikro ERP Muhasebe Fişi Oluşturucu
 
-![Version](https://img.shields.io/badge/version-2.11.1-blue)
+![Version](https://img.shields.io/badge/version-2.12.0-blue)
 ![.NET](https://img.shields.io/badge/.NET%20Framework-4.8-purple)
 
 ## Açıklama
@@ -26,7 +26,7 @@ E-Defter Yevmiye XML dosyalarını (XBRL-GL formatı) parse edip **Mikro ERP V16
 - Mikro ERP MUHASEBE_FISLERI tablosuna fiş yazma altyapısı
 - **Dönem veri ön kontrolü (pre-check)** — İşlem öncesi mevcut veri listeleme ve güvenli silme
 - **Çift onaylı veri silme** — Veri bütünlüğü koruması
-- Mükerrer yevmiye kontrolü
+- **Mükerrer Üzerine Yazma** — DB'de mevcut yevmiyeler silinip yeniden yazılır (bilgi amaçlı mükerrer sayısı gösterilir)
 - **Renkli log paneli** (RichTextBox) + **ProgressBar** ilerleme göstergesi
 - **Ayarlar diyalogu** — App.config düzenleme (DB, E-Defter, Mikro parametreleri)
 - **Global hata yönetimi** — Application.ThreadException + AppDomain.UnhandledException

@@ -196,6 +196,30 @@ namespace Defter2Fis.ForMikro.Services
         }
 
         /// <summary>
+        /// Belirtilen yevmiye numarasına ait mevcut fiş satırlarını siler.
+        /// Üzerine yazma senaryosunda INSERT öncesi çağrılır.
+        /// </summary>
+        public int YevmiyeFisleriniSil(int yevmiyeNo, int maliYil, int firmaNo, int subeNo,
+            SqlConnection conn, SqlTransaction tran)
+        {
+            const string sql = @"DELETE FROM MUHASEBE_FISLERI
+                                  WHERE fis_yevmiye_no = @yevNo
+                                    AND fis_maliyil = @maliYil
+                                    AND fis_firmano = @firmaNo
+                                    AND fis_subeno = @subeNo
+                                    AND fis_DBCno = 0";
+
+            using (var cmd = new SqlCommand(sql, conn, tran))
+            {
+                cmd.Parameters.Add("@yevNo", SqlDbType.Int).Value = yevmiyeNo;
+                cmd.Parameters.Add("@maliYil", SqlDbType.Int).Value = maliYil;
+                cmd.Parameters.Add("@firmaNo", SqlDbType.Int).Value = firmaNo;
+                cmd.Parameters.Add("@subeNo", SqlDbType.Int).Value = subeNo;
+                return cmd.ExecuteNonQuery();
+            }
+        }
+
+        /// <summary>
         /// Tek bir fiş satırını veritabanına ekler.
         /// </summary>
         public void FisSatiriEkle(MuhasebeFisi fis, SqlConnection conn, SqlTransaction tran)

@@ -53,6 +53,12 @@ namespace Defter2Fis.ForMikro.Services
         bool YevmiyeNoMevcutMu(int yevmiyeNo, int maliYil, int firmaNo, int subeNo);
 
         /// <summary>
+        /// Belirtilen yevmiye numarasına ait mevcut fiş satırlarını siler.
+        /// Üzerine yazma senaryosunda INSERT öncesi çağrılır.
+        /// </summary>
+        int YevmiyeFisleriniSil(int yevmiyeNo, int maliYil, int firmaNo, int subeNo, SqlConnection conn, SqlTransaction tran);
+
+        /// <summary>
         /// Tek bir fiş satırını veritabanına ekler.
         /// </summary>
         void FisSatiriEkle(MuhasebeFisi fis, SqlConnection conn, SqlTransaction tran);

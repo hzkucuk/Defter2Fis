@@ -1,5 +1,24 @@
 # Changelog
 
+## [2.12.0] - 2025-08-28 — Mükerrer Kontrolü Bilgi Amaçlı + Üzerine Yazma
+
+### Yeni Özellikler
+- **DELETE-before-INSERT üzerine yazma** — DB'de mevcut yevmiye fişleri artık atlanmak yerine silinip yeniden yazılır. Tüm e-Defter kayıtları eksiksiz kaydedilir.
+- **YevmiyeFisleriniSil metodu** — Belirtilen yevmiye numarasına ait mevcut fiş satırlarını transaction içinde siler.
+- **Mükerrer kontrol bilgi amaçlı** — Mükerrer yevmiye sayısı kullanıcıya bilgi olarak gösterilir, ancak kayıt atlanmaz.
+
+### Değişiklikler
+- `SimulasyonCalistir`: Mükerrer `continue` (atlama) kaldırıldı — tüm yevmiyeler işlenir
+- `TopluFisYaz`: Her fiş INSERT öncesi mevcut kayıtlar `YevmiyeFisleriniSil` ile silinir
+- `OnizlemeServisi`: Uyarı mesajı "atlanacak" → "üzerine yazılacak", seviye Uyari → Bilgi
+- `SonucRaporla`: "Atlanan (mükerrer)" → "Üzerine yazılan"
+
+### Etkilenen dosyalar
+- Defter2Fis.ForMikro\Services\IMikroDbService.cs (YevmiyeFisleriniSil eklendi)
+- Defter2Fis.ForMikro\Services\MikroDbService.cs (YevmiyeFisleriniSil eklendi)
+- Defter2Fis.ForMikro\Services\FisOlusturmaServisi.cs (mükerrer atlama kaldırıldı, DELETE-before-INSERT)
+- Defter2Fis.ForMikro\Services\OnizlemeServisi.cs (uyarı mesajı güncellendi)
+
 ## [2.11.1] - 2025-08-27 — Mükerrer Kontrol ve SQL INSERT Düzeltmesi
 
 ### Düzeltmeler
