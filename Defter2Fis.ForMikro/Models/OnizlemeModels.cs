@@ -135,12 +135,6 @@ namespace Defter2Fis.ForMikro.Models
         /// <summary>E-Defter yevmiye no</summary>
         public int YevmiyeNo { get; set; }
 
-        /// <summary>Evrak serisi</summary>
-        public string EvrakSeri { get; set; }
-
-        /// <summary>Evrak sıra numarası</summary>
-        public int EvrakSira { get; set; }
-
         /// <summary>Cari hesap kodu</summary>
         public string CariHesapKod { get; set; }
 
@@ -164,12 +158,6 @@ namespace Defter2Fis.ForMikro.Models
     {
         /// <summary>E-Defter yevmiye no</summary>
         public int YevmiyeNo { get; set; }
-
-        /// <summary>Evrak serisi</summary>
-        public string EvrakSeri { get; set; }
-
-        /// <summary>Evrak sıra numarası</summary>
-        public int EvrakSira { get; set; }
 
         /// <summary>İşlem tarihi</summary>
         public DateTime IslemTarihi { get; set; }

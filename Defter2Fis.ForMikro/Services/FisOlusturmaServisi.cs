@@ -209,6 +209,29 @@ namespace Defter2Fis.ForMikro.Services
                         FisTarihi = fisTarihi
                     };
 
+                    // Tarih+SıraNo bazlı eşleştirme (cha_fis_tarih + cha_fis_sirano / sth_fis_tarihi + sth_fis_sirano)
+                    string fisAnahtar = $"{fisTarihi:yyyy-MM-dd}|{siraNo}";
+
+                    if (cariIndex.ContainsKey(fisAnahtar))
+                    {
+                        var eslesenCariListe = cariIndex[fisAnahtar];
+                        foreach (var cha in eslesenCariListe)
+                        {
+                            if (!simFis.EslesmeCariGuidler.Contains(cha.ChaGuid))
+                                simFis.EslesmeCariGuidler.Add(cha.ChaGuid);
+                        }
+                    }
+
+                    if (stokIndex.ContainsKey(fisAnahtar))
+                    {
+                        var eslesenStokListe = stokIndex[fisAnahtar];
+                        foreach (var sth in eslesenStokListe)
+                        {
+                            if (!simFis.EslesmeStokGuidler.Contains(sth.SthGuid))
+                                simFis.EslesmeStokGuidler.Add(sth.SthGuid);
+                        }
+                    }
+
                     int satirNo = 0;
                     foreach (var satir in yevmiyeFisi.Satirlar)
                     {
@@ -223,39 +246,22 @@ namespace Defter2Fis.ForMikro.Services
                         {
                             fis.FisTicEvrakSeri = evrak.Seri;
                             fis.FisTicEvrakSira = evrak.Sira;
+                        }
 
-                            if (cariIndex.ContainsKey(evrak.Anahtar))
+                        // Ticari eşleştirme bilgisini ilk satıra ata
+                        if (satirNo == 0)
+                        {
+                            if (simFis.EslesmeCariGuidler.Count > 0 && cariIndex.ContainsKey(fisAnahtar))
                             {
-                                var eslesenCariListe = cariIndex[evrak.Anahtar];
-                                if (eslesenCariListe.Count > 0)
-                                {
-                                    fis.FisTicariTip = 1;
-                                    fis.FisTicariUid = eslesenCariListe[0].ChaGuid;
-                                    fis.FisTicariEvrakTip = eslesenCariListe[0].ChaEvrakTip;
-
-                                    foreach (var cha in eslesenCariListe)
-                                    {
-                                        if (!simFis.EslesmeCariGuidler.Contains(cha.ChaGuid))
-                                            simFis.EslesmeCariGuidler.Add(cha.ChaGuid);
-                                    }
-                                }
+                                fis.FisTicariTip = 1;
+                                fis.FisTicariUid = cariIndex[fisAnahtar][0].ChaGuid;
+                                fis.FisTicariEvrakTip = cariIndex[fisAnahtar][0].ChaEvrakTip;
                             }
-
-                            if (stokIndex.ContainsKey(evrak.Anahtar))
+                            else if (simFis.EslesmeStokGuidler.Count > 0 && stokIndex.ContainsKey(fisAnahtar))
                             {
-                                var eslesenStokListe = stokIndex[evrak.Anahtar];
-                                foreach (var sth in eslesenStokListe)
-                                {
-                                    if (!simFis.EslesmeStokGuidler.Contains(sth.SthGuid))
-                                        simFis.EslesmeStokGuidler.Add(sth.SthGuid);
-                                }
-
-                                if (fis.FisTicariTip == 0 && eslesenStokListe.Count > 0)
-                                {
-                                    fis.FisTicariTip = 2;
-                                    fis.FisTicariUid = eslesenStokListe[0].SthGuid;
-                                    fis.FisTicariEvrakTip = eslesenStokListe[0].SthEvrakTip;
-                                }
+                                fis.FisTicariTip = 2;
+                                fis.FisTicariUid = stokIndex[fisAnahtar][0].SthGuid;
+                                fis.FisTicariEvrakTip = stokIndex[fisAnahtar][0].SthEvrakTip;
                             }
                         }
 

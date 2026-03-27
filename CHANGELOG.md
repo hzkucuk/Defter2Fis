@@ -1,5 +1,25 @@
 # Changelog
 
+## [2.10.0] - 2025-08-27 — Cari/Stok Eşleştirme: Tarih+FişNo Bazlı
+
+### Yeni Özellikler
+- **Tarih+FişNo bazlı eşleştirme** — Cari/stok hareketleri artık `cha_fis_tarih + cha_fis_sirano` (cari) ve `sth_fis_tarihi + sth_fis_sirano` (stok) üzerinden eşleştiriliyor. Evrak seri/sıra bazlı eşleştirme kaldırıldı.
+- **Açıklama tam gösterim** — Önizleme gridinde açıklama alanı artık 80 karakterde kesilmiyor, tamamı gösteriliyor.
+
+### Değişiklikler
+- `CariHesapHareketi.EvrakAnahtar` → `FisAnahtar` (fis_tarih|fis_sirano)
+- `StokHareketi.EvrakAnahtar` → `FisAnahtar` (fis_tarih|fis_sirano)
+- SQL ORDER BY: evrak seri/sıra → fis_tarih + fis_sirano
+- Cari/stok önizleme gridlerinden EvrakSeri/EvrakSira sütunları kaldırıldı
+
+### Etkilenen dosyalar
+- Defter2Fis.ForMikro\Models\MikroDbModels.cs (FisAnahtar)
+- Defter2Fis.ForMikro\Models\OnizlemeModels.cs (EvrakSeri/Sira kaldırıldı)
+- Defter2Fis.ForMikro\Services\MikroDbService.cs (index + SQL)
+- Defter2Fis.ForMikro\Services\OnizlemeServisi.cs (eşleştirme + açıklama)
+- Defter2Fis.ForMikro\Services\FisOlusturmaServisi.cs (eşleştirme)
+- Defter2Fis.ForMikro\Forms\MainForm.cs (grid sütunları)
+
 ## [2.9.2] - 2025-08-26 — Mükerrer Dönem Filtresi Düzeltmesi
 
 ### Düzeltmeler

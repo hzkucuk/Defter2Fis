@@ -1,5 +1,16 @@
 # Özellikler (Features)
 
+## v2.10.0 — Cari/Stok Eşleştirme: Tarih+FişNo Bazlı
+
+### Tarih+FişNo Bazlı Eşleştirme (YENİ)
+- Cari hareketler: `cha_fis_tarih` + `cha_fis_sirano` üzerinden eşleştirme
+- Stok hareketler: `sth_fis_tarihi` + `sth_fis_sirano` üzerinden eşleştirme
+- Evrak seri/sıra bazlı eşleştirme kaldırıldı
+- Fiş numarası her gün için 1'den başlar
+
+### Açıklama Tam Gösterim
+- Önizleme gridinde açıklama artık kesilmeden tamamı gösteriliyor
+
 ## v2.9.2 — Mükerrer Dönem Filtresi Düzeltmesi
 
 ### Dönem Bazlı Mükerrer Kontrol

@@ -537,7 +537,7 @@ namespace Defter2Fis.ForMikro.Services
         #region Cari Hesap Hareketleri
 
         /// <summary>
-        /// Belirtilen dönemdeki cari hesap hareketlerini evrak seri/sıra bilgileri ile getirir.
+        /// Belirtilen dönemdeki cari hesap hareketlerini fiş tarih/sıra bilgileri ile getirir.
         /// Muhasebe fiş referansı senkronizasyonu için kullanılır.
         /// </summary>
         public List<CariHesapHareketi> DonemCariHareketleriGetir(
@@ -555,7 +555,7 @@ namespace Defter2Fis.ForMikro.Services
                 AND cha_subeno = @subeNo
                 AND cha_iptal = 0
                 AND cha_DBCno = 0
-            ORDER BY cha_evrakno_seri, cha_evrakno_sira";
+            ORDER BY cha_fis_tarih, cha_fis_sirano";
 
             using (var conn = new SqlConnection(_connectionString))
             using (var cmd = new SqlCommand(sql, conn))
@@ -615,7 +615,7 @@ namespace Defter2Fis.ForMikro.Services
         #region Stok Hareketleri
 
         /// <summary>
-        /// Belirtilen dönemdeki stok hareketlerini evrak seri/sıra bilgileri ile getirir.
+        /// Belirtilen dönemdeki stok hareketlerini fiş tarih/sıra bilgileri ile getirir.
         /// Muhasebe fiş referansı senkronizasyonu için kullanılır.
         /// </summary>
         public List<StokHareketi> DonemStokHareketleriGetir(
@@ -633,7 +633,7 @@ namespace Defter2Fis.ForMikro.Services
                 AND sth_subeno = @subeNo
                 AND sth_iptal = 0
                 AND sth_DBCno = 0
-            ORDER BY sth_evrakno_seri, sth_evrakno_sira";
+            ORDER BY sth_fis_tarihi, sth_fis_sirano";
 
             using (var conn = new SqlConnection(_connectionString))
             using (var cmd = new SqlCommand(sql, conn))
@@ -724,7 +724,7 @@ namespace Defter2Fis.ForMikro.Services
         }
 
         /// <summary>
-        /// Cari hareketlerden evrak anahtarı bazlı index oluşturur (SERİ-SIRA → kayıt listesi).
+        /// Cari hareketlerden fiş tarih+sıraNo bazlı index oluşturur (fis_tarih|fis_sirano → kayıt listesi).
         /// </summary>
         public static Dictionary<string, List<CariHesapHareketi>> CariIndexOlustur(
             List<CariHesapHareketi> hareketler)
@@ -734,7 +734,7 @@ namespace Defter2Fis.ForMikro.Services
             var index = new Dictionary<string, List<CariHesapHareketi>>(StringComparer.OrdinalIgnoreCase);
             foreach (var hareket in hareketler)
             {
-                string anahtar = hareket.EvrakAnahtar;
+                string anahtar = hareket.FisAnahtar;
                 if (!index.ContainsKey(anahtar))
                     index[anahtar] = new List<CariHesapHareketi>();
                 index[anahtar].Add(hareket);
@@ -743,7 +743,7 @@ namespace Defter2Fis.ForMikro.Services
         }
 
         /// <summary>
-        /// Stok hareketlerden evrak anahtarı bazlı index oluşturur (SERİ-SIRA → kayıt listesi).
+        /// Stok hareketlerden fiş tarih+sıraNo bazlı index oluşturur (fis_tarih|fis_sirano → kayıt listesi).
         /// </summary>
         public static Dictionary<string, List<StokHareketi>> StokIndexOlustur(
             List<StokHareketi> hareketler)
@@ -753,7 +753,7 @@ namespace Defter2Fis.ForMikro.Services
             var index = new Dictionary<string, List<StokHareketi>>(StringComparer.OrdinalIgnoreCase);
             foreach (var hareket in hareketler)
             {
-                string anahtar = hareket.EvrakAnahtar;
+                string anahtar = hareket.FisAnahtar;
                 if (!index.ContainsKey(anahtar))
                     index[anahtar] = new List<StokHareketi>();
                 index[anahtar].Add(hareket);

@@ -286,15 +286,8 @@ namespace Defter2Fis.ForMikro.Models
         /// <summary>Muhasebe fiş tarihi (cha_fis_tarih)</summary>
         public DateTime ChaMuhFisTarihi { get; set; }
 
-        /// <summary>Eşleştirme anahtarı: SERİ-SIRA</summary>
-        public string EvrakAnahtar
-        {
-            get
-            {
-                string seri = (ChaEvraknoSeri ?? string.Empty).Trim();
-                return string.IsNullOrEmpty(seri) ? ChaEvraknoSira.ToString() : $"{seri}-{ChaEvraknoSira}";
-            }
-        }
+        /// <summary>Eşleştirme anahtarı: fis_tarih|fis_sirano</summary>
+        public string FisAnahtar => $"{ChaMuhFisTarihi:yyyy-MM-dd}|{ChaMuhFisNo}";
     }
 
     /// <summary>
@@ -407,14 +400,7 @@ namespace Defter2Fis.ForMikro.Models
         /// <summary>Muhasebe fiş tarihi (sth_fis_tarihi)</summary>
         public DateTime SthMuhFisTarihi { get; set; }
 
-        /// <summary>Eşleştirme anahtarı: SERİ-SIRA</summary>
-        public string EvrakAnahtar
-        {
-            get
-            {
-                string seri = (SthEvraknoSeri ?? string.Empty).Trim();
-                return string.IsNullOrEmpty(seri) ? SthEvraknoSira.ToString() : $"{seri}-{SthEvraknoSira}";
-            }
-        }
+        /// <summary>Eşleştirme anahtarı: fis_tarih|fis_sirano</summary>
+        public string FisAnahtar => $"{SthMuhFisTarihi:yyyy-MM-dd}|{SthMuhFisNo}";
     }
 }

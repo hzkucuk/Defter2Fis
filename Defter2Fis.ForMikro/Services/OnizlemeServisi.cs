@@ -64,13 +64,9 @@ namespace Defter2Fis.ForMikro.Services
                     sonuc.DonemBaslangic, sonuc.DonemBitis, firmaNo, subeNo);
                 sonuc.ToplamStokHareket = stokHareketler.Count;
 
-                // Eşleştirme index'leri
+                // Eşleştirme index'leri (fis_tarih + fis_sirano bazlı)
                 var cariIndex = MikroDbService.CariIndexOlustur(cariHareketler);
                 var stokIndex = MikroDbService.StokIndexOlustur(stokHareketler);
-
-                // Eşleşen cari/stok GUID'leri takip
-                var eslesmeCariAnahtarlar = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                var eslesmeStokAnahtarlar = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
                 // 3. Fişleri simüle et
                 ilerlemeRaporla?.Invoke(35, "Fiş oluşturma simüle ediliyor...");
@@ -120,10 +116,9 @@ namespace Defter2Fis.ForMikro.Services
                             else if (s.BorcAlacakKodu == "C") alacak += s.Tutar;
                         }
 
-                        // İlk satırdan evrak bilgisi parse et
+                        // İlk satırdan evrak bilgisi parse et (bilgi amaçlı)
                         string evrakSeri = string.Empty;
                         int evrakSira = 0;
-                        string eslesmeDurumu = "—";
 
                         if (yevmiyeFisi.Satirlar.Count > 0)
                         {
@@ -135,65 +130,52 @@ namespace Defter2Fis.ForMikro.Services
                             {
                                 evrakSeri = evrak.Seri;
                                 evrakSira = evrak.Sira;
-
-                                bool cariEslesti = cariIndex.ContainsKey(evrak.Anahtar);
-                                bool stokEslesti = stokIndex.ContainsKey(evrak.Anahtar);
-
-                                if (cariEslesti && stokEslesti)
-                                    eslesmeDurumu = "Cari+Stok";
-                                else if (cariEslesti)
-                                    eslesmeDurumu = "Cari";
-                                else if (stokEslesti)
-                                    eslesmeDurumu = "Stok";
-                                else
-                                    eslesmeDurumu = "Eşleşme yok";
-
-                                // Cari eşleşme detayları
-                                if (cariEslesti && !mukerrer)
-                                {
-                                    foreach (var cha in cariIndex[evrak.Anahtar])
-                                    {
-                                        if (!eslesmeCariAnahtarlar.Contains(evrak.Anahtar))
-                                        {
-                                            sonuc.CariEslesmeleri.Add(new OnizlemeCariEslesmesi
-                                            {
-                                                YevmiyeNo = yevmiyeFisi.YevmiyeNoSayac,
-                                                EvrakSeri = evrak.Seri,
-                                                EvrakSira = evrak.Sira,
-                                                CariHesapKod = cha.ChaKod,
-                                                IslemTarihi = cha.ChaTarihi,
-                                                MevcutMuhFisNo = cha.ChaMuhFisNo,
-                                                AtanacakMuhFisNo = siraNo
-                                            });
-                                        }
-                                    }
-                                    eslesmeCariAnahtarlar.Add(evrak.Anahtar);
-                                }
-
-                                // Stok eşleşme detayları
-                                if (stokEslesti && !mukerrer)
-                                {
-                                    foreach (var sth in stokIndex[evrak.Anahtar])
-                                    {
-                                        if (!eslesmeStokAnahtarlar.Contains(evrak.Anahtar))
-                                        {
-                                            sonuc.StokEslesmeleri.Add(new OnizlemeStokEslesmesi
-                                            {
-                                                YevmiyeNo = yevmiyeFisi.YevmiyeNoSayac,
-                                                EvrakSeri = evrak.Seri,
-                                                EvrakSira = evrak.Sira,
-                                                IslemTarihi = sth.SthTarihi,
-                                                MevcutMuhFisNo = sth.SthMuhFisNo,
-                                                AtanacakMuhFisNo = siraNo
-                                            });
-                                        }
-                                    }
-                                    eslesmeStokAnahtarlar.Add(evrak.Anahtar);
-                                }
                             }
-                            else
+                        }
+
+                        // Tarih+SıraNo bazlı eşleştirme (cha_fis_tarih + cha_fis_sirano / sth_fis_tarihi + sth_fis_sirano)
+                        string fisAnahtar = $"{fisTarihi:yyyy-MM-dd}|{siraNo}";
+                        bool cariEslesti = cariIndex.ContainsKey(fisAnahtar);
+                        bool stokEslesti = stokIndex.ContainsKey(fisAnahtar);
+                        string eslesmeDurumu;
+
+                        if (cariEslesti && stokEslesti)
+                            eslesmeDurumu = "Cari+Stok";
+                        else if (cariEslesti)
+                            eslesmeDurumu = "Cari";
+                        else if (stokEslesti)
+                            eslesmeDurumu = "Stok";
+                        else
+                            eslesmeDurumu = "Eşleşme yok";
+
+                        // Cari eşleşme detayları
+                        if (cariEslesti && !mukerrer)
+                        {
+                            foreach (var cha in cariIndex[fisAnahtar])
                             {
-                                eslesmeDurumu = "Evrak parse edilemedi";
+                                sonuc.CariEslesmeleri.Add(new OnizlemeCariEslesmesi
+                                {
+                                    YevmiyeNo = yevmiyeFisi.YevmiyeNoSayac,
+                                    CariHesapKod = cha.ChaKod,
+                                    IslemTarihi = cha.ChaTarihi,
+                                    MevcutMuhFisNo = cha.ChaMuhFisNo,
+                                    AtanacakMuhFisNo = siraNo
+                                });
+                            }
+                        }
+
+                        // Stok eşleşme detayları
+                        if (stokEslesti && !mukerrer)
+                        {
+                            foreach (var sth in stokIndex[fisAnahtar])
+                            {
+                                sonuc.StokEslesmeleri.Add(new OnizlemeStokEslesmesi
+                                {
+                                    YevmiyeNo = yevmiyeFisi.YevmiyeNoSayac,
+                                    IslemTarihi = sth.SthTarihi,
+                                    MevcutMuhFisNo = sth.SthMuhFisNo,
+                                    AtanacakMuhFisNo = siraNo
+                                });
                             }
                         }
 
@@ -202,8 +184,6 @@ namespace Defter2Fis.ForMikro.Services
                         if (yevmiyeFisi.Satirlar.Count > 0)
                         {
                             aciklama = yevmiyeFisi.Satirlar[0].DetayAciklama ?? string.Empty;
-                            if (aciklama.Length > 80)
-                                aciklama = aciklama.Substring(0, 80) + "...";
                         }
 
                         sonuc.FisKayitlari.Add(new OnizlemeFisKaydi

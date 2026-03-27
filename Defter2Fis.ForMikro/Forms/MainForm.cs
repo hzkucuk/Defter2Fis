@@ -510,8 +510,6 @@ namespace Defter2Fis.ForMikro.Forms
             _filtreHelperOzCari.VeriYukle(oz.CariEslesmeleri, col =>
             {
                 col["YevmiyeNo"].HeaderText = "Yevmiye No";
-                col["EvrakSeri"].HeaderText = "Evrak Seri";
-                col["EvrakSira"].HeaderText = "Evrak No";
                 col["CariHesapKod"].HeaderText = "Cari Hesap";
                 col["IslemTarihi"].HeaderText = "Tarih";
                 col["IslemTarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
@@ -524,8 +522,6 @@ namespace Defter2Fis.ForMikro.Forms
             _filtreHelperOzStok.VeriYukle(oz.StokEslesmeleri, col =>
             {
                 col["YevmiyeNo"].HeaderText = "Yevmiye No";
-                col["EvrakSeri"].HeaderText = "Evrak Seri";
-                col["EvrakSira"].HeaderText = "Evrak No";
                 col["IslemTarihi"].HeaderText = "Tarih";
                 col["IslemTarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
                 col["MevcutMuhFisNo"].HeaderText = "Mevcut Fis No";
