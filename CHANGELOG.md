@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.7.1] - 2025-08-25 — Analiz Raporu Birleşik Gösterim
+
+### Değişenler
+- **Analiz raporu birleşik gösterim** — Önceki ay ve çalışılan ay bilgileri tek başlık altında alt alta gösterilir
+  - `===== E-DEFTER ANALIZ RAPORU =====` başlığı altında: önce önceki ay, sonra çalışılan ay
+  - Her iki ay için dosya, firma, dönem, fiş/satır ve yevmiye aralığı bilgisi
+  - Önceki ay XML okuma işlemi sessiz yapılır, hata varsa rapor bloğunda uyarı gösterilir
+
+### Etkilenen dosyalar
+- Defter2Fis.ForMikro\Forms\MainForm.cs (AnalizCalistir rapor bloğu yeniden yapılandırıldı)
+
 ## [2.7.0] - 2025-08-25 — Önceki Ay E-Defter XML Bilgisi Gösterimi
 
 ### Eklenenler

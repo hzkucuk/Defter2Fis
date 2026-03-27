@@ -1,11 +1,17 @@
 # Özellikler (Features)
 
+## v2.7.1 — Analiz Raporu Birleşik Gösterim
+
+### Birleşik Rapor Bloğu (İYİLEŞTİRME)
+- **Tek başlık altında alt alta gösterim** — Önceki ay ve çalışılan ay tek rapor bloğunda
+- `--- Onceki Ay ---` ve `--- Calisilan Ay ---` alt başlıklarıyla ayrım
+- Her iki ay için: dosya, firma, dönem, fiş/satır, yevmiye aralığı
+- Önceki ay XML sessiz okunur, hata durumunda rapor içinde uyarı
+
 ## v2.7.0 — Önceki Ay E-Defter XML Bilgisi Gösterimi
 
 ### Önceki Ay XML Raporu (YENİ)
-- **Analiz raporunda önceki ay bilgisi** — Çalışılan aydan önceki ayın E-Defter XML'i otomatik okunur
-- Dosya adı, firma ünvanı, dönem aralığı, fiş sayısı, satır sayısı, yevmiye aralığı gösterilir
-- Klasör yoksa veya XML bulunamazsa uyarı mesajı
+- Önceki ay E-Defter XML'i otomatik okunur ve analiz raporunda gösterilir
 - Mali yıl ilk ayı (01) için önceki ay gösterimi atlanır
 
 ## v2.6.1 — Yevmiye Sürekliliği Bug Fix (Tarih → Yevmiye Bazlı)

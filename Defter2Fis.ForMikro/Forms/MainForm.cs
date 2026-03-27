@@ -154,19 +154,8 @@ namespace Defter2Fis.ForMikro.Forms
             worker.ReportProgress(50, "Analiz yapiliyor...");
             var analyzer = new DefterAnalyzer();
 
-            var ozet = analyzer.OzetHesapla(_defterler);
-            _log.Bilgi("===== E-DEFTER ANALIZ RAPORU =====");
-            foreach (var dosyaOzet in ozet.DosyaOzetleri)
-            {
-                _log.Bilgi($"  Dosya   : {dosyaOzet.DosyaAdi}");
-                _log.Bilgi($"  Firma   : {dosyaOzet.FirmaUnvani} ({dosyaOzet.SicilNo})");
-                _log.Bilgi($"  Donem   : {dosyaOzet.DonemBaslangic:dd.MM.yyyy} - {dosyaOzet.DonemBitis:dd.MM.yyyy}");
-                _log.Bilgi($"  Fis/Satir: {dosyaOzet.FisSayisi:N0} / {dosyaOzet.SatirSayisi:N0}");
-                _log.Bilgi(string.Empty);
-            }
-            _log.Basari($"TOPLAM: {ozet.DosyaSayisi} dosya, {ozet.ToplamFis:N0} fis, {ozet.ToplamSatir:N0} satir");
-
-            // Önceki ayın E-Defter XML bilgilerini göster (bilgilendirme amaçlı)
+            // Önceki ayın XML'ini sessiz oku (varsa)
+            List<YevmiyeDefteri> oncekiAyDefterler = null;
             int calislanAyNo = int.TryParse(AyKlasoru, out int ayNo) ? ayNo : 0;
             if (calislanAyNo > 1)
             {
@@ -177,46 +166,63 @@ namespace Defter2Fis.ForMikro.Forms
                 {
                     try
                     {
-                        var oncekiDefterler = parser.KlasordenOku(oncekiAyYolu, SicilNo);
-                        var oncekiOzet = analyzer.OzetHesapla(oncekiDefterler);
-
-                        _log.Bilgi(string.Empty);
-                        _log.Bilgi("===== ONCEKI AY E-DEFTER BILGISI =====");
-                        foreach (var dosyaOzet in oncekiOzet.DosyaOzetleri)
-                        {
-                            _log.Bilgi($"  Dosya   : {dosyaOzet.DosyaAdi}");
-                            _log.Bilgi($"  Firma   : {dosyaOzet.FirmaUnvani} ({dosyaOzet.SicilNo})");
-                            _log.Bilgi($"  Donem   : {dosyaOzet.DonemBaslangic:dd.MM.yyyy} - {dosyaOzet.DonemBitis:dd.MM.yyyy}");
-                            _log.Bilgi($"  Fis/Satir: {dosyaOzet.FisSayisi:N0} / {dosyaOzet.SatirSayisi:N0}");
-                            _log.Bilgi(string.Empty);
-                        }
-
-                        var oncekiFisler = oncekiDefterler.SelectMany(d => d.Fisler).ToList();
-                        if (oncekiFisler.Count > 0)
-                        {
-                            int oncekiMin = oncekiFisler.Min(f => f.YevmiyeNoSayac);
-                            int oncekiMax = oncekiFisler.Max(f => f.YevmiyeNoSayac);
-                            _log.Basari($"ONCEKI AY: {oncekiOzet.ToplamFis:N0} fis, {oncekiOzet.ToplamSatir:N0} satir, Yevmiye: {oncekiMin} - {oncekiMax}");
-                        }
-                        else
-                        {
-                            _log.Basari($"ONCEKI AY: {oncekiOzet.DosyaSayisi} dosya (fis bulunamadi)");
-                        }
+                        oncekiAyDefterler = parser.KlasordenOku(oncekiAyYolu, SicilNo);
                     }
-                    catch (FileNotFoundException)
-                    {
-                        _log.Uyari($"Onceki ay ({oncekiAyKlasoru}) klasorunde yevmiye XML dosyasi bulunamadi.");
-                    }
-                    catch (Exception ex)
-                    {
-                        _log.Uyari($"Onceki ay XML okunamadi: {ex.Message}");
-                    }
-                }
-                else
-                {
-                    _log.Uyari($"Onceki ay klasoru bulunamadi: {oncekiAyYolu}");
+                    catch { /* süreklilik bölümünde uyarı verilecek */ }
                 }
             }
+
+            // Tek rapor bloğu: önceki ay + çalışılan ay alt alta
+            _log.Bilgi("===== E-DEFTER ANALIZ RAPORU =====");
+
+            if (oncekiAyDefterler != null && oncekiAyDefterler.Count > 0)
+            {
+                var oncekiOzet = analyzer.OzetHesapla(oncekiAyDefterler);
+                var oncekiFisler = oncekiAyDefterler.SelectMany(d => d.Fisler).ToList();
+
+                _log.Bilgi("--- Onceki Ay ---");
+                foreach (var dosyaOzet in oncekiOzet.DosyaOzetleri)
+                {
+                    _log.Bilgi($"  Dosya   : {dosyaOzet.DosyaAdi}");
+                    _log.Bilgi($"  Firma   : {dosyaOzet.FirmaUnvani} ({dosyaOzet.SicilNo})");
+                    _log.Bilgi($"  Donem   : {dosyaOzet.DonemBaslangic:dd.MM.yyyy} - {dosyaOzet.DonemBitis:dd.MM.yyyy}");
+                    _log.Bilgi($"  Fis/Satir: {dosyaOzet.FisSayisi:N0} / {dosyaOzet.SatirSayisi:N0}");
+                }
+                if (oncekiFisler.Count > 0)
+                {
+                    int oncekiMin = oncekiFisler.Min(f => f.YevmiyeNoSayac);
+                    int oncekiMax = oncekiFisler.Max(f => f.YevmiyeNoSayac);
+                    _log.Bilgi($"  Yevmiye : {oncekiMin} - {oncekiMax}");
+                }
+                _log.Bilgi(string.Empty);
+            }
+            else if (calislanAyNo > 1)
+            {
+                string oncekiAyKlasoruStr = (calislanAyNo - 1).ToString("D2");
+                _log.Uyari($"--- Onceki Ay ({oncekiAyKlasoruStr}) ---");
+                _log.Uyari("  Onceki ay E-Defter XML dosyasi bulunamadi veya okunamadi.");
+                _log.Bilgi(string.Empty);
+            }
+
+            var ozet = analyzer.OzetHesapla(_defterler);
+            var calislanFisler = _defterler.SelectMany(d => d.Fisler).ToList();
+
+            _log.Bilgi("--- Calisilan Ay ---");
+            foreach (var dosyaOzet in ozet.DosyaOzetleri)
+            {
+                _log.Bilgi($"  Dosya   : {dosyaOzet.DosyaAdi}");
+                _log.Bilgi($"  Firma   : {dosyaOzet.FirmaUnvani} ({dosyaOzet.SicilNo})");
+                _log.Bilgi($"  Donem   : {dosyaOzet.DonemBaslangic:dd.MM.yyyy} - {dosyaOzet.DonemBitis:dd.MM.yyyy}");
+                _log.Bilgi($"  Fis/Satir: {dosyaOzet.FisSayisi:N0} / {dosyaOzet.SatirSayisi:N0}");
+            }
+            if (calislanFisler.Count > 0)
+            {
+                int calislanMin = calislanFisler.Min(f => f.YevmiyeNoSayac);
+                int calislanMax = calislanFisler.Max(f => f.YevmiyeNoSayac);
+                _log.Bilgi($"  Yevmiye : {calislanMin} - {calislanMax}");
+            }
+            _log.Bilgi(string.Empty);
+            _log.Basari($"TOPLAM: {ozet.DosyaSayisi} dosya, {ozet.ToplamFis:N0} fis, {ozet.ToplamSatir:N0} satir");
 
             worker.ReportProgress(70, "Borc-Alacak denge kontrolu...");
             var dengesizler = analyzer.DengeKontrolu(_defterler);
