@@ -1,5 +1,20 @@
 # Özellikler (Features)
 
+## v2.9.1 — Sıra No ve Evrak Parse Düzeltmesi
+
+### Mükerrer SıraNo Düzeltmesi
+- Mükerrer fişlere de sıralı numara atanır (önizlemede 0 yerine gerçek sıra görünür)
+- Mükerrer bayrağı korunur — fiş oluşturmada yine atlanır
+
+### ETTN/e-Fatura Evrak Parse (YENİ)
+- **PatternEttn** — 3-char prefix + yıl + sıra formatı tanınır (ör: TA4202500000642 → Seri=TA4, Sıra=642)
+- **PatternEdDefterAciklama** — DetayAciklama'daki `<EvrakTipi> : <BelgeNo>/<Tarih>/...` formatı parse edilir
+- Desteklenen prefixler: TA4, GB3, A16, C01, P01 ve benzerleri
+- Sayısal belge numaraları (ör: C.A.V.D : 6933/...) da açıklama formatından yakalanır
+
+### 84/84 Birim Testi
+- 12 yeni test eklendi (ETTN + DetayAciklama + Anahtar)
+
 ## v2.9.0 — Grid Filtre / Arama / Sıralama
 
 ### FilterableGridHelper<T> (YENİ)

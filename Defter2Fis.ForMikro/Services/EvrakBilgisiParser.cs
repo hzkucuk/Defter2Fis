@@ -14,6 +14,8 @@ namespace Defter2Fis.ForMikro.Services
         // "A-000123", "A 000123", "A/000123"
         // "EvrakSeri:A EvrakNo:123"
         // "EVRAK SERİ: A EVRAK NO: 000123"
+        // ETTN: "TA4202500000642", "GB3202500809960" (e-Fatura/e-Arşiv)
+        // e-Defter açıklama: "Al.fat. : TA4202500000642/31.05.2025/..."
 
         private static readonly Regex PatternSeriNo = new Regex(
             @"(?:SER[İI]\s*[:=]\s*)([A-Za-z0-9]{1,5})\s+(?:NO|SIRA)\s*[:=]\s*(\d+)",
@@ -29,6 +31,18 @@ namespace Defter2Fis.ForMikro.Services
 
         private static readonly Regex PatternSeriBoşlukSira = new Regex(
             @"\b([A-Za-z]{1,3})\s+(\d{4,10})\b",
+            RegexOptions.Compiled);
+
+        // ETTN/e-Fatura belge numarası: 3 karakter prefix + 4 haneli yıl + 5+ haneli sıra
+        // Ör: TA4202500000642 → Seri=TA4, Sıra=642
+        private static readonly Regex PatternEttn = new Regex(
+            @"^([A-Za-z]\w{2})(\d{4})(\d{5,})$",
+            RegexOptions.Compiled);
+
+        // e-Defter açıklama formatı: <EvrakTipi> : <BelgeNo>/<GG.AA.YYYY>/...
+        // Ör: "Al.fat. : TA4202500000642/31.05.2025/...", "C.A.V.D : 6933/31.05.2025/..."
+        private static readonly Regex PatternEdDefterAciklama = new Regex(
+            @":\s*([A-Za-z0-9]+)/\d{2}\.\d{2}\.\d{4}",
             RegexOptions.Compiled);
 
         /// <summary>
@@ -101,6 +115,26 @@ namespace Defter2Fis.ForMikro.Services
                 return OlusturEvrak(match.Groups[1].Value, match.Groups[2].Value);
             }
 
+            // Pattern 5: e-Defter açıklama: "<EvrakTipi> : <BelgeNo>/<GG.AA.YYYY>/..."
+            match = PatternEdDefterAciklama.Match(metin);
+            if (match.Success)
+            {
+                string belgeNoYakalanan = match.Groups[1].Value;
+
+                // Sayısal ise doğrudan sıra olarak al
+                if (int.TryParse(belgeNoYakalanan, out int sira) && sira > 0)
+                {
+                    return new EvrakBilgisi(string.Empty, sira);
+                }
+
+                // ETTN formatı ise prefix + yıl + sıra olarak parse et
+                Match ettnMatch = PatternEttn.Match(belgeNoYakalanan);
+                if (ettnMatch.Success)
+                {
+                    return OlusturEvrak(ettnMatch.Groups[1].Value, ettnMatch.Groups[3].Value);
+                }
+            }
+
             return null;
         }
 
@@ -136,6 +170,14 @@ namespace Defter2Fis.ForMikro.Services
                 {
                     return new EvrakBilgisi(temiz.Substring(0, 1).ToUpperInvariant(), sira);
                 }
+            }
+
+            // ETTN/e-Fatura: 3-char prefix + yıl + sıra
+            // Ör: TA4202500000642 → Seri=TA4, Sıra=642
+            Match matchEttn = PatternEttn.Match(temiz);
+            if (matchEttn.Success)
+            {
+                return OlusturEvrak(matchEttn.Groups[1].Value, matchEttn.Groups[3].Value);
             }
 
             return null;

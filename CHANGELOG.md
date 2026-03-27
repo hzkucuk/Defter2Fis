@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.9.1] - 2025-08-26 — Sıra No ve Evrak Parse Düzeltmesi
+
+### Düzeltmeler
+- **Mükerrer SıraNo = 0 sorunu** — Önizlemede mükerrer fişlere de sıralı numara atanır (mükerrer bayrağı korunur)
+- **ETTN evrak parse hatası** — e-Fatura/e-Arşiv ETTN belge numaraları (ör: TA4202500000642) artık doğru parse ediliyor
+- **e-Defter açıklama formatı** — "Al.fat. : ...", "C.A.V.D : ..." gibi DetayAciklama formatlarından evrak bilgisi çıkarılıyor
+
+### Yeni Testler
+- 12 yeni birim testi: ETTN BelgeNo (4 test), ETTN DetayAciklama (5 test), sayısal DetayAciklama (2 test), Anahtar (1 test)
+- Toplam: **84/84 test geçiyor**
+
+### Etkilenen dosyalar
+- Defter2Fis.ForMikro\Services\OnizlemeServisi.cs (mükerrer sıra no düzeltmesi)
+- Defter2Fis.ForMikro\Services\EvrakBilgisiParser.cs (PatternEttn + PatternEdDefterAciklama)
+- Defter2Fis.Tests\EvrakBilgisiParserTests.cs (12 yeni test)
+
 ## [2.9.0] - 2025-08-26 — Grid Filtre / Arama / Sıralama
 
 ### Yeni Özellikler

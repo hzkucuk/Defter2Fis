@@ -111,6 +111,61 @@ namespace Defter2Fis.Tests
 
         #endregion
 
+        #region Pattern 5: e-Defter açıklama formatı
+
+        [TestCase("Al.fat. : TA4202500000642/31.05.2025/KDVO:%20.00/TÜRK HAVAYOLLARI", "TA4", 642)]
+        [TestCase("Al.fat. : GB3202500809960/31.05.2025//TÜRK TELEKOM", "GB3", 809960)]
+        [TestCase("Al.fat. : A162025004088937/31.05.2025/Internet/TTNET A.Ş.", "A16", 4088937)]
+        [TestCase("Al.fat. : C012025000725240/31.05.2025/AYLIK ÜCRET", "C01", 725240)]
+        [TestCase("Al.fat. : P012025002634501/31.05.2025/AYLIK ÜCRET", "P01", 2634501)]
+        public void WhenEdDefterEttnAciklamaThenParsesCorrectly(string aciklama, string beklenenSeri, int beklenenSira)
+        {
+            var sonuc = _parser.Parse(aciklama, null, null);
+
+            Assert.That(sonuc, Is.Not.Null);
+            Assert.That(sonuc.Seri, Is.EqualTo(beklenenSeri));
+            Assert.That(sonuc.Sira, Is.EqualTo(beklenenSira));
+        }
+
+        [TestCase("C.A.V.D : 6933/31.05.2025/GÜMRÜK 3680014533I", 6933)]
+        [TestCase("Gl.Hav. : 3470/31.05.2025/34DV5817 TAŞIT TANIMA", 3470)]
+        public void WhenEdDefterSayisalAciklamaThenParsesCorrectly(string aciklama, int beklenenSira)
+        {
+            var sonuc = _parser.Parse(aciklama, null, null);
+
+            Assert.That(sonuc, Is.Not.Null);
+            Assert.That(sonuc.Seri, Is.EqualTo(string.Empty));
+            Assert.That(sonuc.Sira, Is.EqualTo(beklenenSira));
+        }
+
+        #endregion
+
+        #region ETTN BelgeNo fallback
+
+        [TestCase("TA4202500000642", "TA4", 642)]
+        [TestCase("GB3202500809960", "GB3", 809960)]
+        [TestCase("A162025004088937", "A16", 4088937)]
+        [TestCase("C012025000725240", "C01", 725240)]
+        public void WhenBelgeNoEttnFormatThenParsesCorrectly(string belgeNo, string beklenenSeri, int beklenenSira)
+        {
+            var sonuc = _parser.Parse(null, belgeNo, null);
+
+            Assert.That(sonuc, Is.Not.Null);
+            Assert.That(sonuc.Seri, Is.EqualTo(beklenenSeri));
+            Assert.That(sonuc.Sira, Is.EqualTo(beklenenSira));
+        }
+
+        [Test]
+        public void WhenEttnFormatThenAnahtarSeriTireSira()
+        {
+            var sonuc = _parser.Parse(null, "TA4202500000642", null);
+
+            Assert.That(sonuc, Is.Not.Null);
+            Assert.That(sonuc.Anahtar, Is.EqualTo("TA4-642"));
+        }
+
+        #endregion
+
         #region Null / boş input
 
         [Test]

@@ -108,7 +108,8 @@ namespace Defter2Fis.ForMikro.Services
                             sonuc.MukerrerYevmiyeNolar.Add(yevmiyeFisi.YevmiyeNoSayac);
                         }
 
-                        int siraNo = mukerrer ? 0 : siradakiSiraNo++;
+                        // Mükerrer olsa bile sıra no ata (önizlemede kullanıcı görsün)
+                        int siraNo = siradakiSiraNo++;
 
                         // Borç/Alacak topla
                         decimal borc = 0, alacak = 0;
