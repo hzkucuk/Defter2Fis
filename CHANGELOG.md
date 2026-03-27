@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.7.0] - 2025-08-25 — Önceki Ay E-Defter XML Bilgisi Gösterimi
+
+### Eklenenler
+- **Önceki ay E-Defter XML bilgisi** — Analiz raporunda çalışılan aydan önceki ayın XML dosyası okunarak gösterilir
+  - Dosya adı, firma, dönem, fiş/satır sayısı, yevmiye aralığı
+  - Önceki ay klasörü yoksa veya XML bulunamazsa uyarı mesajı gösterilir
+  - Mali yıl ilk ayı (01) için önceki ay gösterimi atlanır
+
+### Etkilenen dosyalar
+- Defter2Fis.ForMikro\Forms\MainForm.cs (AnalizCalistir — önceki ay XML okuma bloğu)
+
 ## [2.6.1] - 2025-08-25 — Yevmiye Sürekliliği: Tarih-Bazlı → Yevmiye-Bazlı Düzeltme
 
 ### Düzeltmeler

@@ -1,5 +1,13 @@
 # Özellikler (Features)
 
+## v2.7.0 — Önceki Ay E-Defter XML Bilgisi Gösterimi
+
+### Önceki Ay XML Raporu (YENİ)
+- **Analiz raporunda önceki ay bilgisi** — Çalışılan aydan önceki ayın E-Defter XML'i otomatik okunur
+- Dosya adı, firma ünvanı, dönem aralığı, fiş sayısı, satır sayısı, yevmiye aralığı gösterilir
+- Klasör yoksa veya XML bulunamazsa uyarı mesajı
+- Mali yıl ilk ayı (01) için önceki ay gösterimi atlanır
+
 ## v2.6.1 — Yevmiye Sürekliliği Bug Fix (Tarih → Yevmiye Bazlı)
 
 ### Yevmiye-Numarası-Bazlı Süreklilik Kontrolü (DÜZELTİLDİ — KRİTİK)

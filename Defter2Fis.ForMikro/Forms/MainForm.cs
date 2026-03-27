@@ -166,6 +166,58 @@ namespace Defter2Fis.ForMikro.Forms
             }
             _log.Basari($"TOPLAM: {ozet.DosyaSayisi} dosya, {ozet.ToplamFis:N0} fis, {ozet.ToplamSatir:N0} satir");
 
+            // Önceki ayın E-Defter XML bilgilerini göster (bilgilendirme amaçlı)
+            int calislanAyNo = int.TryParse(AyKlasoru, out int ayNo) ? ayNo : 0;
+            if (calislanAyNo > 1)
+            {
+                string oncekiAyKlasoru = (calislanAyNo - 1).ToString("D2");
+                string oncekiAyYolu = Path.Combine(EdDefterRootPath, SicilNo, MaliYilAraligi, oncekiAyKlasoru);
+
+                if (Directory.Exists(oncekiAyYolu))
+                {
+                    try
+                    {
+                        var oncekiDefterler = parser.KlasordenOku(oncekiAyYolu, SicilNo);
+                        var oncekiOzet = analyzer.OzetHesapla(oncekiDefterler);
+
+                        _log.Bilgi(string.Empty);
+                        _log.Bilgi("===== ONCEKI AY E-DEFTER BILGISI =====");
+                        foreach (var dosyaOzet in oncekiOzet.DosyaOzetleri)
+                        {
+                            _log.Bilgi($"  Dosya   : {dosyaOzet.DosyaAdi}");
+                            _log.Bilgi($"  Firma   : {dosyaOzet.FirmaUnvani} ({dosyaOzet.SicilNo})");
+                            _log.Bilgi($"  Donem   : {dosyaOzet.DonemBaslangic:dd.MM.yyyy} - {dosyaOzet.DonemBitis:dd.MM.yyyy}");
+                            _log.Bilgi($"  Fis/Satir: {dosyaOzet.FisSayisi:N0} / {dosyaOzet.SatirSayisi:N0}");
+                            _log.Bilgi(string.Empty);
+                        }
+
+                        var oncekiFisler = oncekiDefterler.SelectMany(d => d.Fisler).ToList();
+                        if (oncekiFisler.Count > 0)
+                        {
+                            int oncekiMin = oncekiFisler.Min(f => f.YevmiyeNoSayac);
+                            int oncekiMax = oncekiFisler.Max(f => f.YevmiyeNoSayac);
+                            _log.Basari($"ONCEKI AY: {oncekiOzet.ToplamFis:N0} fis, {oncekiOzet.ToplamSatir:N0} satir, Yevmiye: {oncekiMin} - {oncekiMax}");
+                        }
+                        else
+                        {
+                            _log.Basari($"ONCEKI AY: {oncekiOzet.DosyaSayisi} dosya (fis bulunamadi)");
+                        }
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        _log.Uyari($"Onceki ay ({oncekiAyKlasoru}) klasorunde yevmiye XML dosyasi bulunamadi.");
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.Uyari($"Onceki ay XML okunamadi: {ex.Message}");
+                    }
+                }
+                else
+                {
+                    _log.Uyari($"Onceki ay klasoru bulunamadi: {oncekiAyYolu}");
+                }
+            }
+
             worker.ReportProgress(70, "Borc-Alacak denge kontrolu...");
             var dengesizler = analyzer.DengeKontrolu(_defterler);
             if (dengesizler.Count == 0)
