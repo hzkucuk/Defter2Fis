@@ -74,6 +74,7 @@
     <Compile Include="Services\DefterAnalyzer.cs" />
     <Compile Include="Services\EdDefterXmlParser.cs" />
     <Compile Include="Services\EvrakBilgisiParser.cs" />
+    <Compile Include="Services\FilterableGridHelper.cs" />
     <Compile Include="Services\FisOlusturmaServisi.cs" />
     <Compile Include="Services\IMikroDbService.cs" />
     <Compile Include="Services\LogService.cs" />

@@ -1,5 +1,31 @@
 # Özellikler (Features)
 
+## v2.9.0 — Grid Filtre / Arama / Sıralama
+
+### FilterableGridHelper<T> (YENİ)
+- **Generic filtre** — LINQ Where ile tüm public property'lerde case-insensitive metin arama
+- **Kolon sıralama** — PropertyInfo.GetValue + OrderBy/OrderByDescending, kolon başlığı tıklama
+- **Sıralama göstergesi** — SortGlyphDirection ile ASC/DESC ok işareti
+- **Satır renklendirme callback** — VeriYukle'ye opsiyonel Action<DataGridViewRowCollection> parametresi
+- **Yükleme flag** — _yukleniyor ile VeriYukle sırasında TextChanged bastirılır
+
+### 6 Grid Filtre Entegrasyonu (YENİ)
+- Mevcut Dönem Verisi, Fişler, Cari, Stok, Eksik Hesap, Uyarılar gridlerinin hepsinde filtre
+- Her grid üzerinde karanlık temalı KryptonTextBox arama kutusu
+- Mükerrer satır (kırmızı) ve uyarı seviye renkleri filtre sonrası da korunur
+- FiltreAlanOlustur: TLP + TextBox + Grid layout yardımcısı
+- FiltreHelperBaslat: 6 helper instance oluşturma
+- Form kapanışında Dispose ile temizlik
+
+## v2.8.0 — Birim Testleri
+
+### Test Projesi (YENİ)
+- **DefterAnalyzerTests** — 17 test: AraSeviyeleriUret, OzetHesapla, BenzersizHesapKodlari, EksikHesaplariTespit, DengeKontrolu
+- **EdDefterXmlParserTests** — 14 test: DosyadanOku, KlasordenOku, hata durumları, opsiyonel alanlar
+- **DefterAnalyzerMockTests** — 15 test: OncekiAyDogrula, DbDurumGetir (Moq ile)
+- **72/72 test geçiyor** (NUnit 3.14.0 + Moq 4.20.72)
+- Test projesi packages.config → PackageReference formatına geçiş
+
 ## v2.7.1 — Analiz Raporu Birleşik Gösterim
 
 ### Birleşik Rapor Bloğu (İYİLEŞTİRME)

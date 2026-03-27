@@ -1,5 +1,34 @@
 # Changelog
 
+## [2.9.0] - 2025-08-26 — Grid Filtre / Arama / Sıralama
+
+### Yeni Özellikler
+- **Grid filtre/arama** — Tüm 6 KryptonDataGridView'e anlık metin arama (tüm kolonlarda case-insensitive)
+- **Kolon sıralama** — Kolon başlığına tıklayarak ASC/DESC sıralama (glyph göstergesi)
+- **FilterableGridHelper<T>** — Generic LINQ tabanlı filtre + PropertyInfo reflection sıralama yardımcı sınıfı
+- **Satır renklendirme korunumu** — Mükerrer (kırmızı) ve uyarı seviye renkleri filtre sonrası da korunur
+- **Dark tema filtre kutusu** — Her grid üstüne karanlık temalı arama TextBox'u
+
+### Etkilenen dosyalar
+- Defter2Fis.ForMikro\Services\FilterableGridHelper.cs (YENİ)
+- Defter2Fis.ForMikro\Forms\MainForm.cs (güncellendi — 6 helper instance, FiltreAlanOlustur, FiltreHelperBaslat)
+- Defter2Fis.ForMikro\Forms\MainForm.Designer.cs (güncellendi — 6 filtre TextBox + 5 TLP)
+
+## [2.8.0] - 2025-08-26 — Birim Testleri
+
+### Yeni Özellikler
+- **DefterAnalyzerTests** — 17 test: AraSeviyeleriUret, OzetHesapla, BenzersizHesapKodlari, EksikHesaplariTespit, DengeKontrolu
+- **EdDefterXmlParserTests** — 14 test: DosyadanOku, KlasordenOku, hata durumları, opsiyonel alanlar
+- **DefterAnalyzerMockTests** — 15 test: OncekiAyDogrula, DbDurumGetir (Moq ile)
+- **Test projesi modernizasyonu** — packages.config → PackageReference formatına geçiş
+- **72/72 test geçiyor** (NUnit 3.14.0 + Moq 4.20.72)
+
+### Etkilenen dosyalar
+- Defter2Fis.Tests\DefterAnalyzerTests.cs (YENİ)
+- Defter2Fis.Tests\EdDefterXmlParserTests.cs (YENİ)
+- Defter2Fis.Tests\DefterAnalyzerMockTests.cs (YENİ)
+- Defter2Fis.Tests\Defter2Fis.Tests.csproj (PackageReference + RuntimeIdentifiers)
+
 ## [2.7.2] - 2025-08-25 — Stok Hareketleri Kolon Adı Düzeltmesi
 
 ### Düzeltmeler

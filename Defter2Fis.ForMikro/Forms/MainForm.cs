@@ -24,12 +24,19 @@ namespace Defter2Fis.ForMikro.Forms
         private OnizlemeSonucu _sonOnizleme;
         private SureklilkKontrolSonucu _sureklilkSonucu;
         private bool _islemDevam;
+        private FilterableGridHelper<DonemFisOzeti> _filtreHelperMevcutVeri;
+        private FilterableGridHelper<OnizlemeFisKaydi> _filtreHelperOzFisler;
+        private FilterableGridHelper<OnizlemeCariEslesmesi> _filtreHelperOzCari;
+        private FilterableGridHelper<OnizlemeStokEslesmesi> _filtreHelperOzStok;
+        private FilterableGridHelper<OnizlemeEksikHesap> _filtreHelperOzHesap;
+        private FilterableGridHelper<OnizlemeUyari> _filtreHelperOzUyari;
 
         public MainForm()
         {
             InitializeComponent();
             _log.LogEklendi += Log_LogEklendi;
             AyarOzetiniGuncelle();
+            FiltreHelperBaslat();
         }
 
         #region Ayar Okuma
@@ -347,25 +354,19 @@ namespace Defter2Fis.ForMikro.Forms
 
         private void MevcutVeriGridYukle(List<DonemFisOzeti> veriler)
         {
-            _dgvMevcutVeri.DataSource = null;
-            _dgvMevcutVeri.Columns.Clear();
-            var bs = new BindingSource();
-            bs.DataSource = veriler;
-            _dgvMevcutVeri.DataSource = bs;
-
-            if (_dgvMevcutVeri.Columns.Count > 0)
+            _filtreHelperMevcutVeri.VeriYukle(veriler, col =>
             {
-                _dgvMevcutVeri.Columns["YevmiyeNo"].HeaderText = "Yevmiye No";
-                _dgvMevcutVeri.Columns["Tarih"].HeaderText = "Tarih";
-                _dgvMevcutVeri.Columns["Tarih"].DefaultCellStyle.Format = "dd.MM.yyyy";
-                _dgvMevcutVeri.Columns["SatirSayisi"].HeaderText = "Satir Sayisi";
-                _dgvMevcutVeri.Columns["ToplamBorc"].HeaderText = "Toplam Borc";
-                _dgvMevcutVeri.Columns["ToplamBorc"].DefaultCellStyle.Format = "N2";
-                _dgvMevcutVeri.Columns["ToplamAlacak"].HeaderText = "Toplam Alacak";
-                _dgvMevcutVeri.Columns["ToplamAlacak"].DefaultCellStyle.Format = "N2";
-                _dgvMevcutVeri.Columns["Aciklama"].HeaderText = "Aciklama";
-                _dgvMevcutVeri.Columns["Aciklama"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            }
+                col["YevmiyeNo"].HeaderText = "Yevmiye No";
+                col["Tarih"].HeaderText = "Tarih";
+                col["Tarih"].DefaultCellStyle.Format = "dd.MM.yyyy";
+                col["SatirSayisi"].HeaderText = "Satir Sayisi";
+                col["ToplamBorc"].HeaderText = "Toplam Borc";
+                col["ToplamBorc"].DefaultCellStyle.Format = "N2";
+                col["ToplamAlacak"].HeaderText = "Toplam Alacak";
+                col["ToplamAlacak"].DefaultCellStyle.Format = "N2";
+                col["Aciklama"].HeaderText = "Aciklama";
+                col["Aciklama"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            });
 
             _lblMevcutVeriOzet.Values.Text = $"Toplam: {veriler.Count} yevmiye, {veriler.Sum(v => v.SatirSayisi):N0} satir";
             _btnDonemVerisiSil.Enabled = veriler.Count > 0;
@@ -408,7 +409,7 @@ namespace Defter2Fis.ForMikro.Forms
                 _log.Basari($"{silinenSatir:N0} fis satiri basariyla silindi.");
                 BeginInvoke(new Action(() =>
                 {
-                    _dgvMevcutVeri.DataSource = null;
+                    _filtreHelperMevcutVeri.VeriYukle(new List<DonemFisOzeti>(), _ => { });
                     _lblMevcutVeriOzet.Values.Text = "Donem verisi silindi.";
                     _btnDonemVerisiSil.Enabled = false;
                 }));
@@ -474,8 +475,10 @@ namespace Defter2Fis.ForMikro.Forms
             _lblOzMukerrer.Values.Text = $"Mukerrer: {oz.MukerrerSayisi:N0}";
             _lblOzEksikHesap.Values.Text = $"Eksik Hesap: {oz.EksikHesaplar.Count:N0}";
 
-            // Fisler grid
-            GridYukle(_dgvOzFisler, oz.FisKayitlari, col =>
+            var defaultBg = Color.FromArgb(30, 30, 30);
+
+            // Fisler grid (mukerrer satirlar kirmizi)
+            _filtreHelperOzFisler.VeriYukle(oz.FisKayitlari, col =>
             {
                 col["YevmiyeNo"].HeaderText = "Yevmiye No";
                 col["Tarih"].HeaderText = "Tarih";
@@ -492,17 +495,19 @@ namespace Defter2Fis.ForMikro.Forms
                 col["Mukerrer"].HeaderText = "Mukerrer";
                 col["Aciklama"].HeaderText = "Aciklama";
                 col["Aciklama"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            }, rows =>
+            {
+                foreach (DataGridViewRow row in rows)
+                {
+                    bool mukerrer = row.Cells["Mukerrer"].Value is bool m && m;
+                    row.DefaultCellStyle.BackColor = mukerrer
+                        ? Color.FromArgb(255, 230, 230)
+                        : defaultBg;
+                }
             });
 
-            // Mukerrer satirlari kirmizi yap
-            foreach (DataGridViewRow row in _dgvOzFisler.Rows)
-            {
-                if (row.Cells["Mukerrer"].Value is bool m && m)
-                    row.DefaultCellStyle.BackColor = Color.FromArgb(255, 230, 230);
-            }
-
             // Cari grid
-            GridYukle(_dgvOzCari, oz.CariEslesmeleri, col =>
+            _filtreHelperOzCari.VeriYukle(oz.CariEslesmeleri, col =>
             {
                 col["YevmiyeNo"].HeaderText = "Yevmiye No";
                 col["EvrakSeri"].HeaderText = "Evrak Seri";
@@ -516,7 +521,7 @@ namespace Defter2Fis.ForMikro.Forms
             });
 
             // Stok grid
-            GridYukle(_dgvOzStok, oz.StokEslesmeleri, col =>
+            _filtreHelperOzStok.VeriYukle(oz.StokEslesmeleri, col =>
             {
                 col["YevmiyeNo"].HeaderText = "Yevmiye No";
                 col["EvrakSeri"].HeaderText = "Evrak Seri";
@@ -529,7 +534,7 @@ namespace Defter2Fis.ForMikro.Forms
             });
 
             // Eksik hesaplar grid
-            GridYukle(_dgvOzHesap, oz.EksikHesaplar, col =>
+            _filtreHelperOzHesap.VeriYukle(oz.EksikHesaplar, col =>
             {
                 col["HesapKod"].HeaderText = "Hesap Kodu";
                 col["HesapIsim"].HeaderText = "Hesap Adi";
@@ -537,8 +542,8 @@ namespace Defter2Fis.ForMikro.Forms
                 col["TipAciklama"].HeaderText = "Tip Aciklama";
             });
 
-            // Uyarilar grid
-            GridYukle(_dgvOzUyari, oz.Uyarilar, col =>
+            // Uyarilar grid (seviyeye gore renklendirme)
+            _filtreHelperOzUyari.VeriYukle(oz.Uyarilar, col =>
             {
                 col["SeviyeIkon"].HeaderText = "";
                 col["SeviyeIkon"].Width = 30;
@@ -547,24 +552,27 @@ namespace Defter2Fis.ForMikro.Forms
                 col["Mesaj"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
                 if (col.Contains("YevmiyeNo"))
                     col["YevmiyeNo"].HeaderText = "Yevmiye No";
-            });
-
-            // Uyari satirlarini renklendir
-            foreach (DataGridViewRow row in _dgvOzUyari.Rows)
+            }, rows =>
             {
-                if (row.Cells["Seviye"].Value is UyariSeviye sev)
+                foreach (DataGridViewRow row in rows)
                 {
-                    switch (sev)
+                    if (row.Cells["Seviye"].Value is UyariSeviye sev)
                     {
-                        case UyariSeviye.Kritik:
-                            row.DefaultCellStyle.BackColor = Color.FromArgb(255, 220, 220);
-                            break;
-                        case UyariSeviye.Uyari:
-                            row.DefaultCellStyle.BackColor = Color.FromArgb(255, 248, 220);
-                            break;
+                        switch (sev)
+                        {
+                            case UyariSeviye.Kritik:
+                                row.DefaultCellStyle.BackColor = Color.FromArgb(255, 220, 220);
+                                break;
+                            case UyariSeviye.Uyari:
+                                row.DefaultCellStyle.BackColor = Color.FromArgb(255, 248, 220);
+                                break;
+                            default:
+                                row.DefaultCellStyle.BackColor = defaultBg;
+                                break;
+                        }
                     }
                 }
-            }
+            });
 
             // Tab basliklarini sayilarla guncelle
             _tabOzFisler.Text = $"Fisler ({oz.FisKayitlari.Count})";
@@ -588,6 +596,57 @@ namespace Defter2Fis.ForMikro.Forms
 
             if (dgv.Columns.Count > 0)
                 kolonAyarla(dgv.Columns);
+        }
+
+        #endregion
+
+        #region Filtre ve Siralama
+
+        /// <summary>
+        /// Onizleme tab'lari icin filtre alani (TLP + TextBox + Grid) olusturur.
+        /// InitializeComponent icerisinden cagrilir.
+        /// </summary>
+        private void FiltreAlanOlustur(TableLayoutPanel tbl, KryptonTextBox txt, KryptonDataGridView dgv, string tlpName, string txtName)
+        {
+            tbl.ColumnCount = 1;
+            tbl.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tbl.RowCount = 2;
+            tbl.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            tbl.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tbl.Dock = DockStyle.Fill;
+            tbl.BackColor = Color.FromArgb(37, 37, 38);
+            tbl.Name = tlpName;
+            tbl.Controls.Add(txt, 0, 0);
+            tbl.Controls.Add(dgv, 0, 1);
+
+            FiltreTextBoxStilUygula(txt, txtName);
+            txt.Dock = DockStyle.Fill;
+            txt.Margin = new Padding(3, 3, 3, 0);
+        }
+
+        /// <summary>
+        /// Filtre TextBox'ina karanlik tema stilini uygular.
+        /// InitializeComponent icerisinden cagrilir.
+        /// </summary>
+        private void FiltreTextBoxStilUygula(KryptonTextBox txt, string name)
+        {
+            txt.Name = name;
+            txt.StateCommon.Back.Color1 = Color.FromArgb(45, 45, 48);
+            txt.StateCommon.Content.Color1 = Color.FromArgb(220, 220, 220);
+            txt.StateCommon.Content.Font = new Font("Segoe UI", 9F);
+        }
+
+        /// <summary>
+        /// 6 grid icin FilterableGridHelper instance'larini olusturur.
+        /// </summary>
+        private void FiltreHelperBaslat()
+        {
+            _filtreHelperMevcutVeri = new FilterableGridHelper<DonemFisOzeti>(_dgvMevcutVeri, _txtFiltreMevcutVeri);
+            _filtreHelperOzFisler = new FilterableGridHelper<OnizlemeFisKaydi>(_dgvOzFisler, _txtFiltreOzFisler);
+            _filtreHelperOzCari = new FilterableGridHelper<OnizlemeCariEslesmesi>(_dgvOzCari, _txtFiltreOzCari);
+            _filtreHelperOzStok = new FilterableGridHelper<OnizlemeStokEslesmesi>(_dgvOzStok, _txtFiltreOzStok);
+            _filtreHelperOzHesap = new FilterableGridHelper<OnizlemeEksikHesap>(_dgvOzHesap, _txtFiltreOzHesap);
+            _filtreHelperOzUyari = new FilterableGridHelper<OnizlemeUyari>(_dgvOzUyari, _txtFiltreOzUyari);
         }
 
         #endregion
@@ -868,6 +927,14 @@ namespace Defter2Fis.ForMikro.Forms
                     return;
                 }
             }
+
+            _filtreHelperMevcutVeri?.Dispose();
+            _filtreHelperOzFisler?.Dispose();
+            _filtreHelperOzCari?.Dispose();
+            _filtreHelperOzStok?.Dispose();
+            _filtreHelperOzHesap?.Dispose();
+            _filtreHelperOzUyari?.Dispose();
+
             base.OnFormClosing(e);
         }
 

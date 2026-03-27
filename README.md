@@ -1,6 +1,6 @@
 # Defter2Fis — E-Defter → Mikro ERP Muhasebe Fişi Oluşturucu
 
-![Version](https://img.shields.io/badge/version-2.7.2-blue)
+![Version](https://img.shields.io/badge/version-2.9.0-blue)
 ![.NET](https://img.shields.io/badge/.NET%20Framework-4.8-purple)
 
 ## Açıklama
@@ -10,6 +10,7 @@ E-Defter Yevmiye XML dosyalarını (XBRL-GL formatı) parse edip **Mikro ERP V16
 ## Özellikler
 
 - **WinForms masaüstü arayüzü** — Krypton Toolkit temalı modern UI (Dark tema)
+- **Grid Filtre / Arama / Sıralama** — Tüm veri gridlerinde anlık metin arama ve kolon başlığı ile sıralama
 - E-Defter Yevmiye XML dosyalarını otomatik bulma ve parse etme (XBRL-GL)
 - **Önizleme / Test** — Fiş oluşturma öncesi dry-run simülasyonu (cari/stok eşleşme, uyarılar)
 - **Fiş Oluşturma** — E-Defter'den Mikro ERP muhasebe fişleri oluşturma

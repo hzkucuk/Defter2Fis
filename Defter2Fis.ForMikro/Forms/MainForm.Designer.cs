@@ -70,6 +70,17 @@ namespace Defter2Fis.ForMikro.Forms
             _dgvOzHesap = new KryptonDataGridView();
             _tabOzUyari = new System.Windows.Forms.TabPage();
             _dgvOzUyari = new KryptonDataGridView();
+            _txtFiltreMevcutVeri = new KryptonTextBox();
+            _txtFiltreOzFisler = new KryptonTextBox();
+            _txtFiltreOzCari = new KryptonTextBox();
+            _txtFiltreOzStok = new KryptonTextBox();
+            _txtFiltreOzHesap = new KryptonTextBox();
+            _txtFiltreOzUyari = new KryptonTextBox();
+            _tblOzFisler = new System.Windows.Forms.TableLayoutPanel();
+            _tblOzCari = new System.Windows.Forms.TableLayoutPanel();
+            _tblOzStok = new System.Windows.Forms.TableLayoutPanel();
+            _tblOzHesap = new System.Windows.Forms.TableLayoutPanel();
+            _tblOzUyari = new System.Windows.Forms.TableLayoutPanel();
             _statusStrip = new System.Windows.Forms.StatusStrip();
             _lblDurum = new System.Windows.Forms.ToolStripStatusLabel();
             _progressBar = new System.Windows.Forms.ToolStripProgressBar();
@@ -98,14 +109,19 @@ namespace Defter2Fis.ForMikro.Forms
             _tblOnizlemeOzet.SuspendLayout();
             _tabOnizlemeDetay.SuspendLayout();
             _tabOzFisler.SuspendLayout();
+            _tblOzFisler.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)_dgvOzFisler).BeginInit();
             _tabOzCari.SuspendLayout();
+            _tblOzCari.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)_dgvOzCari).BeginInit();
             _tabOzStok.SuspendLayout();
+            _tblOzStok.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)_dgvOzStok).BeginInit();
             _tabOzHesap.SuspendLayout();
+            _tblOzHesap.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)_dgvOzHesap).BeginInit();
             _tabOzUyari.SuspendLayout();
+            _tblOzUyari.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)_dgvOzUyari).BeginInit();
             _statusStrip.SuspendLayout();
             SuspendLayout();
@@ -270,12 +286,14 @@ namespace Defter2Fis.ForMikro.Forms
 
             _tblMevcutVeri.ColumnCount = 1;
             _tblMevcutVeri.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            _tblMevcutVeri.Controls.Add(_dgvMevcutVeri, 0, 0);
-            _tblMevcutVeri.Controls.Add(_flpMevcutVeriAlt, 0, 1);
+            _tblMevcutVeri.Controls.Add(_txtFiltreMevcutVeri, 0, 0);
+            _tblMevcutVeri.Controls.Add(_dgvMevcutVeri, 0, 1);
+            _tblMevcutVeri.Controls.Add(_flpMevcutVeriAlt, 0, 2);
             _tblMevcutVeri.Dock = System.Windows.Forms.DockStyle.Fill;
             _tblMevcutVeri.BackColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _tblMevcutVeri.Name = "_tblMevcutVeri";
-            _tblMevcutVeri.RowCount = 2;
+            _tblMevcutVeri.RowCount = 3;
+            _tblMevcutVeri.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
             _tblMevcutVeri.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             _tblMevcutVeri.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
 
@@ -377,35 +395,45 @@ namespace Defter2Fis.ForMikro.Forms
             _tabOnizlemeDetay.Dock = System.Windows.Forms.DockStyle.Fill;
             _tabOnizlemeDetay.Name = "_tabOnizlemeDetay";
 
-            _tabOzFisler.Controls.Add(_dgvOzFisler);
+            _tabOzFisler.Controls.Add(_tblOzFisler);
             _tabOzFisler.BackColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _tabOzFisler.Name = "_tabOzFisler";
             _tabOzFisler.Padding = new System.Windows.Forms.Padding(2);
             _tabOzFisler.Text = "Fi\u015Fler";
 
-            _tabOzCari.Controls.Add(_dgvOzCari);
+            _tabOzCari.Controls.Add(_tblOzCari);
             _tabOzCari.BackColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _tabOzCari.Name = "_tabOzCari";
             _tabOzCari.Padding = new System.Windows.Forms.Padding(2);
             _tabOzCari.Text = "Cari E\u015Fle\u015Fmeleri";
 
-            _tabOzStok.Controls.Add(_dgvOzStok);
+            _tabOzStok.Controls.Add(_tblOzStok);
             _tabOzStok.BackColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _tabOzStok.Name = "_tabOzStok";
             _tabOzStok.Padding = new System.Windows.Forms.Padding(2);
             _tabOzStok.Text = "Stok E\u015Fle\u015Fmeleri";
 
-            _tabOzHesap.Controls.Add(_dgvOzHesap);
+            _tabOzHesap.Controls.Add(_tblOzHesap);
             _tabOzHesap.BackColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _tabOzHesap.Name = "_tabOzHesap";
             _tabOzHesap.Padding = new System.Windows.Forms.Padding(2);
             _tabOzHesap.Text = "Eksik Hesaplar";
 
-            _tabOzUyari.Controls.Add(_dgvOzUyari);
+            _tabOzUyari.Controls.Add(_tblOzUyari);
             _tabOzUyari.BackColor = System.Drawing.Color.FromArgb(37, 37, 38);
             _tabOzUyari.Name = "_tabOzUyari";
             _tabOzUyari.Padding = new System.Windows.Forms.Padding(2);
             _tabOzUyari.Text = "Uyar\u0131lar";
+
+            // Filtre TLP ve TextBox ayarlari
+            FiltreAlanOlustur(_tblOzFisler, _txtFiltreOzFisler, _dgvOzFisler, "_tblOzFisler", "_txtFiltreOzFisler");
+            FiltreAlanOlustur(_tblOzCari, _txtFiltreOzCari, _dgvOzCari, "_tblOzCari", "_txtFiltreOzCari");
+            FiltreAlanOlustur(_tblOzStok, _txtFiltreOzStok, _dgvOzStok, "_tblOzStok", "_txtFiltreOzStok");
+            FiltreAlanOlustur(_tblOzHesap, _txtFiltreOzHesap, _dgvOzHesap, "_tblOzHesap", "_txtFiltreOzHesap");
+            FiltreAlanOlustur(_tblOzUyari, _txtFiltreOzUyari, _dgvOzUyari, "_tblOzUyari", "_txtFiltreOzUyari");
+            FiltreTextBoxStilUygula(_txtFiltreMevcutVeri, "_txtFiltreMevcutVeri");
+            _txtFiltreMevcutVeri.Dock = System.Windows.Forms.DockStyle.Fill;
+            _txtFiltreMevcutVeri.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
 
             _dgvOzFisler.AllowUserToAddRows = false;
             _dgvOzFisler.AllowUserToDeleteRows = false;
@@ -549,14 +577,24 @@ namespace Defter2Fis.ForMikro.Forms
             _tblOnizlemeOzet.ResumeLayout(false);
             _tblOnizlemeOzet.PerformLayout();
             _tabOnizlemeDetay.ResumeLayout(false);
+            _tblOzFisler.ResumeLayout(false);
+            _tblOzFisler.PerformLayout();
             _tabOzFisler.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)_dgvOzFisler).EndInit();
+            _tblOzCari.ResumeLayout(false);
+            _tblOzCari.PerformLayout();
             _tabOzCari.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)_dgvOzCari).EndInit();
+            _tblOzStok.ResumeLayout(false);
+            _tblOzStok.PerformLayout();
             _tabOzStok.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)_dgvOzStok).EndInit();
+            _tblOzHesap.ResumeLayout(false);
+            _tblOzHesap.PerformLayout();
             _tabOzHesap.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)_dgvOzHesap).EndInit();
+            _tblOzUyari.ResumeLayout(false);
+            _tblOzUyari.PerformLayout();
             _tabOzUyari.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)_dgvOzUyari).EndInit();
             _statusStrip.ResumeLayout(false);
@@ -618,6 +656,17 @@ namespace Defter2Fis.ForMikro.Forms
         private KryptonDataGridView _dgvOzHesap;
         private System.Windows.Forms.TabPage _tabOzUyari;
         private KryptonDataGridView _dgvOzUyari;
+        private KryptonTextBox _txtFiltreMevcutVeri;
+        private KryptonTextBox _txtFiltreOzFisler;
+        private KryptonTextBox _txtFiltreOzCari;
+        private KryptonTextBox _txtFiltreOzStok;
+        private KryptonTextBox _txtFiltreOzHesap;
+        private KryptonTextBox _txtFiltreOzUyari;
+        private System.Windows.Forms.TableLayoutPanel _tblOzFisler;
+        private System.Windows.Forms.TableLayoutPanel _tblOzCari;
+        private System.Windows.Forms.TableLayoutPanel _tblOzStok;
+        private System.Windows.Forms.TableLayoutPanel _tblOzHesap;
+        private System.Windows.Forms.TableLayoutPanel _tblOzUyari;
         private System.Windows.Forms.StatusStrip _statusStrip;
         private System.Windows.Forms.ToolStripStatusLabel _lblDurum;
         private System.Windows.Forms.ToolStripProgressBar _progressBar;
