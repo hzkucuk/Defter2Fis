@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.5.3] - 2025-08-23 — SQL Server Express COMPRESSION Uyumluluk Düzeltmesi
+
+### Düzeltmeler
+- **Kritik:** `BACKUP DATABASE WITH COMPRESSION` SQL Server Express'te desteklenmez — `COMPRESSION` seçeneği kaldırıldı
+
 ## [2.5.2] - 2025-08-23 — Yedekleme: Hedef DB Dizinine Yaz
 
 ### Düzeltmeler

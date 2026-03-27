@@ -716,11 +716,12 @@ namespace Defter2Fis.ForMikro.Services
                 yedekYolu = Path.Combine(guvenliDizin, dosyaAdi);
             }
 
-            // BACKUP DATABASE komutu — INIT: üzerine yaz, COMPRESSION: sıkıştır, STATS: ilerleme
+            // BACKUP DATABASE komutu — INIT: üzerine yaz, STATS: ilerleme
+            // COMPRESSION yok: SQL Server Express desteklemez.
             // Parameterized SQL backup komutunda parametre kullanılamaz, DB adı ve yol doğrudan yazılmalı.
             // SQL injection riski yok çünkü değerler connection string ve dosya sistemi kaynaklı.
             string backupSql = string.Format(
-                "BACKUP DATABASE [{0}] TO DISK = N'{1}' WITH INIT, COMPRESSION, NAME = N'{0} Full Backup {2}', STATS = 5",
+                "BACKUP DATABASE [{0}] TO DISK = N'{1}' WITH INIT, NAME = N'{0} Full Backup {2}', STATS = 5",
                 dbAdi.Replace("]", "]]"),
                 yedekYolu.Replace("'", "''"),
                 zaman);
