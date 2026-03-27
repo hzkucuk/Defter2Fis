@@ -95,10 +95,9 @@ namespace Defter2Fis.ForMikro.Services
                         ilerlemeRaporla?.Invoke(yuzde,
                             $"Simülasyon: Yevmiye #{yevmiyeFisi.YevmiyeNoSayac} ({islenenFis}/{toplamFis})");
 
-                        // Mükerrer kontrolü (dönem bazlı)
+                        // Mükerrer kontrolü (unique index uyumlu: firmano + maliyil + yevmiye_no)
                         bool mukerrer = _dbService.YevmiyeNoMevcutMu(
-                            yevmiyeFisi.YevmiyeNoSayac, sonuc.MaliYil, firmaNo, subeNo,
-                            sonuc.DonemBaslangic, sonuc.DonemBitis);
+                            yevmiyeFisi.YevmiyeNoSayac, sonuc.MaliYil, firmaNo, subeNo);
 
                         if (mukerrer)
                         {

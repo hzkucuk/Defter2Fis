@@ -187,9 +187,8 @@ namespace Defter2Fis.ForMikro.Services
                     ilerlemeRaporla?.Invoke(yuzde,
                         $"Simülasyon: Yevmiye #{yevmiyeFisi.YevmiyeNoSayac} ({islenenFis}/{toplamFis})");
 
-                    // Mükerrer kontrolü (dönem bazlı)
-                    if (_dbService.YevmiyeNoMevcutMu(yevmiyeFisi.YevmiyeNoSayac, maliYil, firmaNo, subeNo,
-                        donemBas, donemBit))
+                    // Mükerrer kontrolü (unique index uyumlu: firmano + maliyil + yevmiye_no)
+                    if (_dbService.YevmiyeNoMevcutMu(yevmiyeFisi.YevmiyeNoSayac, maliYil, firmaNo, subeNo))
                     {
                         _log.Uyari($"Yevmiye #{yevmiyeFisi.YevmiyeNoSayac} zaten mevcut — atlanıyor.");
                         sonuc.AtlananFisSayisi++;
@@ -284,7 +283,21 @@ namespace Defter2Fis.ForMikro.Services
                         // Fiş satırlarını yaz
                         foreach (var fis in simFis.FisSatirlari)
                         {
-                            _dbService.FisSatiriEkle(fis, conn, tran);
+                            try
+                            {
+                                _dbService.FisSatiriEkle(fis, conn, tran);
+                            }
+                            catch (Exception satirEx)
+                            {
+                                var satirHata = $"INSERT HATA — Yevmiye #{simFis.YevmiyeNoSayac}, " +
+                                    $"Satır={fis.FisSatirNo}, Hesap={fis.FisHesapKod}, " +
+                                    $"Tarih={fis.FisTarih:yyyy-MM-dd}, SıraNo={fis.FisSiraNo}, " +
+                                    $"Meblağ={fis.FisMeblag0}, BelgeNo={fis.FisTicBelgeNo}, " +
+                                    $"BelgeTarihi={fis.FisTicBelgeTarihi:yyyy-MM-dd}, " +
+                                    $"TicariTip={fis.FisTicariTip}, TicariUid={fis.FisTicariUid}";
+                                _log.Hata(satirHata);
+                                throw;
+                            }
                         }
 
                         sonuc.OlusturulanFisSayisi++;
@@ -300,9 +313,23 @@ namespace Defter2Fis.ForMikro.Services
                     // Hata — tüm ay rollback
                     tran.Rollback();
 
-                    string detay = ex.InnerException != null
-                        ? $"{ex.Message} -> {ex.InnerException.Message}"
-                        : ex.Message;
+                    string detay;
+                    if (ex is System.Data.SqlClient.SqlException sqlEx)
+                    {
+                        detay = $"SQL Hata #{sqlEx.Number}: {sqlEx.Message}";
+                        foreach (System.Data.SqlClient.SqlError err in sqlEx.Errors)
+                        {
+                            var sqlDetay = $"  SQL Detay: Satır={err.LineNumber}, Durum={err.State}, " +
+                                           $"Prosedür={err.Procedure}, Mesaj={err.Message}";
+                            _log.Hata(sqlDetay);
+                        }
+                    }
+                    else
+                    {
+                        detay = ex.InnerException != null
+                            ? $"{ex.Message} -> {ex.InnerException.Message}"
+                            : ex.Message;
+                    }
 
                     string hata = $"Atomik yazım BAŞARISIZ — tüm ay ROLLBACK yapıldı: {detay}";
                     sonuc.Hatalar.Add(hata);

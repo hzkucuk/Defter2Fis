@@ -47,10 +47,10 @@ namespace Defter2Fis.ForMikro.Services
         int MaxSiraNoGetir(DateTime tarih, int maliYil, int firmaNo, int subeNo);
 
         /// <summary>
-        /// Belirtilen yevmiye numarasının, ilgili dönem içinde zaten DB'de olup olmadığını kontrol eder (mükerrer koruma).
+        /// Belirtilen yevmiye numarasının DB'de olup olmadığını kontrol eder (mükerrer koruma).
+        /// NDX_MUHASEBE_FISLERI_02 unique index ile uyumlu: fis_firmano + fis_maliyil + fis_yevmiye_no
         /// </summary>
-        bool YevmiyeNoMevcutMu(int yevmiyeNo, int maliYil, int firmaNo, int subeNo,
-            DateTime donemBaslangic, DateTime donemBitis);
+        bool YevmiyeNoMevcutMu(int yevmiyeNo, int maliYil, int firmaNo, int subeNo);
 
         /// <summary>
         /// Tek bir fiş satırını veritabanına ekler.

@@ -1,5 +1,16 @@
 # Özellikler (Features)
 
+## v2.11.1 — Mükerrer Kontrol ve SQL INSERT Düzeltmesi
+
+### Mükerrer Kontrol İyileştirmesi
+- `YevmiyeNoMevcutMu` sorgusu `NDX_MUHASEBE_FISLERI_02` unique index ile uyumlu
+- `fis_tur`, `fis_iptal` ve tarih aralığı filtreleri kaldırıldı (index bunları içermiyor)
+- Farklı fiş türü/iptal durumundaki mükerrer yevmiyeler artık doğru tespit ediliyor
+
+### SQL INSERT Düzeltmesi
+- `fis_ticari_tip`, `fis_ticari_evraktip`, `fis_tic_evrak_seri`, `fis_tic_evrak_sira` parametrize edildi
+- Hata loglama: SqlException detayları (hata no, satır, durum, prosedür) loglanıyor
+
 ## v2.11.0 — Cari/Stok Yazma İşlemlerini Kaldırma
 
 ### Cari/Stok Salt Okunur Mod

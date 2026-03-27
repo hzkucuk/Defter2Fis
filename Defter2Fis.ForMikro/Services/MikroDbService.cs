@@ -172,19 +172,16 @@ namespace Defter2Fis.ForMikro.Services
         /// <summary>
         /// Belirtilen yevmiye numarasının zaten DB'de olup olmadığını kontrol eder (mükerrer koruma).
         /// </summary>
-        public bool YevmiyeNoMevcutMu(int yevmiyeNo, int maliYil, int firmaNo, int subeNo,
-            DateTime donemBaslangic, DateTime donemBitis)
+        public bool YevmiyeNoMevcutMu(int yevmiyeNo, int maliYil, int firmaNo, int subeNo)
         {
+            // NDX_MUHASEBE_FISLERI_02 unique index: (fis_firmano, fis_maliyil, fis_yevmiye_no, fis_satir_no)
+            // fis_tur, fis_iptal, tarih aralığı filtreleri index'te yok — hepsini kapsayan kontrol yapılmalı
             const string sql = @"SELECT COUNT(1) FROM MUHASEBE_FISLERI 
-                                 WHERE fis_yevmiye_no = @yevNo
-                                   AND fis_maliyil = @maliYil
-                                   AND fis_firmano = @firmaNo
-                                   AND fis_subeno = @subeNo
-                                   AND fis_tur = 0
-                                   AND fis_iptal = 0
-                                   AND fis_DBCno = 0
-                                   AND fis_tarih >= @donemBas
-                                   AND fis_tarih <= @donemBit";
+                                  WHERE fis_yevmiye_no = @yevNo
+                                    AND fis_maliyil = @maliYil
+                                    AND fis_firmano = @firmaNo
+                                    AND fis_subeno = @subeNo
+                                    AND fis_DBCno = 0";
 
             using (var conn = new SqlConnection(_connectionString))
             using (var cmd = new SqlCommand(sql, conn))
@@ -193,8 +190,6 @@ namespace Defter2Fis.ForMikro.Services
                 cmd.Parameters.Add("@maliYil", SqlDbType.Int).Value = maliYil;
                 cmd.Parameters.Add("@firmaNo", SqlDbType.Int).Value = firmaNo;
                 cmd.Parameters.Add("@subeNo", SqlDbType.Int).Value = subeNo;
-                cmd.Parameters.Add("@donemBas", SqlDbType.DateTime).Value = donemBaslangic;
-                cmd.Parameters.Add("@donemBit", SqlDbType.DateTime).Value = donemBitis;
                 conn.Open();
                 return (int)cmd.ExecuteScalar() > 0;
             }
@@ -231,9 +226,9 @@ namespace Defter2Fis.ForMikro.Services
                 @siraNo, @tur, @hesapKod, @satirNo,
                 @aciklama1, @meblag0, 0, 0,
                 0, 0, 0, 0,
-                '', 0, @ticariUid,
-                0, 0,
-                '', 0,
+                '', @ticariTip, @ticariUid,
+                0, @ticariEvrakTip,
+                @ticEvrakSeri, @ticEvrakSira,
                 @ticBelgeNo, @ticBelgeTarihi,
                 @yevmiyeNo, 0, 0,
                 0, '', '',
@@ -256,8 +251,12 @@ namespace Defter2Fis.ForMikro.Services
                 cmd.Parameters.Add("@satirNo", SqlDbType.Int).Value = fis.FisSatirNo;
                 cmd.Parameters.Add("@aciklama1", SqlDbType.NVarChar, 127).Value = fis.FisAciklama1;
                 cmd.Parameters.Add("@meblag0", SqlDbType.Float).Value = fis.FisMeblag0;
+                cmd.Parameters.Add("@ticariTip", SqlDbType.TinyInt).Value = fis.FisTicariTip;
                 cmd.Parameters.Add("@ticariUid", SqlDbType.UniqueIdentifier).Value = fis.FisTicariUid;
-                cmd.Parameters.Add("@ticBelgeNo", SqlDbType.NVarChar, 50).Value = fis.FisTicBelgeNo;
+                cmd.Parameters.Add("@ticariEvrakTip", SqlDbType.TinyInt).Value = fis.FisTicariEvrakTip;
+                cmd.Parameters.Add("@ticEvrakSeri", SqlDbType.NVarChar, 10).Value = fis.FisTicEvrakSeri ?? string.Empty;
+                cmd.Parameters.Add("@ticEvrakSira", SqlDbType.Int).Value = fis.FisTicEvrakSira;
+                cmd.Parameters.Add("@ticBelgeNo", SqlDbType.NVarChar, 50).Value = fis.FisTicBelgeNo ?? string.Empty;
                 cmd.Parameters.Add("@ticBelgeTarihi", SqlDbType.DateTime).Value = fis.FisTicBelgeTarihi;
                 cmd.Parameters.Add("@yevmiyeNo", SqlDbType.Int).Value = fis.FisYevmiyeNo;
 

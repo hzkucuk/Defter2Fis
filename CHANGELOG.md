@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.11.1] - 2025-08-27 — Mükerrer Kontrol ve SQL INSERT Düzeltmesi
+
+### Düzeltmeler
+- **Mükerrer kontrol unique index uyumu** — `YevmiyeNoMevcutMu` sorgusu `NDX_MUHASEBE_FISLERI_02` unique index'e uyumlu hale getirildi. `fis_tur`, `fis_iptal` ve tarih aralığı filtreleri kaldırıldı; artık farklı fiş türü veya iptal durumundaki mükerrer yevmiye numaraları doğru tespit ediliyor.
+- **SQL INSERT parametre düzeltmesi** — `fis_ticari_tip`, `fis_ticari_evraktip`, `fis_tic_evrak_seri`, `fis_tic_evrak_sira` alanları hardcoded değerler yerine model’den parametre olarak gönderiliyor.
+- **Hata loglama iyileştirmesi** — `TopluFisYaz` hata yakalayasında SqlException detayları (hata numarası, satır, durum, prosedür) loglanıyor.
+
+### Etkilenen dosyalar
+- Defter2Fis.ForMikro\Services\IMikroDbService.cs (imza sadeleştirildi)
+- Defter2Fis.ForMikro\Services\MikroDbService.cs (SQL düzeltmeleri)
+- Defter2Fis.ForMikro\Services\FisOlusturmaServisi.cs (mükerrer kontrol + hata loglama)
+- Defter2Fis.ForMikro\Services\OnizlemeServisi.cs (mükerrer kontrol uyumu)
+
 ## [2.11.0] - 2025-08-27 — Cari/Stok Yazma İşlemlerini Kaldırma
 
 ### Kaldırılan Özellikler
