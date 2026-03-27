@@ -561,11 +561,8 @@ namespace Defter2Fis.ForMikro.Forms
             _log.Bilgi("BACKUP DATABASE komutu calistiriliyor (bu islem birkac dakika surebilir)...");
             worker.ReportProgress(20, "BACKUP DATABASE calisiyor...");
 
-            // Yedek dizini: uygulama dizini altinda Yedekler klasoru
-            string yedekDizini = Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory, "Yedekler");
-
-            var sonuc = _dbService.VeritabaniYedekle(yedekDizini);
+            // SQL Server'in varsayilan yedek dizinine yazar (servis hesabi erisim sorunu olmaz)
+            var sonuc = _dbService.VeritabaniYedekle();
 
             worker.ReportProgress(100, "Yedek tamamlandi.");
             _log.Basari($"Veritabani yedegi alindi:");
@@ -582,10 +579,8 @@ namespace Defter2Fis.ForMikro.Forms
         {
             if (_dbService == null) _dbService = new MikroDbService();
 
-            string yedekDizini = Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory, "Yedekler");
-
-            var sonuc = _dbService.VeritabaniYedekle(yedekDizini);
+            // SQL Server'in varsayilan yedek dizinine yazar (servis hesabi erisim sorunu olmaz)
+            var sonuc = _dbService.VeritabaniYedekle();
             _log.Bilgi($"Yedek: {sonuc.DosyaYolu} ({sonuc.DosyaBoyutuFormatli}, {sonuc.Sure.TotalSeconds:N1} sn)");
         }
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.4.1] - 2025-08-23 — Yedekleme Erişim Hatası Düzeltmesi
+
+### Düzeltmeler
+- **Kritik:** `BACKUP DATABASE` OS error 5 (Erişim engellendi) hatası giderildi
+- SQL Server servis hesabının uygulama dizinine yazma izni olmaması sorunu
+- `SqlServerVarsayilanYedekDiziniGetir()` — SQL Server registry'den varsayılan yedek dizinini sorgular
+- Yedekler artık SQL Server'ın kendi BackupDirectory'sine yazılır (servis hesabı erişim garantili)
+- MainForm caller'ları uygulama dizini yerine null geçerek SQL Server default dizinini kullanır
+
 ## [2.4.0] - 2025-08-23 — IMikroDbService Interface Extraction
 
 ### Eklenenler

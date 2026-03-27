@@ -659,6 +659,30 @@ namespace Defter2Fis.ForMikro.Services
         #region Veritabanı Yedekleme
 
         /// <summary>
+        /// SQL Server'ın varsayılan yedek dizinini registry'den sorgular.
+        /// </summary>
+        private string SqlServerVarsayilanYedekDiziniGetir()
+        {
+            const string sql = @"EXEC master.dbo.xp_instance_regread 
+                N'HKEY_LOCAL_MACHINE', 
+                N'SOFTWARE\Microsoft\MSSQLServer\MSSQLServer', 
+                N'BackupDirectory'";
+
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                conn.Open();
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                        return reader.GetString(1);
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Veritabanının tam yedeğini (FULL BACKUP) alır.
         /// DB motoru açıkken çalışır (ONLINE backup).
         /// </summary>
@@ -678,7 +702,8 @@ namespace Defter2Fis.ForMikro.Services
             string zaman = DateTime.Now.ToString("yyyyMMdd_HHmmss");
             string dosyaAdi = $"{dbAdi}_{zaman}.bak";
 
-            // Yedek yolu: kullanıcı dizini belirtmişse oraya, yoksa SQL Server default backup konumuna
+            // Yedek yolu: SQL Server'ın erişebildiği varsayılan yedek dizinini kullan
+            // (uygulama dizinine SQL Server servis hesabının yazma izni olmayabilir — OS error 5)
             string yedekYolu;
             if (!string.IsNullOrWhiteSpace(yedekDizini))
             {
@@ -689,8 +714,11 @@ namespace Defter2Fis.ForMikro.Services
             }
             else
             {
-                // SQL Server default backup dizinini kullan
-                yedekYolu = dosyaAdi; // SQL Server kendi default dizinine yazar
+                string varsayilanDizin = SqlServerVarsayilanYedekDiziniGetir();
+                if (!string.IsNullOrWhiteSpace(varsayilanDizin))
+                    yedekYolu = Path.Combine(varsayilanDizin, dosyaAdi);
+                else
+                    yedekYolu = dosyaAdi;
             }
 
             // BACKUP DATABASE komutu — INIT: üzerine yaz, COMPRESSION: sıkıştır, STATS: ilerleme
