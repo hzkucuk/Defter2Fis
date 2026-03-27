@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.5.1] - 2025-08-23 — Yedekleme Dizin Erişim Fallback Zinciri
+
+### Düzeltmeler
+- **Kritik:** `xp_create_subdir` erişim engeli (error 5) hatası giderildi
+- SQL Server servis hesabının dizin oluşturma izni olmadığında 3 aşamalı fallback zinciri devreye girer:
+  1. Registry BackupDirectory + `xp_create_subdir`
+  2. SQL Server DATA dizini (`master.mdf` klasörü — her zaman mevcut)
+  3. Kullanıcı Belgeler\Defter2Fis\Yedekler (çıkış yolu)
+- `YedekDiziniHazirla()` — önce `xp_create_subdir`, başarısızsa `Directory.CreateDirectory`
+- `SqlServerVeriDiziniGetir()` — `master.sys.database_files`'dan veri dizinini sorgular
+
 ## [2.5.0] - 2025-08-23 — Yedekleme Düzeltme + İlerleme ve Bilgilendirme İyileştirmesi
 
 ### Düzeltmeler

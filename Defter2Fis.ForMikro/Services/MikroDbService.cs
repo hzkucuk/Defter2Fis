@@ -703,26 +703,17 @@ namespace Defter2Fis.ForMikro.Services
             string zaman = DateTime.Now.ToString("yyyyMMdd_HHmmss");
             string dosyaAdi = $"{dbAdi}_{zaman}.bak";
 
-            // Yedek yolu: SQL Server'ın erişebildiği varsayılan yedek dizinini kullan
-            // (uygulama dizinine SQL Server servis hesabının yazma izni olmayabilir — OS error 5)
+            // Yedek yolu: SQL Server'ın yazabildiği bir dizin bul (fallback zinciri)
             string yedekYolu;
             if (!string.IsNullOrWhiteSpace(yedekDizini))
             {
-                YedekDiziniOlustur(yedekDizini);
+                YedekDiziniHazirla(yedekDizini);
                 yedekYolu = Path.Combine(yedekDizini, dosyaAdi);
             }
             else
             {
-                string varsayilanDizin = SqlServerVarsayilanYedekDiziniGetir();
-                if (!string.IsNullOrWhiteSpace(varsayilanDizin))
-                {
-                    YedekDiziniOlustur(varsayilanDizin);
-                    yedekYolu = Path.Combine(varsayilanDizin, dosyaAdi);
-                }
-                else
-                {
-                    yedekYolu = dosyaAdi;
-                }
+                string guvenliDizin = YedekIcinGuvenliDizinBul();
+                yedekYolu = Path.Combine(guvenliDizin, dosyaAdi);
             }
 
             // BACKUP DATABASE komutu — INIT: üzerine yaz, COMPRESSION: sıkıştır, STATS: ilerleme
@@ -795,23 +786,109 @@ namespace Defter2Fis.ForMikro.Services
         }
 
         /// <summary>
-        /// SQL Server servis hesabı ile yedek dizinini oluşturur.
-        /// xp_create_subdir kullanır (SQL Server'ın kendi izinleri ile çalışır — OS error 3 önlemi).
+        /// Yedek dizinini hazırlar — önce xp_create_subdir, başarısızsa Directory.CreateDirectory dener.
         /// </summary>
-        private void YedekDiziniOlustur(string dizinYolu)
+        private void YedekDiziniHazirla(string dizinYolu)
         {
             if (string.IsNullOrWhiteSpace(dizinYolu)) return;
 
-            // Önce SQL Server üzerinden dizini oluşturmayı dene
-            string sql = string.Format(
-                "EXEC master.dbo.xp_create_subdir N'{0}'",
-                dizinYolu.Replace("'", "''"));
+            // Dizin zaten varsa dokunma
+            if (Directory.Exists(dizinYolu)) return;
 
-            using (var conn = new SqlConnection(_connectionString))
-            using (var cmd = new SqlCommand(sql, conn))
+            // SQL Server servis hesabıyla oluşturmayı dene
+            try
             {
-                conn.Open();
-                cmd.ExecuteNonQuery();
+                string sql = string.Format(
+                    "EXEC master.dbo.xp_create_subdir N'{0}'",
+                    dizinYolu.Replace("'", "''"));
+
+                using (var conn = new SqlConnection(_connectionString))
+                using (var cmd = new SqlCommand(sql, conn))
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+                return;
+            }
+            catch
+            {
+                // xp_create_subdir başarısız — .NET ile dene
+            }
+
+            Directory.CreateDirectory(dizinYolu);
+        }
+
+        /// <summary>
+        /// SQL Server'ın yazabildiği güvenli bir yedek dizini bulur (fallback zinciri).
+        /// Sıra: (1) Registry BackupDirectory (2) DATA dizini (master.mdf) (3) Kullanıcı Belgeler\Defter2Fis\Yedekler
+        /// </summary>
+        private string YedekIcinGuvenliDizinBul()
+        {
+            // 1. Registry'den varsayılan yedek dizini
+            string registryDizin = SqlServerVarsayilanYedekDiziniGetir();
+            if (!string.IsNullOrWhiteSpace(registryDizin))
+            {
+                try
+                {
+                    YedekDiziniHazirla(registryDizin);
+                    return registryDizin;
+                }
+                catch
+                {
+                    // Erişim engeli — sonraki fallback'e geç
+                }
+            }
+
+            // 2. SQL Server DATA dizini (master.mdf'in olduğu yer — her zaman mevcut)
+            string veriDizini = SqlServerVeriDiziniGetir();
+            if (!string.IsNullOrWhiteSpace(veriDizini))
+            {
+                string backupAlt = Path.Combine(veriDizini, "Backup");
+                try
+                {
+                    YedekDiziniHazirla(backupAlt);
+                    return backupAlt;
+                }
+                catch
+                {
+                    // DATA dizini altına da yazılamıyorsa — fallback
+                    // DATA dizininin kendisini dene (alt dizin oluşturmadan)
+                    if (Directory.Exists(veriDizini))
+                        return veriDizini;
+                }
+            }
+
+            // 3. Son çare: Kullanıcı belgeler dizini
+            string belgeler = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                "Defter2Fis", "Yedekler");
+            Directory.CreateDirectory(belgeler);
+            return belgeler;
+        }
+
+        /// <summary>
+        /// SQL Server'ın veri dizinini sorgular (master.mdf'in bulunduğu klasör).
+        /// Bu dizin her zaman mevcuttur çünkü SQL Server aktif olarak kullanmaktadır.
+        /// </summary>
+        private string SqlServerVeriDiziniGetir()
+        {
+            const string sql = @"SELECT LEFT(physical_name, LEN(physical_name) - CHARINDEX('\', REVERSE(physical_name)))
+                                 FROM master.sys.database_files
+                                 WHERE type = 0 AND file_id = 1";
+
+            try
+            {
+                using (var conn = new SqlConnection(_connectionString))
+                using (var cmd = new SqlCommand(sql, conn))
+                {
+                    conn.Open();
+                    var result = cmd.ExecuteScalar();
+                    return result as string;
+                }
+            }
+            catch
+            {
+                return null;
             }
         }
 
