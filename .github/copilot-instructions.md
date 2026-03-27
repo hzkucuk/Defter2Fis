@@ -130,10 +130,11 @@ Her görev/özellik/düzeltme tamamlandıktan ve build doğrulandıktan sonra:
 
 Her özellik/güncelleme/düzeltme tamamlandıktan sonra aşağıdaki adımlar **hatırlatma beklemeden otomatik** uygulanır:
 
-1. **Versiyon güncelle** — Semantic versioning'e göre (MAJOR/MINOR/PATCH) 3 noktayı senkronize et
-2. **Dökümanları güncelle** — CHANGELOG.md, FEATURES.md, INSTALL.md, README.md (gerekli olanlar)
-3. **Build doğrula** — `dotnet build` ile derleme hatası olmadığından emin ol
-4. **Git gönder** — `git add -A` → `git commit` → `git push origin master`
+1. **Plan dosyasını güncelle** — Her adım tamamlandığında `update_plan_progress` ile durumu güncelle. Tüm adımlar bitince `finish_plan` ile planı kapat. **Plan dosyası asla güncellenmeden bırakılmamalı.**
+2. **Versiyon güncelle** — Semantic versioning'e göre (MAJOR/MINOR/PATCH) 3 noktayı senkronize et
+3. **Dökümanları güncelle** — CHANGELOG.md, FEATURES.md, INSTALL.md, README.md (gerekli olanlar)
+4. **Build doğrula** — `dotnet build` ile derleme hatası olmadığından emin ol
+5. **Git gönder** — `git add -A` → `git commit` → `git push origin master`
 
 > **Not:** Bu adımlar kullanıcı hatırlatmadan otomatik yapılır. Versiyon bump seviyesi:
 > - Yeni özellik → MINOR (1.8.0 → 1.9.0)
