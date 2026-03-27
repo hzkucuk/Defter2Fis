@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.5.2] - 2025-08-23 — Yedekleme: Hedef DB Dizinine Yaz
+
+### Düzeltmeler
+- **Kritik:** Yedekleme erişim engeli (OS error 5) kesin çözüm
+- Eski strateji (registry BackupDir, master DATA, xp_create_subdir) tümü SQL Server Express'te başarısız oluyordu
+- **Yeni strateji:** Hedef veritabanının `.mdf` dosyasının bulunduğu klasöre yazar
+- `sys.database_files` sorgusu ile veritabanının fiziksel konumu tespit edilir
+- SQL Server bu dizine **kesinlikle** yazabilir çünkü aktif .mdf dosyası orada
+- Gereksiz `SqlServerVarsayilanYedekDiziniGetir` ve `SqlServerVeriDiziniGetir` (master) kaldırıldı
+- `HedefVeritabaniDiziniGetir()` — `Path.GetDirectoryName` ile temiz dizin çıkarımı
+
 ## [2.5.1] - 2025-08-23 — Yedekleme Dizin Erişim Fallback Zinciri
 
 ### Düzeltmeler

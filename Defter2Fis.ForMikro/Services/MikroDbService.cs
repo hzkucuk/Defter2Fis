@@ -819,46 +819,18 @@ namespace Defter2Fis.ForMikro.Services
         }
 
         /// <summary>
-        /// SQL Server'ın yazabildiği güvenli bir yedek dizini bulur (fallback zinciri).
-        /// Sıra: (1) Registry BackupDirectory (2) DATA dizini (master.mdf) (3) Kullanıcı Belgeler\Defter2Fis\Yedekler
+        /// SQL Server'ın yazabildiği güvenli bir yedek dizini bulur.
+        /// Hedef veritabanının .mdf dosyasının bulunduğu klasörü kullanır —
+        /// SQL Server bu dizine kesinlikle yazabilir çünkü aktif veri dosyası orada.
         /// </summary>
         private string YedekIcinGuvenliDizinBul()
         {
-            // 1. Registry'den varsayılan yedek dizini
-            string registryDizin = SqlServerVarsayilanYedekDiziniGetir();
-            if (!string.IsNullOrWhiteSpace(registryDizin))
-            {
-                try
-                {
-                    YedekDiziniHazirla(registryDizin);
-                    return registryDizin;
-                }
-                catch
-                {
-                    // Erişim engeli — sonraki fallback'e geç
-                }
-            }
+            // Hedef DB'nin .mdf fiziksel yolunu sorgula
+            string mdfDizini = HedefVeritabaniDiziniGetir();
+            if (!string.IsNullOrWhiteSpace(mdfDizini))
+                return mdfDizini;
 
-            // 2. SQL Server DATA dizini (master.mdf'in olduğu yer — her zaman mevcut)
-            string veriDizini = SqlServerVeriDiziniGetir();
-            if (!string.IsNullOrWhiteSpace(veriDizini))
-            {
-                string backupAlt = Path.Combine(veriDizini, "Backup");
-                try
-                {
-                    YedekDiziniHazirla(backupAlt);
-                    return backupAlt;
-                }
-                catch
-                {
-                    // DATA dizini altına da yazılamıyorsa — fallback
-                    // DATA dizininin kendisini dene (alt dizin oluşturmadan)
-                    if (Directory.Exists(veriDizini))
-                        return veriDizini;
-                }
-            }
-
-            // 3. Son çare: Kullanıcı belgeler dizini
+            // Son çare: Kullanıcı belgeler dizini (SQL Server yazamayabilir ama denenecek)
             string belgeler = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 "Defter2Fis", "Yedekler");
@@ -867,14 +839,12 @@ namespace Defter2Fis.ForMikro.Services
         }
 
         /// <summary>
-        /// SQL Server'ın veri dizinini sorgular (master.mdf'in bulunduğu klasör).
-        /// Bu dizin her zaman mevcuttur çünkü SQL Server aktif olarak kullanmaktadır.
+        /// Hedef veritabanının .mdf dosyasının bulunduğu dizini döner.
+        /// Bu dizine SQL Server servis hesabı garantili yazma iznine sahiptir.
         /// </summary>
-        private string SqlServerVeriDiziniGetir()
+        private string HedefVeritabaniDiziniGetir()
         {
-            const string sql = @"SELECT LEFT(physical_name, LEN(physical_name) - CHARINDEX('\', REVERSE(physical_name)))
-                                 FROM master.sys.database_files
-                                 WHERE type = 0 AND file_id = 1";
+            const string sql = @"SELECT physical_name FROM sys.database_files WHERE type = 0 AND file_id = 1";
 
             try
             {
@@ -882,14 +852,17 @@ namespace Defter2Fis.ForMikro.Services
                 using (var cmd = new SqlCommand(sql, conn))
                 {
                     conn.Open();
-                    var result = cmd.ExecuteScalar();
-                    return result as string;
+                    string mdfYolu = cmd.ExecuteScalar() as string;
+                    if (!string.IsNullOrWhiteSpace(mdfYolu))
+                        return Path.GetDirectoryName(mdfYolu);
                 }
             }
             catch
             {
-                return null;
+                // Sorgu başarısızsa null dön — caller fallback'e geçer
             }
+
+            return null;
         }
 
         #endregion
