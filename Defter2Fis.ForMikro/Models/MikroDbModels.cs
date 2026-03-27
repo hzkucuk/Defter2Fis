@@ -279,10 +279,10 @@ namespace Defter2Fis.ForMikro.Models
         /// <summary>Hesap kodu (cha_kod)</summary>
         public string ChaKod { get; set; }
 
-        /// <summary>Muhasebe fiş numarası (cha_muh_fis_no)</summary>
+        /// <summary>Muhasebe fiş sıra numarası (cha_fis_sirano)</summary>
         public int ChaMuhFisNo { get; set; }
 
-        /// <summary>Muhasebe fiş tarihi (cha_muh_fis_tarihi)</summary>
+        /// <summary>Muhasebe fiş tarihi (cha_fis_tarih)</summary>
         public DateTime ChaMuhFisTarihi { get; set; }
 
         /// <summary>Eşleştirme anahtarı: SERİ-SIRA</summary>
@@ -317,10 +317,10 @@ namespace Defter2Fis.ForMikro.Models
         /// <summary>İşlem tarihi (sth_tarihi)</summary>
         public DateTime SthTarihi { get; set; }
 
-        /// <summary>Muhasebe fiş numarası (sth_muh_fis_no)</summary>
+        /// <summary>Muhasebe fiş sıra numarası (sth_fis_sirano)</summary>
         public int SthMuhFisNo { get; set; }
 
-        /// <summary>Muhasebe fiş tarihi (sth_muh_fis_tarihi)</summary>
+        /// <summary>Muhasebe fiş tarihi (sth_fis_tarihi)</summary>
         public DateTime SthMuhFisTarihi { get; set; }
 
         /// <summary>Eşleştirme anahtarı: SERİ-SIRA</summary>

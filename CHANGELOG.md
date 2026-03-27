@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.5.4] - 2025-08-23 — Cari/Stok Kolon Adı Düzeltmeleri
+
+### Düzeltmeler
+- **Kritik:** `CARI_HESAP_HAREKETLERI` ve `STOK_HAREKETLERI` tablolarında yanlış kolon adları düzeltildi
+- `cha_subession` → `cha_subeno`
+- `cha_muh_fis_no` → `cha_fis_sirano`
+- `cha_muh_fis_tarihi` → `cha_fis_tarih`
+- `sth_muh_fis_no` → `sth_fis_sirano`
+- `sth_muh_fis_tarihi` → `sth_fis_tarihi`
+- SELECT, UPDATE sorguları ve model XML doc yorumları güncellendi
+
 ## [2.5.3] - 2025-08-23 — SQL Server Express COMPRESSION Uyumluluk Düzeltmesi
 
 ### Düzeltmeler

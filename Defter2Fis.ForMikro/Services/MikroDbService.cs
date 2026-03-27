@@ -440,12 +440,12 @@ namespace Defter2Fis.ForMikro.Services
 
             const string sql = @"SELECT 
                 cha_Guid, cha_evrak_tip, cha_evrakno_seri, cha_evrakno_sira,
-                cha_tarihi, cha_kod, cha_muh_fis_no, cha_muh_fis_tarihi
+                cha_tarihi, cha_kod, cha_fis_sirano, cha_fis_tarih
             FROM CARI_HESAP_HAREKETLERI
             WHERE cha_tarihi >= @baslangic 
                 AND cha_tarihi <= @bitis
                 AND cha_firmano = @firmaNo
-                AND cha_subession = @subeNo
+                AND cha_subeno = @subeNo
                 AND cha_iptal = 0
                 AND cha_DBCno = 0
             ORDER BY cha_evrakno_seri, cha_evrakno_sira";
@@ -489,8 +489,8 @@ namespace Defter2Fis.ForMikro.Services
             SqlConnection conn, SqlTransaction tran)
         {
             const string sql = @"UPDATE CARI_HESAP_HAREKETLERI 
-                SET cha_muh_fis_no = @muhFisNo,
-                    cha_muh_fis_tarihi = @muhFisTarihi
+                SET cha_fis_sirano = @muhFisNo,
+                    cha_fis_tarih = @muhFisTarihi
                 WHERE cha_Guid = @chaGuid AND cha_DBCno = 0";
 
             using (var cmd = new SqlCommand(sql, conn, tran))
@@ -518,7 +518,7 @@ namespace Defter2Fis.ForMikro.Services
 
             const string sql = @"SELECT 
                 sth_Guid, sth_evrak_tip, sth_evrakno_seri, sth_evrakno_sira,
-                sth_tarihi, sth_muh_fis_no, sth_muh_fis_tarihi
+                sth_tarihi, sth_fis_sirano, sth_fis_tarihi
             FROM STOK_HAREKETLERI
             WHERE sth_tarihi >= @baslangic 
                 AND sth_tarihi <= @bitis
@@ -566,8 +566,8 @@ namespace Defter2Fis.ForMikro.Services
             SqlConnection conn, SqlTransaction tran)
         {
             const string sql = @"UPDATE STOK_HAREKETLERI 
-                SET sth_muh_fis_no = @muhFisNo,
-                    sth_muh_fis_tarihi = @muhFisTarihi
+                SET sth_fis_sirano = @muhFisNo,
+                    sth_fis_tarihi = @muhFisTarihi
                 WHERE sth_Guid = @sthGuid AND sth_DBCno = 0";
 
             using (var cmd = new SqlCommand(sql, conn, tran))
