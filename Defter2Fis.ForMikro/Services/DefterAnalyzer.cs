@@ -12,38 +12,33 @@ namespace Defter2Fis.ForMikro.Services
     public class DefterAnalyzer
     {
         /// <summary>
-        /// Defterlerin genel özetini konsola yazar.
+        /// Defterlerin genel özetini hesaplar.
         /// </summary>
-        public void OzetYazdir(List<YevmiyeDefteri> defterler)
+        public AnalizOzeti OzetHesapla(List<YevmiyeDefteri> defterler)
         {
-            Console.WriteLine();
-            Console.WriteLine("╔══════════════════════════════════════════════════════════════╗");
-            Console.WriteLine("║               E-DEFTER ANALİZ RAPORU                        ║");
-            Console.WriteLine("╚══════════════════════════════════════════════════════════════╝");
-
-            int toplamFis = 0;
-            int toplamSatir = 0;
+            var ozet = new AnalizOzeti();
 
             foreach (var defter in defterler)
             {
-                Console.WriteLine();
-                Console.WriteLine($"  Dosya        : {defter.DosyaAdi}");
-                Console.WriteLine($"  Defter ID    : {defter.BenzersizId}");
-                Console.WriteLine($"  Firma        : {defter.FirmaUnvani}");
-                Console.WriteLine($"  Sicil No     : {defter.SicilNo}");
-                Console.WriteLine($"  Dönem        : {defter.DonemBaslangic:dd.MM.yyyy} - {defter.DonemBitis:dd.MM.yyyy}");
-                Console.WriteLine($"  Mali Yıl     : {defter.MaliYilBaslangic:yyyy} - {defter.MaliYilBitis:yyyy}");
-                Console.WriteLine($"  Fiş Sayısı   : {defter.Fisler.Count:N0}");
-
                 int satirSayisi = defter.Fisler.Sum(f => f.Satirlar.Count);
-                Console.WriteLine($"  Satır Sayısı : {satirSayisi:N0}");
+                ozet.DosyaSayisi++;
+                ozet.ToplamFis += defter.Fisler.Count;
+                ozet.ToplamSatir += satirSayisi;
 
-                toplamFis += defter.Fisler.Count;
-                toplamSatir += satirSayisi;
+                ozet.DosyaOzetleri.Add(new DosyaOzeti
+                {
+                    DosyaAdi = defter.DosyaAdi,
+                    BenzersizId = defter.BenzersizId,
+                    FirmaUnvani = defter.FirmaUnvani,
+                    SicilNo = defter.SicilNo,
+                    DonemBaslangic = defter.DonemBaslangic,
+                    DonemBitis = defter.DonemBitis,
+                    FisSayisi = defter.Fisler.Count,
+                    SatirSayisi = satirSayisi
+                });
             }
 
-            Console.WriteLine();
-            Console.WriteLine($"  ─── TOPLAM: {defterler.Count} dosya, {toplamFis:N0} fiş, {toplamSatir:N0} satır ───");
+            return ozet;
         }
 
         /// <summary>
@@ -165,32 +160,13 @@ namespace Defter2Fis.ForMikro.Services
         }
 
         /// <summary>
-        /// Eksik hesap raporunu konsola yazar.
+        /// Eksik hesap raporunu döner (UI tarafında gösterilir).
         /// </summary>
-        public void EksikHesapRaporuYazdir(List<EksikHesap> eksikler)
+        public List<EksikHesap> EksikHesaplariGetir(
+            List<YevmiyeDefteri> defterler,
+            HashSet<string> mevcutHesapKodlari)
         {
-            Console.WriteLine();
-            Console.WriteLine("╔══════════════════════════════════════════════════════════════╗");
-            Console.WriteLine("║             EKSİK HESAP PLANI RAPORU                        ║");
-            Console.WriteLine("╚══════════════════════════════════════════════════════════════╝");
-
-            if (eksikler.Count == 0)
-            {
-                Console.WriteLine("  Tüm hesaplar hesap planında mevcut. Eksik hesap yok.");
-                return;
-            }
-
-            Console.WriteLine($"  Toplam {eksikler.Count} eksik hesap tespit edildi:");
-            Console.WriteLine();
-            Console.WriteLine($"  {"Hesap Kodu",-20} {"Tip",-5} {"Hesap İsmi",-50}");
-            Console.WriteLine($"  {"".PadRight(20, '─')} {"".PadRight(5, '─')} {"".PadRight(50, '─')}");
-
-            foreach (var eksik in eksikler)
-            {
-                string tipAd = eksik.HesapTip == 0 ? "Ana" :
-                               eksik.HesapTip == 1 ? "Alt" : $"D{eksik.HesapTip}";
-                Console.WriteLine($"  {eksik.HesapKod,-20} {tipAd,-5} {eksik.HesapIsim,-50}");
-            }
+            return EksikHesaplariTespit(defterler, mevcutHesapKodlari);
         }
 
         /// <summary>
@@ -235,47 +211,55 @@ namespace Defter2Fis.ForMikro.Services
         }
 
         /// <summary>
-        /// Dengesiz fiş raporunu konsola yazar.
+        /// DB mevcut durum istatistiğini döner.
         /// </summary>
-        public void DengesizFisRaporuYazdir(List<DengeSizFis> dengesizler)
+        public DbDurumBilgisi DbDurumGetir(MikroDbService dbService, DateTime donemBas, DateTime donemBit, int maliYil)
         {
-            Console.WriteLine();
-            Console.WriteLine("╔══════════════════════════════════════════════════════════════╗");
-            Console.WriteLine("║            BORÇ-ALACAK DENGE KONTROLÜ                       ║");
-            Console.WriteLine("╚══════════════════════════════════════════════════════════════╝");
-
-            if (dengesizler.Count == 0)
+            return new DbDurumBilgisi
             {
-                Console.WriteLine("  Tüm fişler dengeli. Borç = Alacak ✓");
-                return;
-            }
-
-            Console.WriteLine($"  [UYARI] {dengesizler.Count} adet dengesiz fiş tespit edildi!");
-            Console.WriteLine();
-
-            foreach (var d in dengesizler)
-            {
-                Console.WriteLine($"  Yevmiye: {d.YevmiyeNo} (#{d.YevmiyeNoSayac}) — " +
-                                  $"Borç: {d.ToplamBorc:N2} Alacak: {d.ToplamAlacak:N2} Fark: {d.Fark:N2}");
-            }
+                HesapSayisi = dbService.HesapPlaniSayisi(),
+                FisSayisi = dbService.MevcutFisSayisi(maliYil, donemBas, donemBit, 0, 0),
+                DonemBaslangic = donemBas,
+                DonemBitis = donemBit
+            };
         }
+    }
 
-        /// <summary>
-        /// DB mevcut durum istatistiğini yazar.
-        /// </summary>
-        public void DbDurumRaporuYazdir(MikroDbService dbService, DateTime donemBas, DateTime donemBit, int maliYil)
-        {
-            Console.WriteLine();
-            Console.WriteLine("╔══════════════════════════════════════════════════════════════╗");
-            Console.WriteLine("║               VERİTABANI MEVCUT DURUM                       ║");
-            Console.WriteLine("╚══════════════════════════════════════════════════════════════╝");
+    /// <summary>
+    /// Analiz özet bilgisi.
+    /// </summary>
+    public class AnalizOzeti
+    {
+        public int DosyaSayisi { get; set; }
+        public int ToplamFis { get; set; }
+        public int ToplamSatir { get; set; }
+        public List<DosyaOzeti> DosyaOzetleri { get; } = new List<DosyaOzeti>();
+    }
 
-            int hesapSayisi = dbService.HesapPlaniSayisi();
-            int fisSayisi = dbService.MevcutFisSayisi(maliYil, donemBas, donemBit, 0, 0);
+    /// <summary>
+    /// Tek dosya özet bilgisi.
+    /// </summary>
+    public class DosyaOzeti
+    {
+        public string DosyaAdi { get; set; }
+        public string BenzersizId { get; set; }
+        public string FirmaUnvani { get; set; }
+        public string SicilNo { get; set; }
+        public DateTime DonemBaslangic { get; set; }
+        public DateTime DonemBitis { get; set; }
+        public int FisSayisi { get; set; }
+        public int SatirSayisi { get; set; }
+    }
 
-            Console.WriteLine($"  Hesap Planı  : {hesapSayisi:N0} kayıt");
-            Console.WriteLine($"  Mevcut Fişler: {fisSayisi:N0} yevmiye ({donemBas:dd.MM.yyyy} - {donemBit:dd.MM.yyyy})");
-        }
+    /// <summary>
+    /// DB mevcut durum bilgisi.
+    /// </summary>
+    public class DbDurumBilgisi
+    {
+        public int HesapSayisi { get; set; }
+        public int FisSayisi { get; set; }
+        public DateTime DonemBaslangic { get; set; }
+        public DateTime DonemBitis { get; set; }
     }
 
     /// <summary>

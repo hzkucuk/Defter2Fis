@@ -230,4 +230,28 @@ namespace Defter2Fis.ForMikro.Models
             return value.Length <= maxLength ? value : value.Substring(0, maxLength);
         }
     }
+
+    /// <summary>
+    /// Dönem içi mevcut fiş özet bilgisi (pre-check için DataGridView'de gösterilir).
+    /// </summary>
+    public class DonemFisOzeti
+    {
+        /// <summary>Yevmiye numarası</summary>
+        public int YevmiyeNo { get; set; }
+
+        /// <summary>Fiş tarihi</summary>
+        public DateTime Tarih { get; set; }
+
+        /// <summary>Fişteki satır sayısı</summary>
+        public int SatirSayisi { get; set; }
+
+        /// <summary>Toplam borç tutarı</summary>
+        public decimal ToplamBorc { get; set; }
+
+        /// <summary>Toplam alacak tutarı</summary>
+        public decimal ToplamAlacak { get; set; }
+
+        /// <summary>Fişin ilk açıklama satırı</summary>
+        public string Aciklama { get; set; }
+    }
 }

@@ -7,9 +7,14 @@
 
 ## Yapılandırma
 
-`App.config` dosyasında aşağıdaki ayarları ortamınıza göre düzenleyin:
+Ayarları 2 yoldan düzenleyebilirsiniz:
 
-### Connection String
+### Yol 1: Uygulama İçinden (Önerilen)
+Uygulamayı çalıştırın → **Araçlar > Ayarlar** menüsünden tüm parametreleri düzenleyin.
+
+### Yol 2: App.config Dosyasından
+
+#### Connection String
 ```xml
 <connectionStrings>
     <add name="MikroDB"
@@ -18,7 +23,7 @@
 </connectionStrings>
 ```
 
-### E-Defter Ayarları
+#### E-Defter Ayarları
 ```xml
 <appSettings>
     <add key="EdDefterRootPath" value="C:\Mikro\v16xx\E_DEVLET\E_DEFTER" />
@@ -42,3 +47,10 @@ msbuild Defter2Fis.slnx /p:Configuration=Debug
 ```bash
 Defter2Fis.ForMikro\bin\Debug\Defter2Fis.ForMikro.exe
 ```
+
+## Kullanım Akışı
+
+1. **Analiz Et** → XML dosyalarını parse et, raporu incele
+2. **Mevcut Veri Kontrol** → Dönemde mevcut veri varsa listele
+3. Gerekirse **Dönem Verisini Sil** → Çift onay ile mevcut veriyi temizle
+4. Fiş oluşturma (gelecek versiyon)

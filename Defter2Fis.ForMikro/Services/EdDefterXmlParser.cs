@@ -22,7 +22,7 @@ namespace Defter2Fis.ForMikro.Services
         /// Belirtilen klasördeki tüm Yevmiye XML dosyalarını bulur ve parse eder.
         /// Dosya pattern: {SicilNo}-{YYYYMM}-Y-{SıraNo}.xml
         /// </summary>
-        public List<YevmiyeDefteri> KlasordenOku(string klasorYolu, string sicilNo)
+        public List<YevmiyeDefteri> KlasordenOku(string klasorYolu, string sicilNo, Action<string> dosyaIslendi = null)
         {
             if (string.IsNullOrWhiteSpace(klasorYolu))
                 throw new ArgumentNullException(nameof(klasorYolu));
@@ -43,8 +43,9 @@ namespace Defter2Fis.ForMikro.Services
             {
                 var defter = DosyadanOku(dosya);
                 defterler.Add(defter);
-                Console.WriteLine($"  [OK] {Path.GetFileName(dosya)} — {defter.Fisler.Count} fiş, " +
-                                  $"{defter.Fisler.Sum(f => f.Satirlar.Count)} satır");
+                dosyaIslendi?.Invoke(
+                    $"{Path.GetFileName(dosya)} — {defter.Fisler.Count} fiş, " +
+                    $"{defter.Fisler.Sum(f => f.Satirlar.Count)} satır");
             }
 
             return defterler;

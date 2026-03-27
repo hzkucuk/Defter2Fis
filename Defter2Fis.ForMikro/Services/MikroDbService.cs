@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using Defter2Fis.ForMikro.Models;
 
 namespace Defter2Fis.ForMikro.Services
@@ -25,8 +26,9 @@ namespace Defter2Fis.ForMikro.Services
         /// <summary>
         /// Veritabanı bağlantısını test eder.
         /// </summary>
-        public bool BaglantıTest()
+        public bool BaglantıTest(out string hataMesaji)
         {
+            hataMesaji = null;
             try
             {
                 using (var conn = new SqlConnection(_connectionString))
@@ -37,7 +39,7 @@ namespace Defter2Fis.ForMikro.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"  [HATA] DB bağlantı hatası: {ex.Message}");
+                hataMesaji = ex.Message;
                 return false;
             }
         }
@@ -312,6 +314,113 @@ namespace Defter2Fis.ForMikro.Services
             {
                 conn.Open();
                 return (int)cmd.ExecuteScalar();
+            }
+        }
+
+        #endregion
+
+        #region Dönem Veri Kontrolü (Pre-check)
+
+        /// <summary>
+        /// Belirtilen dönem ve mali yıl için mevcut fiş özetlerini döner.
+        /// İşlem öncesi veri kontrolü (pre-check) için kullanılır.
+        /// </summary>
+        public List<DonemFisOzeti> DonemVerileriGetir(int maliYil, DateTime baslangic, DateTime bitis, int firmaNo, int subeNo)
+        {
+            var sonuc = new List<DonemFisOzeti>();
+
+            const string sql = @"SELECT 
+                fis_yevmiye_no,
+                fis_tarih,
+                COUNT(*) AS SatirSayisi,
+                SUM(CASE WHEN fis_meblag0 > 0 THEN fis_meblag0 ELSE 0 END) AS ToplamBorc,
+                SUM(CASE WHEN fis_meblag0 < 0 THEN ABS(fis_meblag0) ELSE 0 END) AS ToplamAlacak,
+                MIN(fis_aciklama1) AS Aciklama
+            FROM MUHASEBE_FISLERI 
+            WHERE fis_maliyil = @maliYil 
+                AND fis_tarih >= @baslangic 
+                AND fis_tarih <= @bitis
+                AND fis_firmano = @firmaNo
+                AND fis_subeno = @subeNo
+                AND fis_tur = 0
+                AND fis_iptal = 0
+                AND fis_DBCno = 0
+            GROUP BY fis_yevmiye_no, fis_tarih
+            ORDER BY fis_yevmiye_no";
+
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.Add("@maliYil", SqlDbType.Int).Value = maliYil;
+                cmd.Parameters.Add("@baslangic", SqlDbType.DateTime).Value = baslangic.Date;
+                cmd.Parameters.Add("@bitis", SqlDbType.DateTime).Value = bitis.Date;
+                cmd.Parameters.Add("@firmaNo", SqlDbType.Int).Value = firmaNo;
+                cmd.Parameters.Add("@subeNo", SqlDbType.Int).Value = subeNo;
+                conn.Open();
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        sonuc.Add(new DonemFisOzeti
+                        {
+                            YevmiyeNo = reader.GetInt32(0),
+                            Tarih = reader.GetDateTime(1),
+                            SatirSayisi = reader.GetInt32(2),
+                            ToplamBorc = (decimal)reader.GetDouble(3),
+                            ToplamAlacak = (decimal)reader.GetDouble(4),
+                            Aciklama = reader.IsDBNull(5) ? string.Empty : reader.GetString(5)
+                        });
+                    }
+                }
+            }
+
+            return sonuc;
+        }
+
+        /// <summary>
+        /// Belirtilen dönemdeki tüm fiş satırlarını siler.
+        /// KRİTİK: Transaction içinde çalışır, hata durumunda rollback yapılır.
+        /// </summary>
+        /// <returns>Silinen satır sayısı</returns>
+        public int DonemVerileriSil(int maliYil, DateTime baslangic, DateTime bitis, int firmaNo, int subeNo)
+        {
+            const string sql = @"DELETE FROM MUHASEBE_FISLERI 
+            WHERE fis_maliyil = @maliYil 
+                AND fis_tarih >= @baslangic 
+                AND fis_tarih <= @bitis
+                AND fis_firmano = @firmaNo
+                AND fis_subeno = @subeNo
+                AND fis_tur = 0
+                AND fis_iptal = 0
+                AND fis_DBCno = 0";
+
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var tran = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        using (var cmd = new SqlCommand(sql, conn, tran))
+                        {
+                            cmd.Parameters.Add("@maliYil", SqlDbType.Int).Value = maliYil;
+                            cmd.Parameters.Add("@baslangic", SqlDbType.DateTime).Value = baslangic.Date;
+                            cmd.Parameters.Add("@bitis", SqlDbType.DateTime).Value = bitis.Date;
+                            cmd.Parameters.Add("@firmaNo", SqlDbType.Int).Value = firmaNo;
+                            cmd.Parameters.Add("@subeNo", SqlDbType.Int).Value = subeNo;
+
+                            int silinenSatir = cmd.ExecuteNonQuery();
+                            tran.Commit();
+                            return silinenSatir;
+                        }
+                    }
+                    catch
+                    {
+                        tran.Rollback();
+                        throw;
+                    }
+                }
             }
         }
 
