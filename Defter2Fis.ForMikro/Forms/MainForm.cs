@@ -380,6 +380,76 @@ namespace Defter2Fis.ForMikro.Forms
 
         #endregion
 
+        #region Fiş Oluşturma
+
+        private void BtnFisOlustur_Click(object sender, EventArgs e)
+        {
+            if (_islemDevam) return;
+
+            if (_defterler == null || _defterler.Count == 0)
+            {
+                MessageBox.Show(
+                    "Önce 'Analiz Et' ile XML dosyalarını okuyun.",
+                    "Uyarı",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+                return;
+            }
+
+            var ilkDefter = _defterler[0];
+            string donemStr = $"{ilkDefter.DonemBaslangic:dd.MM.yyyy} - {ilkDefter.DonemBitis:dd.MM.yyyy}";
+            int toplamFis = 0;
+            int toplamSatir = 0;
+            foreach (var defter in _defterler)
+            {
+                toplamFis += defter.Fisler.Count;
+                foreach (var fis in defter.Fisler)
+                    toplamSatir += fis.Satirlar.Count;
+            }
+
+            var sonuc = MessageBox.Show(
+                $"Dönem: {donemStr}\n" +
+                $"Oluşturulacak: {toplamFis:N0} fiş, {toplamSatir:N0} satır\n\n" +
+                "Cari hesap ve stok hareketleri ile senkronizasyon yapılacak.\n\n" +
+                "Devam etmek istiyor musunuz?",
+                "Fiş Oluşturma Onayı",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question,
+                MessageBoxDefaultButton.Button2);
+
+            if (sonuc != DialogResult.Yes) return;
+
+            _bgwIslem.RunWorkerAsync("fisolustur");
+        }
+
+        private void FisOlusturmaCalistir(BackgroundWorker worker, DoWorkEventArgs e)
+        {
+            worker.ReportProgress(0, "Fiş oluşturma başlatılıyor...");
+
+            if (_dbService == null)
+            {
+                _dbService = new MikroDbService();
+            }
+
+            if (!_dbService.BaglantıTest(out string hataMesaji))
+            {
+                _log.Hata($"Veritabanına bağlanamadı: {hataMesaji}");
+                return;
+            }
+
+            var servis = new FisOlusturmaServisi(_dbService, _log);
+            var sonuc = servis.FisleriOlustur(
+                _defterler,
+                FirmaNo,
+                SubeNo,
+                DBCNo,
+                (yuzde, durum) => worker.ReportProgress(yuzde, durum));
+
+            worker.ReportProgress(100, sonuc.Basarili ? "Fiş oluşturma tamamlandı." : "Fiş oluşturma hatalarla tamamlandı.");
+        }
+
+        #endregion
+
         #region BackgroundWorker
 
         private void BgwIslem_DoWork(object sender, DoWorkEventArgs e)
@@ -397,6 +467,9 @@ namespace Defter2Fis.ForMikro.Forms
                     break;
                 case "sil":
                     SilmeCalistir(worker, e);
+                    break;
+                case "fisolustur":
+                    FisOlusturmaCalistir(worker, e);
                     break;
             }
         }
@@ -432,6 +505,7 @@ namespace Defter2Fis.ForMikro.Forms
             _islemDevam = calisiyor;
             _btnAnalizEt.Enabled = !calisiyor;
             _btnMevcutVeriKontrol.Enabled = !calisiyor;
+            _btnFisOlustur.Enabled = !calisiyor;
             _btnDonemVerisiSil.Enabled = !calisiyor && _dgvMevcutVeri.RowCount > 0;
         }
 

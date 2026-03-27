@@ -34,6 +34,7 @@ namespace Defter2Fis.ForMikro.Forms
             _flpButonlar = new System.Windows.Forms.FlowLayoutPanel();
             _btnAnalizEt = new System.Windows.Forms.Button();
             _btnMevcutVeriKontrol = new System.Windows.Forms.Button();
+            _btnFisOlustur = new System.Windows.Forms.Button();
             _tabControl = new System.Windows.Forms.TabControl();
             _tabLoglar = new System.Windows.Forms.TabPage();
             _rtbLog = new System.Windows.Forms.RichTextBox();
@@ -168,6 +169,7 @@ namespace Defter2Fis.ForMikro.Forms
             _flpButonlar.Dock = System.Windows.Forms.DockStyle.Fill;
             _flpButonlar.Controls.Add(_btnAnalizEt);
             _flpButonlar.Controls.Add(_btnMevcutVeriKontrol);
+            _flpButonlar.Controls.Add(_btnFisOlustur);
             _flpButonlar.Margin = new System.Windows.Forms.Padding(3, 2, 3, 4);
             _flpButonlar.Name = "_flpButonlar";
 
@@ -184,6 +186,14 @@ namespace Defter2Fis.ForMikro.Forms
             _btnMevcutVeriKontrol.Text = "Mevcut Veri Kontrol";
             _btnMevcutVeriKontrol.UseVisualStyleBackColor = true;
             _btnMevcutVeriKontrol.Click += BtnMevcutVeriKontrol_Click;
+
+            // _btnFisOlustur
+            _btnFisOlustur.Name = "_btnFisOlustur";
+            _btnFisOlustur.Size = new System.Drawing.Size(140, 32);
+            _btnFisOlustur.Text = "\u25B6 Fi\u015F Olu\u015Ftur";
+            _btnFisOlustur.UseVisualStyleBackColor = true;
+            _btnFisOlustur.ForeColor = System.Drawing.Color.DarkGreen;
+            _btnFisOlustur.Click += BtnFisOlustur_Click;
 
             // _tabControl
             _tabControl.Controls.Add(_tabLoglar);
@@ -341,6 +351,7 @@ namespace Defter2Fis.ForMikro.Forms
         private System.Windows.Forms.FlowLayoutPanel _flpButonlar;
         private System.Windows.Forms.Button _btnAnalizEt;
         private System.Windows.Forms.Button _btnMevcutVeriKontrol;
+        private System.Windows.Forms.Button _btnFisOlustur;
         private System.Windows.Forms.TabControl _tabControl;
         private System.Windows.Forms.TabPage _tabLoglar;
         private System.Windows.Forms.RichTextBox _rtbLog;

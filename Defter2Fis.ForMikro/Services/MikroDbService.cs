@@ -425,5 +425,160 @@ namespace Defter2Fis.ForMikro.Services
         }
 
         #endregion
+
+        #region Cari Hesap Hareketleri
+
+        /// <summary>
+        /// Belirtilen dönemdeki cari hesap hareketlerini evrak seri/sıra bilgileri ile getirir.
+        /// Muhasebe fiş referansı senkronizasyonu için kullanılır.
+        /// </summary>
+        public List<CariHesapHareketi> DonemCariHareketleriGetir(
+            DateTime baslangic, DateTime bitis, int firmaNo, int subeNo)
+        {
+            var sonuc = new List<CariHesapHareketi>();
+
+            const string sql = @"SELECT 
+                cha_Guid, cha_evrak_tip, cha_evrakno_seri, cha_evrakno_sira,
+                cha_tarihi, cha_kod, cha_muh_fis_no, cha_muh_fis_tarihi
+            FROM CARI_HESAP_HAREKETLERI
+            WHERE cha_tarihi >= @baslangic 
+                AND cha_tarihi <= @bitis
+                AND cha_firmano = @firmaNo
+                AND cha_subession = @subeNo
+                AND cha_iptal = 0
+                AND cha_DBCno = 0
+            ORDER BY cha_evrakno_seri, cha_evrakno_sira";
+
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.Add("@baslangic", SqlDbType.DateTime).Value = baslangic.Date;
+                cmd.Parameters.Add("@bitis", SqlDbType.DateTime).Value = bitis.Date;
+                cmd.Parameters.Add("@firmaNo", SqlDbType.Int).Value = firmaNo;
+                cmd.Parameters.Add("@subeNo", SqlDbType.Int).Value = subeNo;
+                conn.Open();
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        sonuc.Add(new CariHesapHareketi
+                        {
+                            ChaGuid = reader.GetGuid(0),
+                            ChaEvrakTip = reader.GetByte(1),
+                            ChaEvraknoSeri = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
+                            ChaEvraknoSira = reader.GetInt32(3),
+                            ChaTarihi = reader.GetDateTime(4),
+                            ChaKod = reader.IsDBNull(5) ? string.Empty : reader.GetString(5),
+                            ChaMuhFisNo = reader.GetInt32(6),
+                            ChaMuhFisTarihi = reader.GetDateTime(7)
+                        });
+                    }
+                }
+            }
+
+            return sonuc;
+        }
+
+        /// <summary>
+        /// Cari hesap hareketinin muhasebe fiş referansını günceller.
+        /// </summary>
+        public void CariHareketMuhFisGuncelle(
+            Guid chaGuid, int muhFisNo, DateTime muhFisTarihi,
+            SqlConnection conn, SqlTransaction tran)
+        {
+            const string sql = @"UPDATE CARI_HESAP_HAREKETLERI 
+                SET cha_muh_fis_no = @muhFisNo,
+                    cha_muh_fis_tarihi = @muhFisTarihi
+                WHERE cha_Guid = @chaGuid AND cha_DBCno = 0";
+
+            using (var cmd = new SqlCommand(sql, conn, tran))
+            {
+                cmd.Parameters.Add("@muhFisNo", SqlDbType.Int).Value = muhFisNo;
+                cmd.Parameters.Add("@muhFisTarihi", SqlDbType.DateTime).Value = muhFisTarihi;
+                cmd.Parameters.Add("@chaGuid", SqlDbType.UniqueIdentifier).Value = chaGuid;
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        #endregion
+
+        #region Stok Hareketleri
+
+        /// <summary>
+        /// Belirtilen dönemdeki stok hareketlerini evrak seri/sıra bilgileri ile getirir.
+        /// Muhasebe fiş referansı senkronizasyonu için kullanılır.
+        /// </summary>
+        public List<StokHareketi> DonemStokHareketleriGetir(
+            DateTime baslangic, DateTime bitis, int firmaNo, int subeNo)
+        {
+            var sonuc = new List<StokHareketi>();
+
+            const string sql = @"SELECT 
+                sth_Guid, sth_evrak_tip, sth_evrakno_seri, sth_evrakno_sira,
+                sth_tarihi, sth_muh_fis_no, sth_muh_fis_tarihi
+            FROM STOK_HAREKETLERI
+            WHERE sth_tarihi >= @baslangic 
+                AND sth_tarihi <= @bitis
+                AND sth_firmano = @firmaNo
+                AND sth_subeno = @subeNo
+                AND sth_iptal = 0
+                AND sth_DBCno = 0
+            ORDER BY sth_evrakno_seri, sth_evrakno_sira";
+
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.Add("@baslangic", SqlDbType.DateTime).Value = baslangic.Date;
+                cmd.Parameters.Add("@bitis", SqlDbType.DateTime).Value = bitis.Date;
+                cmd.Parameters.Add("@firmaNo", SqlDbType.Int).Value = firmaNo;
+                cmd.Parameters.Add("@subeNo", SqlDbType.Int).Value = subeNo;
+                conn.Open();
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        sonuc.Add(new StokHareketi
+                        {
+                            SthGuid = reader.GetGuid(0),
+                            SthEvrakTip = reader.GetByte(1),
+                            SthEvraknoSeri = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
+                            SthEvraknoSira = reader.GetInt32(3),
+                            SthTarihi = reader.GetDateTime(4),
+                            SthMuhFisNo = reader.GetInt32(5),
+                            SthMuhFisTarihi = reader.GetDateTime(6)
+                        });
+                    }
+                }
+            }
+
+            return sonuc;
+        }
+
+        /// <summary>
+        /// Stok hareketinin muhasebe fiş referansını günceller.
+        /// </summary>
+        public void StokHareketMuhFisGuncelle(
+            Guid sthGuid, int muhFisNo, DateTime muhFisTarihi,
+            SqlConnection conn, SqlTransaction tran)
+        {
+            const string sql = @"UPDATE STOK_HAREKETLERI 
+                SET sth_muh_fis_no = @muhFisNo,
+                    sth_muh_fis_tarihi = @muhFisTarihi
+                WHERE sth_Guid = @sthGuid AND sth_DBCno = 0";
+
+            using (var cmd = new SqlCommand(sql, conn, tran))
+            {
+                cmd.Parameters.Add("@muhFisNo", SqlDbType.Int).Value = muhFisNo;
+                cmd.Parameters.Add("@muhFisTarihi", SqlDbType.DateTime).Value = muhFisTarihi;
+                cmd.Parameters.Add("@sthGuid", SqlDbType.UniqueIdentifier).Value = sthGuid;
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        #endregion
     }
 }

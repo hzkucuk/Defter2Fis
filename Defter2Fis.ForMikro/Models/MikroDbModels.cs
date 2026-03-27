@@ -254,4 +254,83 @@ namespace Defter2Fis.ForMikro.Models
         /// <summary>Fişin ilk açıklama satırı</summary>
         public string Aciklama { get; set; }
     }
+
+    /// <summary>
+    /// CARI_HESAP_HAREKETLERI tablosunun özet DTO'su.
+    /// Evrak seri/sıra eşleştirme ve muhasebe fiş referans güncelleme için kullanılır.
+    /// </summary>
+    public class CariHesapHareketi
+    {
+        /// <summary>Kayıt benzersiz kimliği (cha_Guid)</summary>
+        public Guid ChaGuid { get; set; }
+
+        /// <summary>Evrak tipi (cha_evrak_tip). 0:Fatura, 1:İrsaliye, vb.</summary>
+        public byte ChaEvrakTip { get; set; }
+
+        /// <summary>Evrak seri (cha_evrakno_seri). Ör: "A"</summary>
+        public string ChaEvraknoSeri { get; set; }
+
+        /// <summary>Evrak sıra numarası (cha_evrakno_sira). Ör: 123</summary>
+        public int ChaEvraknoSira { get; set; }
+
+        /// <summary>İşlem tarihi (cha_tarihi)</summary>
+        public DateTime ChaTarihi { get; set; }
+
+        /// <summary>Hesap kodu (cha_kod)</summary>
+        public string ChaKod { get; set; }
+
+        /// <summary>Muhasebe fiş numarası (cha_muh_fis_no)</summary>
+        public int ChaMuhFisNo { get; set; }
+
+        /// <summary>Muhasebe fiş tarihi (cha_muh_fis_tarihi)</summary>
+        public DateTime ChaMuhFisTarihi { get; set; }
+
+        /// <summary>Eşleştirme anahtarı: SERİ-SIRA</summary>
+        public string EvrakAnahtar
+        {
+            get
+            {
+                string seri = (ChaEvraknoSeri ?? string.Empty).Trim();
+                return string.IsNullOrEmpty(seri) ? ChaEvraknoSira.ToString() : $"{seri}-{ChaEvraknoSira}";
+            }
+        }
+    }
+
+    /// <summary>
+    /// STOK_HAREKETLERI tablosunun özet DTO'su.
+    /// Evrak seri/sıra eşleştirme ve muhasebe fiş referans güncelleme için kullanılır.
+    /// </summary>
+    public class StokHareketi
+    {
+        /// <summary>Kayıt benzersiz kimliği (sth_Guid)</summary>
+        public Guid SthGuid { get; set; }
+
+        /// <summary>Evrak tipi (sth_evrak_tip)</summary>
+        public byte SthEvrakTip { get; set; }
+
+        /// <summary>Evrak seri (sth_evrakno_seri). Ör: "A"</summary>
+        public string SthEvraknoSeri { get; set; }
+
+        /// <summary>Evrak sıra numarası (sth_evrakno_sira). Ör: 123</summary>
+        public int SthEvraknoSira { get; set; }
+
+        /// <summary>İşlem tarihi (sth_tarihi)</summary>
+        public DateTime SthTarihi { get; set; }
+
+        /// <summary>Muhasebe fiş numarası (sth_muh_fis_no)</summary>
+        public int SthMuhFisNo { get; set; }
+
+        /// <summary>Muhasebe fiş tarihi (sth_muh_fis_tarihi)</summary>
+        public DateTime SthMuhFisTarihi { get; set; }
+
+        /// <summary>Eşleştirme anahtarı: SERİ-SIRA</summary>
+        public string EvrakAnahtar
+        {
+            get
+            {
+                string seri = (SthEvraknoSeri ?? string.Empty).Trim();
+                return string.IsNullOrEmpty(seri) ? SthEvraknoSira.ToString() : $"{seri}-{SthEvraknoSira}";
+            }
+        }
+    }
 }

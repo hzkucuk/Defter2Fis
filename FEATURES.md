@@ -1,5 +1,33 @@
 # Özellikler (Features)
 
+## v2.1.0 — Fiş Oluşturma ve Cari/Stok Senkronizasyonu
+
+### Fiş Oluşturma (YENİ)
+- **Fiş Oluştur** butonu — E-Defter verilerinden Mikro ERP muhasebe fişleri tek tıkla oluşturma
+- Otomatik eksik hesap planı tespiti ve ekleme (fiş yazma öncesi)
+- Tarih bazlı fiş sıralama ve sıra no atama (MAX+1)
+- Mükerrer yevmiye kontrolü ile güvenli fiş yazma
+- Transaction bazlı atomik fiş yazma (her yevmiye fişi)
+- Onay dialogu ile güvenli işlem başlatma
+
+### Evrak Bilgisi Parse (YENİ)
+- E-Defter `detailComment`, `documentNumber`, `documentReference` alanlarından evrak seri/no çıkarma
+- Çoklu Regex pattern desteği: `SERİ:A NO:123`, `A-000123`, `A/000123`, `A 000123`, `A000123`
+- Mikro ERP evrak formatları ile uyumlu
+
+### Cari/Stok Hareket Senkronizasyonu (YENİ)
+- `CARI_HESAP_HAREKETLERI` tablosu dönem sorgulama ve evrak eşleştirme
+- `STOK_HAREKETLERI` tablosu dönem sorgulama ve evrak eşleştirme
+- Evrak seri+sıra bazlı otomatik eşleştirme (index tabanlı)
+- Muhasebe fiş referansı güncelleme (`cha_muh_fis_no`, `sth_muh_fis_no`)
+- Ticari referans alanları otomatik doldurma (`fis_tic_evrak_seri`, `fis_tic_evrak_sira`, `fis_ticari_tip`)
+- Tablo yoksa güvenli atlanma (SqlException 208 handling)
+
+### Orkestrasyon Servisi (YENİ)
+- `FisOlusturmaServisi` — Tüm süreci yöneten merkezi servis
+- BackgroundWorker ilerleme raporlama desteği
+- Detaylı sonuç raporu (oluşturulan fiş, satır, eşleşen cari/stok, hatalar)
+
 ## v2.0.0 — WinForms UI
 
 ### Masaüstü Arayüzü (YENİ)

@@ -53,4 +53,4 @@ Defter2Fis.ForMikro\bin\Debug\Defter2Fis.ForMikro.exe
 1. **Analiz Et** → XML dosyalarını parse et, raporu incele
 2. **Mevcut Veri Kontrol** → Dönemde mevcut veri varsa listele
 3. Gerekirse **Dönem Verisini Sil** → Çift onay ile mevcut veriyi temizle
-4. Fiş oluşturma (gelecek versiyon)
+4. **Fiş Oluştur** → Muhasebe fişlerini oluştur, cari/stok senkronize et
