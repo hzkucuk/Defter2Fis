@@ -1,5 +1,24 @@
 # Changelog
 
+## [2.13.0] - 2025-08-28 — Mikro Uyumlu Fiş Yazma
+
+### Düzeltmeler
+- **Ticari tip değerleri düzeltildi** — Cari hareket=2, stok hareket=1 (Mikro ERP uyumlu; önceki sürümde ters atanmıştı)
+- **Ticari bilgi tüm satırlara uygulanır** — Mikro gibi, yevmiyenin tüm satırlarına aynı ticari_tip/uid/evraktip atanır (eskiden sadece ilk satır)
+- **Hub kolonları eklendi** — fis_ticari_hubid, fis_ticari_hubglbid, fis_ticari_disyazilimid (''), fis_ticari_disyazilim_tip (0) INSERT'e eklendi (NULL yerine Mikro varsayılan değerleri)
+
+### Kaldırılanlar
+- Döviz kuru hesaplaması kaldırıldı (meblag1/meblag2 = 0, merkez bankası kuru bilgisi mevcut değil)
+- `DonemGunlukKurGetir` metodu kaldırıldı (IMikroDbService + MikroDbService)
+- CariHesapHareketi ve StokHareketi modellerinden kur alanları kaldırıldı
+- SQL sorgularından kur kolonları kaldırıldı (cha_altd_kur, cha_karsid_kur, sth_alt_doviz_kuru)
+
+### Etkilenen dosyalar
+- Defter2Fis.ForMikro\Services\FisOlusturmaServisi.cs (ticari tip düzeltme, tüm satır atama, kur kaldırma)
+- Defter2Fis.ForMikro\Services\MikroDbService.cs (hub kolonlar, kur SQL/metot kaldırma)
+- Defter2Fis.ForMikro\Services\IMikroDbService.cs (DonemGunlukKurGetir kaldırma)
+- Defter2Fis.ForMikro\Models\MikroDbModels.cs (kur alanları kaldırma)
+
 ## [2.12.0] - 2025-08-28 — Mükerrer Kontrolü Bilgi Amaçlı + Üzerine Yazma
 
 ### Yeni Özellikler

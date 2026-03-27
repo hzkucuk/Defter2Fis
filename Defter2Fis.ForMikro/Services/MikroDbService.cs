@@ -240,7 +240,9 @@ namespace Defter2Fis.ForMikro.Services
                 fis_yevmiye_no, fis_katagori, fis_evrak_DBCno,
                 fis_fmahsup_tipi, fis_fozelmahkod, fis_grupkodu,
                 fis_aktif_pasif, fis_proje_kodu,
-                fis_HareketGrupKodu1, fis_HareketGrupKodu2, fis_HareketGrupKodu3
+                fis_HareketGrupKodu1, fis_HareketGrupKodu2, fis_HareketGrupKodu3,
+                fis_ticari_hubid, fis_ticari_hubglbid,
+                fis_ticari_disyazilimid, fis_ticari_disyazilim_tip
             ) VALUES (
                 @guid, @dbcno, 0, 0, 0,
                 0, 0, 0, 0,
@@ -257,7 +259,9 @@ namespace Defter2Fis.ForMikro.Services
                 @yevmiyeNo, 0, 0,
                 0, '', '',
                 0, '',
-                '', '', ''
+                '', '', '',
+                '', '',
+                '', 0
             )";
 
             using (var cmd = new SqlCommand(sql, conn, tran))

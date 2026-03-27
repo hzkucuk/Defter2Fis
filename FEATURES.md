@@ -1,5 +1,20 @@
 # Özellikler (Features)
 
+## v2.13.0 — Mikro Uyumlu Fiş Yazma
+
+### Ticari Tip Düzeltmesi
+- Cari hareket = 2, stok hareket = 1 (Mikro ERP şemasına uyumlu)
+- Ticari bilgi (tip/uid/evraktip) yevmiyenin tüm satırlarına atanır (sadece ilk satır değil)
+
+### Hub Kolonları
+- `fis_ticari_hubid`, `fis_ticari_hubglbid`, `fis_ticari_disyazilimid` = '' (boş string)
+- `fis_ticari_disyazilim_tip` = 0
+- NULL yerine Mikro varsayılan değerleri yazılır
+
+### Döviz Kuru (meblag1/meblag2)
+- Şu an için 0 olarak girilir (merkez bankası kuru bilgisi mevcut değil)
+- Kur hesaplama kodu ve GunlukKurGetir metodu kaldırıldı
+
 ## v2.12.0 — Mükerrer Kontrolü Bilgi Amaçlı + Üzerine Yazma
 
 ### Üzerine Yazma (DELETE-before-INSERT)

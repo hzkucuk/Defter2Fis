@@ -204,6 +204,26 @@ namespace Defter2Fis.ForMikro.Services
                     // Tarih+SıraNo bazlı eşleştirme (cha_fis_tarih + cha_fis_sirano / sth_fis_tarihi + sth_fis_sirano)
                     string fisAnahtar = $"{fisTarihi:yyyy-MM-dd}|{siraNo}";
 
+                    // Eşleşen cari/stok hareketi bilgilerini yevmiye düzeyinde belirle
+                    byte ticariTip = 0;
+                    Guid ticariUid = Guid.Empty;
+                    byte ticariEvrakTip = 0;
+
+                    if (cariIndex.ContainsKey(fisAnahtar))
+                    {
+                        var cari = cariIndex[fisAnahtar][0];
+                        ticariTip = 2; // 2 = Cari hareket
+                        ticariUid = cari.ChaGuid;
+                        ticariEvrakTip = cari.ChaEvrakTip;
+                    }
+                    else if (stokIndex.ContainsKey(fisAnahtar))
+                    {
+                        var stok = stokIndex[fisAnahtar][0];
+                        ticariTip = 1; // 1 = Stok hareket
+                        ticariUid = stok.SthGuid;
+                        ticariEvrakTip = stok.SthEvrakTip;
+                    }
+
                     int satirNo = 0;
                     foreach (var satir in yevmiyeFisi.Satirlar)
                     {
@@ -220,21 +240,12 @@ namespace Defter2Fis.ForMikro.Services
                             fis.FisTicEvrakSira = evrak.Sira;
                         }
 
-                        // Ticari eşleştirme bilgisini ilk satıra ata
-                        if (satirNo == 0)
+                        // Ticari eşleştirme bilgisini TÜM satırlara ata (Mikro uyumu)
+                        if (ticariTip > 0)
                         {
-                            if (cariIndex.ContainsKey(fisAnahtar))
-                            {
-                                fis.FisTicariTip = 1;
-                                fis.FisTicariUid = cariIndex[fisAnahtar][0].ChaGuid;
-                                fis.FisTicariEvrakTip = cariIndex[fisAnahtar][0].ChaEvrakTip;
-                            }
-                            else if (stokIndex.ContainsKey(fisAnahtar))
-                            {
-                                fis.FisTicariTip = 2;
-                                fis.FisTicariUid = stokIndex[fisAnahtar][0].SthGuid;
-                                fis.FisTicariEvrakTip = stokIndex[fisAnahtar][0].SthEvrakTip;
-                            }
+                            fis.FisTicariTip = ticariTip;
+                            fis.FisTicariUid = ticariUid;
+                            fis.FisTicariEvrakTip = ticariEvrakTip;
                         }
 
                         simFis.FisSatirlari.Add(fis);
