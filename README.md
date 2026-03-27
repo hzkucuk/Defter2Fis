@@ -1,6 +1,6 @@
 # Defter2Fis — E-Defter → Mikro ERP Muhasebe Fişi Oluşturucu
 
-![Version](https://img.shields.io/badge/version-2.5.4-blue)
+![Version](https://img.shields.io/badge/version-2.5.5-blue)
 ![.NET](https://img.shields.io/badge/.NET%20Framework-4.8-purple)
 
 ## Açıklama

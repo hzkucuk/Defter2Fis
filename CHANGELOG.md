@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.5.5] - 2025-08-24 — Akıllı Yedek Sıkıştırma
+
+### Eklenenler
+- **Akıllı COMPRESSION** — SQL Server edition otomatik tespit edilir
+- Express dışı edition'larda (Standard, Enterprise, Developer) `COMPRESSION` eklenir
+- Express'te sıkıştırmasız yedek alır
+- `SikistirmaDestekleniyor()` — `SERVERPROPERTY('EngineEdition')` ile edition kontrolü
+
 ## [2.5.4] - 2025-08-23 — Cari/Stok Kolon Adı Düzeltmeleri
 
 ### Düzeltmeler

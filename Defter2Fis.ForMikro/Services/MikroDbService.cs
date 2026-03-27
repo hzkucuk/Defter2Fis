@@ -717,14 +717,14 @@ namespace Defter2Fis.ForMikro.Services
             }
 
             // BACKUP DATABASE komutu — INIT: üzerine yaz, STATS: ilerleme
-            // COMPRESSION yok: SQL Server Express desteklemez.
-            // Parameterized SQL backup komutunda parametre kullanılamaz, DB adı ve yol doğrudan yazılmalı.
-            // SQL injection riski yok çünkü değerler connection string ve dosya sistemi kaynaklı.
+            // COMPRESSION sadece Express dışı edition'larda desteklenir.
+            string compression = SikistirmaDestekleniyor() ? ", COMPRESSION" : "";
             string backupSql = string.Format(
-                "BACKUP DATABASE [{0}] TO DISK = N'{1}' WITH INIT, NAME = N'{0} Full Backup {2}', STATS = 5",
+                "BACKUP DATABASE [{0}] TO DISK = N'{1}' WITH INIT{3}, NAME = N'{0} Full Backup {2}', STATS = 5",
                 dbAdi.Replace("]", "]]"),
                 yedekYolu.Replace("'", "''"),
-                zaman);
+                zaman,
+                compression);
 
             var sonuc = new YedeklemeSonucu
             {
@@ -864,6 +864,29 @@ namespace Defter2Fis.ForMikro.Services
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// SQL Server edition'ının BACKUP WITH COMPRESSION destekleyip desteklemediğini kontrol eder.
+        /// Express edition desteklemez; Standard, Enterprise, Developer destekler.
+        /// </summary>
+        private bool SikistirmaDestekleniyor()
+        {
+            try
+            {
+                using (var conn = new SqlConnection(_connectionString))
+                using (var cmd = new SqlCommand("SELECT SERVERPROPERTY('EngineEdition')", conn))
+                {
+                    conn.Open();
+                    int engineEdition = (int)cmd.ExecuteScalar();
+                    // 1=Personal/Desktop, 2=Standard, 3=Enterprise, 4=Express, 5=Azure
+                    return engineEdition != 4;
+                }
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         #endregion
