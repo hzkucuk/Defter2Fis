@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using Defter2Fis.ForMikro.Models;
 
@@ -577,6 +578,196 @@ namespace Defter2Fis.ForMikro.Services
 
                 cmd.ExecuteNonQuery();
             }
+        }
+
+        #endregion
+
+        #region Güvenli Sorgulama Yardımcıları
+
+        /// <summary>
+        /// Cari hareketleri güvenli şekilde getirir. Tablo yoksa (SqlException 208) boş liste döner.
+        /// </summary>
+        public List<CariHesapHareketi> DonemCariHareketleriGetirGuvenli(
+            DateTime baslangic, DateTime bitis, int firmaNo, int subeNo)
+        {
+            try
+            {
+                return DonemCariHareketleriGetir(baslangic, bitis, firmaNo, subeNo);
+            }
+            catch (SqlException ex) when (ex.Number == 208)
+            {
+                return new List<CariHesapHareketi>();
+            }
+        }
+
+        /// <summary>
+        /// Stok hareketleri güvenli şekilde getirir. Tablo yoksa (SqlException 208) boş liste döner.
+        /// </summary>
+        public List<StokHareketi> DonemStokHareketleriGetirGuvenli(
+            DateTime baslangic, DateTime bitis, int firmaNo, int subeNo)
+        {
+            try
+            {
+                return DonemStokHareketleriGetir(baslangic, bitis, firmaNo, subeNo);
+            }
+            catch (SqlException ex) when (ex.Number == 208)
+            {
+                return new List<StokHareketi>();
+            }
+        }
+
+        /// <summary>
+        /// Cari hareketlerden evrak anahtarı bazlı index oluşturur (SERİ-SIRA → kayıt listesi).
+        /// </summary>
+        public static Dictionary<string, List<CariHesapHareketi>> CariIndexOlustur(
+            List<CariHesapHareketi> hareketler)
+        {
+            if (hareketler == null) throw new ArgumentNullException(nameof(hareketler));
+
+            var index = new Dictionary<string, List<CariHesapHareketi>>(StringComparer.OrdinalIgnoreCase);
+            foreach (var hareket in hareketler)
+            {
+                string anahtar = hareket.EvrakAnahtar;
+                if (!index.ContainsKey(anahtar))
+                    index[anahtar] = new List<CariHesapHareketi>();
+                index[anahtar].Add(hareket);
+            }
+            return index;
+        }
+
+        /// <summary>
+        /// Stok hareketlerden evrak anahtarı bazlı index oluşturur (SERİ-SIRA → kayıt listesi).
+        /// </summary>
+        public static Dictionary<string, List<StokHareketi>> StokIndexOlustur(
+            List<StokHareketi> hareketler)
+        {
+            if (hareketler == null) throw new ArgumentNullException(nameof(hareketler));
+
+            var index = new Dictionary<string, List<StokHareketi>>(StringComparer.OrdinalIgnoreCase);
+            foreach (var hareket in hareketler)
+            {
+                string anahtar = hareket.EvrakAnahtar;
+                if (!index.ContainsKey(anahtar))
+                    index[anahtar] = new List<StokHareketi>();
+                index[anahtar].Add(hareket);
+            }
+            return index;
+        }
+
+        #endregion
+
+        #region Veritabanı Yedekleme
+
+        /// <summary>
+        /// Veritabanının tam yedeğini (FULL BACKUP) alır.
+        /// DB motoru açıkken çalışır (ONLINE backup).
+        /// </summary>
+        /// <param name="yedekDizini">Yedek dosyasının yazılacağı dizin. null ise SQL Server default backup dizini kullanılır.</param>
+        /// <returns>Oluşturulan yedek dosyasının tam yolu.</returns>
+        /// <exception cref="InvalidOperationException">Bağlantı dizesi geçersizse veya DB adı alınamıyorsa.</exception>
+        /// <exception cref="SqlException">SQL Server yedekleme hatası.</exception>
+        public YedeklemeSonucu VeritabaniYedekle(string yedekDizini = null)
+        {
+            var builder = new SqlConnectionStringBuilder(_connectionString);
+            string dbAdi = builder.InitialCatalog;
+
+            if (string.IsNullOrWhiteSpace(dbAdi))
+                throw new InvalidOperationException(
+                    "Connection string'den veritabanı adı alınamadı. 'Initial Catalog' veya 'Database' tanımlı olmalı.");
+
+            string zaman = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+            string dosyaAdi = $"{dbAdi}_{zaman}.bak";
+
+            // Yedek yolu: kullanıcı dizini belirtmişse oraya, yoksa SQL Server default backup konumuna
+            string yedekYolu;
+            if (!string.IsNullOrWhiteSpace(yedekDizini))
+            {
+                if (!Directory.Exists(yedekDizini))
+                    Directory.CreateDirectory(yedekDizini);
+
+                yedekYolu = Path.Combine(yedekDizini, dosyaAdi);
+            }
+            else
+            {
+                // SQL Server default backup dizinini kullan
+                yedekYolu = dosyaAdi; // SQL Server kendi default dizinine yazar
+            }
+
+            // BACKUP DATABASE komutu — INIT: üzerine yaz, COMPRESSION: sıkıştır, STATS: ilerleme
+            // Parameterized SQL backup komutunda parametre kullanılamaz, DB adı ve yol doğrudan yazılmalı.
+            // SQL injection riski yok çünkü değerler connection string ve dosya sistemi kaynaklı.
+            string backupSql = string.Format(
+                "BACKUP DATABASE [{0}] TO DISK = N'{1}' WITH INIT, COMPRESSION, NAME = N'{0} Full Backup {2}', STATS = 10",
+                dbAdi.Replace("]", "]]"),
+                yedekYolu.Replace("'", "''"),
+                zaman);
+
+            var sonuc = new YedeklemeSonucu
+            {
+                VeritabaniAdi = dbAdi,
+                BaslangicZamani = DateTime.Now
+            };
+
+            // Yedekleme uzun sürebilir, timeout'u artır
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+                using (var cmd = new SqlCommand(backupSql, conn))
+                {
+                    cmd.CommandTimeout = 600; // 10 dakika
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+            sonuc.BitisZamani = DateTime.Now;
+            sonuc.DosyaYolu = yedekYolu;
+            sonuc.Basarili = true;
+
+            // Dosya boyutu (erişilebiliyorsa)
+            if (File.Exists(yedekYolu))
+            {
+                sonuc.DosyaBoyutu = new FileInfo(yedekYolu).Length;
+            }
+
+            return sonuc;
+        }
+
+        /// <summary>
+        /// Yedekleme sonuç bilgisi.
+        /// </summary>
+        public class YedeklemeSonucu
+        {
+            public string VeritabaniAdi { get; set; }
+            public string DosyaYolu { get; set; }
+            public long DosyaBoyutu { get; set; }
+            public DateTime BaslangicZamani { get; set; }
+            public DateTime BitisZamani { get; set; }
+            public bool Basarili { get; set; }
+
+            /// <summary>
+            /// İnsan okunabilir dosya boyutu.
+            /// </summary>
+            public string DosyaBoyutuFormatli
+            {
+                get
+                {
+                    if (DosyaBoyutu <= 0) return "?";
+                    string[] birimler = { "B", "KB", "MB", "GB" };
+                    double boyut = DosyaBoyutu;
+                    int birimIdx = 0;
+                    while (boyut >= 1024 && birimIdx < birimler.Length - 1)
+                    {
+                        boyut /= 1024;
+                        birimIdx++;
+                    }
+                    return $"{boyut:N1} {birimler[birimIdx]}";
+                }
+            }
+
+            /// <summary>
+            /// Yedekleme süresi.
+            /// </summary>
+            public TimeSpan Sure => BitisZamani - BaslangicZamani;
         }
 
         #endregion

@@ -1,5 +1,33 @@
 # Özellikler (Features)
 
+## v2.3.0 — Veritabanı Yedekleme + Hata Yönetimi + Refactoring
+
+### Veritabanı Yedekleme (YENİ — KRİTİK)
+- **Yedek Al** butonu — Tek tıkla tam veritabanı yedek alma
+- `BACKUP DATABASE` SQL komutu (INIT, COMPRESSION, 10 dakika timeout)
+- Yedek dosyası: `{UygulamaDizini}\Yedekler\{DBAdı}_{YYYYMMDD_HHmmss}.bak`
+- Dosya boyutu ve süre raporlama (insan okunabilir format)
+- **İşlem öncesi yedek teklifi** — Fiş oluşturma ve dönem silme öncesi Yes/No/Cancel dialog
+  - Evet: Yedek al ve devam
+  - Hayır: Yedeksiz devam
+  - İptal: İşlemi durdur
+
+### Hata Yönetimi İyileştirmeleri (YENİ)
+- **Global exception handler** — `Application.ThreadException` + `AppDomain.UnhandledException`
+  - UI thread hataları: Kullanıcıya mesaj göster, uygulama devam etsin
+  - Kritik hatalar: Kullanıcıya bilgi ver, uygulama kapatılsın
+- BackgroundWorker hata raporlama — Inner exception detayı + MessageBox
+- Fiş oluşturma hatalarında inner exception zincirleme (SQL hata detayları)
+
+### Refactoring
+- `FisOlusturmaServisi` ve `OnizlemeServisi`'ndeki 4'er mükerrer metot kaldırıldı
+- Paylaşımlı metotlar `MikroDbService`'e taşındı:
+  - `DonemCariHareketleriGetirGuvenli()` — Tablo yoksa güvenli boş liste döner
+  - `DonemStokHareketleriGetirGuvenli()` — Tablo yoksa güvenli boş liste döner
+  - `CariIndexOlustur()` (static) — Evrak anahtarı bazlı Dictionary index
+  - `StokIndexOlustur()` (static) — Evrak anahtarı bazlı Dictionary index
+- Kullanılmayan `using` direktifleri temizlendi
+
 ## v2.2.0 — Krypton UI + Önizleme/Test Modülü
 
 ### Krypton Toolkit Entegrasyonu (YENİ)

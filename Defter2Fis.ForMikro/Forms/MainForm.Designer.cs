@@ -39,6 +39,7 @@ namespace Defter2Fis.ForMikro.Forms
             _btnMevcutVeriKontrol = new KryptonButton();
             _btnOnizleme = new KryptonButton();
             _btnFisOlustur = new KryptonButton();
+            _btnYedekAl = new KryptonButton();
             _tabControl = new System.Windows.Forms.TabControl();
             _tabLoglar = new System.Windows.Forms.TabPage();
             _rtbLog = new KryptonRichTextBox();
@@ -198,7 +199,7 @@ namespace Defter2Fis.ForMikro.Forms
             _flpButonlar.Controls.Add(_btnMevcutVeriKontrol);
             _flpButonlar.Controls.Add(_btnOnizleme);
             _flpButonlar.Controls.Add(_btnFisOlustur);
-            _flpButonlar.Margin = new System.Windows.Forms.Padding(3, 2, 3, 4);
+            _flpButonlar.Controls.Add(_btnYedekAl);
             _flpButonlar.Name = "_flpButonlar";
 
             _btnAnalizEt.Name = "_btnAnalizEt";
@@ -222,6 +223,13 @@ namespace Defter2Fis.ForMikro.Forms
             _btnFisOlustur.StateNormal.Back.Color1 = System.Drawing.Color.FromArgb(40, 167, 69);
             _btnFisOlustur.StateNormal.Content.ShortText.Color1 = System.Drawing.Color.White;
             _btnFisOlustur.Click += BtnFisOlustur_Click;
+
+            _btnYedekAl.Name = "_btnYedekAl";
+            _btnYedekAl.Size = new System.Drawing.Size(140, 34);
+            _btnYedekAl.Values.Text = "\uD83D\uDCBE Yedek Al";
+            _btnYedekAl.StateNormal.Back.Color1 = System.Drawing.Color.FromArgb(23, 162, 184);
+            _btnYedekAl.StateNormal.Content.ShortText.Color1 = System.Drawing.Color.White;
+            _btnYedekAl.Click += BtnYedekAl_Click;
 
             // _tabControl
             _tabControl.Controls.Add(_tabLoglar);
@@ -529,6 +537,7 @@ namespace Defter2Fis.ForMikro.Forms
         private KryptonButton _btnMevcutVeriKontrol;
         private KryptonButton _btnOnizleme;
         private KryptonButton _btnFisOlustur;
+        private KryptonButton _btnYedekAl;
         private System.Windows.Forms.TabControl _tabControl;
         private System.Windows.Forms.TabPage _tabLoglar;
         private KryptonRichTextBox _rtbLog;

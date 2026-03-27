@@ -295,6 +295,9 @@ namespace Defter2Fis.ForMikro.Forms
                 "Son Onay", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button2);
             if (sonuc2 != DialogResult.Yes) return;
 
+            if (!YedekTeklifEt("Donem Verisi Silme"))
+                return;
+
             _bgwIslem.RunWorkerAsync("sil");
         }
 
@@ -489,6 +492,100 @@ namespace Defter2Fis.ForMikro.Forms
 
         #endregion
 
+        #region Veritabani Yedekleme
+
+        private void BtnYedekAl_Click(object sender, EventArgs e)
+        {
+            if (_islemDevam) return;
+            _bgwIslem.RunWorkerAsync("yedek");
+        }
+
+        /// <summary>
+        /// Kritik islemlerden once kullaniciya yedek teklif eder.
+        /// </summary>
+        /// <returns>true: islem devam etsin, false: kullanici iptal etti</returns>
+        private bool YedekTeklifEt(string islemAdi)
+        {
+            var sonuc = MessageBox.Show(
+                $"'{islemAdi}' islemi oncesinde veritabani yedegi almak ister misiniz?\n\n" +
+                "Onerilen: Evet (geri alinamaz islemler icin guvenlik)",
+                "Yedek Onerisi",
+                MessageBoxButtons.YesNoCancel,
+                MessageBoxIcon.Question,
+                MessageBoxDefaultButton.Button1);
+
+            if (sonuc == DialogResult.Cancel)
+                return false;
+
+            if (sonuc == DialogResult.Yes)
+            {
+                try
+                {
+                    _log.Bilgi("Islem oncesi otomatik yedek aliniyor...");
+                    YedeklemeCalistirSenkron();
+                    _log.Basari("Yedek basariyla alindi. Islem devam ediyor...");
+                }
+                catch (Exception ex)
+                {
+                    var devam = MessageBox.Show(
+                        $"Yedek alma basarisiz: {ex.Message}\n\nYedeksiz devam etmek istiyor musunuz?",
+                        "Yedek Hatasi",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Warning,
+                        MessageBoxDefaultButton.Button2);
+
+                    if (devam != DialogResult.Yes)
+                        return false;
+                }
+            }
+
+            return true;
+        }
+
+        private void YedeklemeCalistir(BackgroundWorker worker, DoWorkEventArgs e)
+        {
+            worker.ReportProgress(0, "Veritabani yedegi aliniyor...");
+
+            if (_dbService == null) _dbService = new MikroDbService();
+            if (!_dbService.BaglantıTest(out string hataMesaji))
+            {
+                _log.Hata($"Veritabanina baglanamadi: {hataMesaji}");
+                return;
+            }
+
+            _log.Bilgi("BACKUP DATABASE komutu calistiriliyor (bu islem birkac dakika surebilir)...");
+            worker.ReportProgress(20, "BACKUP DATABASE calisiyor...");
+
+            // Yedek dizini: uygulama dizini altinda Yedekler klasoru
+            string yedekDizini = Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory, "Yedekler");
+
+            var sonuc = _dbService.VeritabaniYedekle(yedekDizini);
+
+            worker.ReportProgress(100, "Yedek tamamlandi.");
+            _log.Basari($"Veritabani yedegi alindi:");
+            _log.Bilgi($"  DB     : {sonuc.VeritabaniAdi}");
+            _log.Bilgi($"  Dosya  : {sonuc.DosyaYolu}");
+            _log.Bilgi($"  Boyut  : {sonuc.DosyaBoyutuFormatli}");
+            _log.Bilgi($"  Sure   : {sonuc.Sure.TotalSeconds:N1} sn");
+        }
+
+        /// <summary>
+        /// Senkron yedekleme (islem oncesi otomatik yedek icin).
+        /// </summary>
+        private void YedeklemeCalistirSenkron()
+        {
+            if (_dbService == null) _dbService = new MikroDbService();
+
+            string yedekDizini = Path.Combine(
+                AppDomain.CurrentDomain.BaseDirectory, "Yedekler");
+
+            var sonuc = _dbService.VeritabaniYedekle(yedekDizini);
+            _log.Bilgi($"Yedek: {sonuc.DosyaYolu} ({sonuc.DosyaBoyutuFormatli}, {sonuc.Sure.TotalSeconds:N1} sn)");
+        }
+
+        #endregion
+
         #region Fis Olusturma
 
         private void BtnFisOlustur_Click(object sender, EventArgs e)
@@ -514,6 +611,9 @@ namespace Defter2Fis.ForMikro.Forms
                 $"Donem: {donemStr}\nOlusturulacak: {toplamFis:N0} fis, {toplamSatir:N0} satir{onizlemeBilgi}\n\nDevam?",
                 "Fis Olusturma Onayi", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
             if (sonuc != DialogResult.Yes) return;
+
+            if (!YedekTeklifEt("Fis Olusturma"))
+                return;
 
             _bgwIslem.RunWorkerAsync("fisolustur");
         }
@@ -551,6 +651,7 @@ namespace Defter2Fis.ForMikro.Forms
                 case "sil": SilmeCalistir(worker, e); break;
                 case "onizleme": OnizlemeCalistir(worker, e); break;
                 case "fisolustur": FisOlusturmaCalistir(worker, e); break;
+                case "yedek": YedeklemeCalistir(worker, e); break;
             }
         }
 
@@ -568,9 +669,17 @@ namespace Defter2Fis.ForMikro.Forms
 
             if (e.Error != null)
             {
-                _log.Hata($"Islem hatasi: {e.Error.Message}");
+                string detay = e.Error.InnerException != null
+                    ? $"{e.Error.Message} -> {e.Error.InnerException.Message}"
+                    : e.Error.Message;
+
+                _log.Hata($"Islem hatasi: {detay}");
                 _lblDurum.Text = "Hata olustu!";
                 _progressBar.Value = 0;
+
+                MessageBox.Show(
+                    $"Islem sirasinda hata olustu:\n\n{detay}",
+                    "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             else
             {
@@ -585,6 +694,7 @@ namespace Defter2Fis.ForMikro.Forms
             _btnMevcutVeriKontrol.Enabled = !calisiyor;
             _btnOnizleme.Enabled = !calisiyor;
             _btnFisOlustur.Enabled = !calisiyor;
+            _btnYedekAl.Enabled = !calisiyor;
             _btnDonemVerisiSil.Enabled = !calisiyor && _dgvMevcutVeri.RowCount > 0;
         }
 

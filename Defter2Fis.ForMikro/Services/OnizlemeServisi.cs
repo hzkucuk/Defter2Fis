@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using Defter2Fis.ForMikro.Models;
 
@@ -56,18 +55,18 @@ namespace Defter2Fis.ForMikro.Services
 
                 // 2. Cari/Stok hareketlerini getir
                 ilerlemeRaporla?.Invoke(15, "Cari hesap hareketleri sorgulanıyor...");
-                var cariHareketler = CariHareketleriGetirGuvenli(
+                var cariHareketler = _dbService.DonemCariHareketleriGetirGuvenli(
                     sonuc.DonemBaslangic, sonuc.DonemBitis, firmaNo, subeNo);
                 sonuc.ToplamCariHareket = cariHareketler.Count;
 
                 ilerlemeRaporla?.Invoke(25, "Stok hareketleri sorgulanıyor...");
-                var stokHareketler = StokHareketleriGetirGuvenli(
+                var stokHareketler = _dbService.DonemStokHareketleriGetirGuvenli(
                     sonuc.DonemBaslangic, sonuc.DonemBitis, firmaNo, subeNo);
                 sonuc.ToplamStokHareket = stokHareketler.Count;
 
                 // Eşleştirme index'leri
-                var cariIndex = IndexOlusturCari(cariHareketler);
-                var stokIndex = IndexOlusturStok(stokHareketler);
+                var cariIndex = MikroDbService.CariIndexOlustur(cariHareketler);
+                var stokIndex = MikroDbService.StokIndexOlustur(stokHareketler);
 
                 // Eşleşen cari/stok GUID'leri takip
                 var eslesmeCariAnahtarlar = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -349,62 +348,6 @@ namespace Defter2Fis.ForMikro.Services
                     });
                 }
             }
-        }
-
-        private List<CariHesapHareketi> CariHareketleriGetirGuvenli(
-            DateTime baslangic, DateTime bitis, int firmaNo, int subeNo)
-        {
-            try
-            {
-                return _dbService.DonemCariHareketleriGetir(baslangic, bitis, firmaNo, subeNo);
-            }
-            catch (SqlException ex) when (ex.Number == 208)
-            {
-                _log.Uyari("CARI_HESAP_HAREKETLERI tablosu bulunamadı.");
-                return new List<CariHesapHareketi>();
-            }
-        }
-
-        private List<StokHareketi> StokHareketleriGetirGuvenli(
-            DateTime baslangic, DateTime bitis, int firmaNo, int subeNo)
-        {
-            try
-            {
-                return _dbService.DonemStokHareketleriGetir(baslangic, bitis, firmaNo, subeNo);
-            }
-            catch (SqlException ex) when (ex.Number == 208)
-            {
-                _log.Uyari("STOK_HAREKETLERI tablosu bulunamadı.");
-                return new List<StokHareketi>();
-            }
-        }
-
-        private Dictionary<string, List<CariHesapHareketi>> IndexOlusturCari(
-            List<CariHesapHareketi> hareketler)
-        {
-            var index = new Dictionary<string, List<CariHesapHareketi>>(StringComparer.OrdinalIgnoreCase);
-            foreach (var h in hareketler)
-            {
-                string key = h.EvrakAnahtar;
-                if (!index.ContainsKey(key))
-                    index[key] = new List<CariHesapHareketi>();
-                index[key].Add(h);
-            }
-            return index;
-        }
-
-        private Dictionary<string, List<StokHareketi>> IndexOlusturStok(
-            List<StokHareketi> hareketler)
-        {
-            var index = new Dictionary<string, List<StokHareketi>>(StringComparer.OrdinalIgnoreCase);
-            foreach (var h in hareketler)
-            {
-                string key = h.EvrakAnahtar;
-                if (!index.ContainsKey(key))
-                    index[key] = new List<StokHareketi>();
-                index[key].Add(h);
-            }
-            return index;
         }
     }
 }

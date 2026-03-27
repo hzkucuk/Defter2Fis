@@ -1,5 +1,25 @@
 # Changelog
 
+## [2.3.0] - 2025-08-23 — Veritabanı Yedekleme + Hata Yönetimi + Refactoring
+
+### Eklenenler
+- **Veritabanı Yedekleme** — `BACKUP DATABASE` komutu ile tam DB yedek alma (INIT, COMPRESSION, 10dk timeout)
+- `MikroDbService.VeritabaniYedekle()` + `YedeklemeSonucu` sınıfı (dosya yolu, boyut, süre)
+- `YedekAl` butonu — Tek tıkla veritabanı yedek alma (BackgroundWorker ile)
+- **İşlem öncesi otomatik yedek teklifi** — Fiş oluşturma ve dönem silme öncesi Yes/No/Cancel dialog
+- `YedeklemeCalistirSenkron()` — İşlem öncesi senkron yedek alma
+- **Global hata yönetimi** — `Application.ThreadException` + `AppDomain.UnhandledException` (Program.cs)
+- Hata diyalogu — BGW hatalarında kullanıcıya MessageBox ile detaylı bilgi
+
+### İyileştirmeler
+- Hata mesajlarına inner exception zincirleme bilgisi eklendi (MikroDbService, FisOlusturmaServisi, MainForm)
+- `FisOlusturmaServisi` refactoring — 4 mükerrer private metot kaldırıldı, `MikroDbService` paylaşımlı metotları kullanılıyor
+- `OnizlemeServisi` refactoring — 4 mükerrer private metot kaldırıldı, `MikroDbService` paylaşımlı metotları kullanılıyor
+- `MikroDbService` paylaşımlı yardımcı metotlar eklendi:
+  - `DonemCariHareketleriGetirGuvenli()` / `DonemStokHareketleriGetirGuvenli()` (SqlException 208 güvenli)
+  - `CariIndexOlustur()` / `StokIndexOlustur()` (static, Dictionary bazlı evrak index)
+- Kullanılmayan `System.Data.SqlClient` using'leri temizlendi (FisOlusturmaServisi, OnizlemeServisi)
+
 ## [2.2.0] - 2025-08-22 — Krypton UI + Önizleme/Test Modülü
 
 ### Eklenenler

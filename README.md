@@ -1,6 +1,6 @@
 # Defter2Fis — E-Defter → Mikro ERP Muhasebe Fişi Oluşturucu
 
-![Version](https://img.shields.io/badge/version-2.2.0-blue)
+![Version](https://img.shields.io/badge/version-2.3.0-blue)
 ![.NET](https://img.shields.io/badge/.NET%20Framework-4.8-purple)
 
 ## Açıklama
@@ -14,6 +14,8 @@ E-Defter Yevmiye XML dosyalarını (XBRL-GL formatı) parse edip **Mikro ERP V16
 - **Önizleme / Test** — Fiş oluşturma öncesi dry-run simülasyonu (cari/stok eşleşme, uyarılar)
 - **Fiş Oluşturma** — E-Defter'den Mikro ERP muhasebe fişleri oluşturma
 - **Cari/Stok Senkronizasyonu** — Evrak seri/no ile cari hesap ve stok hareketleri eşleştirme
+- **Veritabanı Yedekleme** — BACKUP DATABASE ile tam DB yedek alma (INIT, COMPRESSION)
+- **İşlem öncesi otomatik yedek teklifi** — Fiş oluşturma ve dönem silme öncesi güvenlik
 - Borç-Alacak denge kontrolü
 - Eksik hesap planı tespiti ve otomatik ekleme
 - Mikro ERP MUHASEBE_FISLERI tablosuna fiş yazma altyapısı
@@ -22,6 +24,7 @@ E-Defter Yevmiye XML dosyalarını (XBRL-GL formatı) parse edip **Mikro ERP V16
 - Mükerrer yevmiye kontrolü
 - **Renkli log paneli** (RichTextBox) + **ProgressBar** ilerleme göstergesi
 - **Ayarlar diyalogu** — App.config düzenleme (DB, E-Defter, Mikro parametreleri)
+- **Global hata yönetimi** — Application.ThreadException + AppDomain.UnhandledException
 - App.config üzerinden tam yapılandırılabilir
 
 ## Gereksinimler
@@ -48,6 +51,7 @@ E-Defter Yevmiye XML dosyalarını (XBRL-GL formatı) parse edip **Mikro ERP V16
 3. **Dönem Verisini Sil** — Mevcut veriyi çift onay ile güvenli siler (opsiyonel)
 4. **Önizleme** — Fiş oluşturma simülasyonu: ne oluşacak, ne eşleşecek, hangi uyarılar var
 5. **Fiş Oluştur** — Muhasebe fişlerini oluşturur, cari/stok hareketleri ile senkronize eder
+6. **Yedek Al** — Veritabanının tam yedeğini alır (işlem öncesi otomatik teklif edilir)
 
 ## Yapı
 
@@ -59,12 +63,14 @@ Defter2Fis.ForMikro/
 │   └── HakkindaForm.cs/.Designer.cs# Hakkında diyalogu
 ├── Models/
 │   ├── EdDefterModels.cs           # XML parse DTO'ları
-│   └── MikroDbModels.cs            # DB entity modelleri
+│   ├── MikroDbModels.cs            # DB entity modelleri
+│   └── OnizlemeModels.cs           # Önizleme DTO'ları
 ├── Services/
 │   ├── EdDefterXmlParser.cs        # XBRL-GL XML parser
-│   ├── MikroDbService.cs           # Mikro ERP DB servisi
+│   ├── MikroDbService.cs           # Mikro ERP DB servisi (yedekleme dahil)
 │   ├── DefterAnalyzer.cs           # Analiz ve raporlama
 │   ├── FisOlusturmaServisi.cs      # Fiş oluşturma orkestrasyon
+│   ├── OnizlemeServisi.cs          # Önizleme/dry-run simülasyonu
 │   ├── EvrakBilgisiParser.cs       # Evrak seri/no parse
 │   └── LogService.cs               # Merkezi log altyapısı
 ├── Program.cs                       # WinForms giriş noktası

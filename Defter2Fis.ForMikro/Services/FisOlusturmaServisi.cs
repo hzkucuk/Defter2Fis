@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using Defter2Fis.ForMikro.Models;
 
@@ -76,16 +75,16 @@ namespace Defter2Fis.ForMikro.Services
 
                 // Adım 2: Dönem cari/stok hareketlerini getir
                 ilerlemeRaporla?.Invoke(15, "Cari hesap hareketleri sorgulanıyor...");
-                var cariHareketler = CariHareketleriGetirGuvenli(donemBas, donemBit, firmaNo, subeNo);
+                var cariHareketler = _dbService.DonemCariHareketleriGetirGuvenli(donemBas, donemBit, firmaNo, subeNo);
                 _log.Bilgi($"Dönem cari hareketleri: {cariHareketler.Count} kayıt");
 
                 ilerlemeRaporla?.Invoke(20, "Stok hareketleri sorgulanıyor...");
-                var stokHareketler = StokHareketleriGetirGuvenli(donemBas, donemBit, firmaNo, subeNo);
+                var stokHareketler = _dbService.DonemStokHareketleriGetirGuvenli(donemBas, donemBit, firmaNo, subeNo);
                 _log.Bilgi($"Dönem stok hareketleri: {stokHareketler.Count} kayıt");
 
                 // Cari/Stok eşleştirme index'leri: EvrakAnahtar → liste
-                var cariIndex = CariIndexOlustur(cariHareketler);
-                var stokIndex = StokIndexOlustur(stokHareketler);
+                var cariIndex = MikroDbService.CariIndexOlustur(cariHareketler);
+                var stokIndex = MikroDbService.StokIndexOlustur(stokHareketler);
 
                 // Adım 3: Tüm fişleri tarihe göre grupla ve sıra no ata
                 ilerlemeRaporla?.Invoke(30, "Fişler sıralanıyor ve evrak bilgileri parse ediliyor...");
@@ -144,9 +143,13 @@ namespace Defter2Fis.ForMikro.Services
             }
             catch (Exception ex)
             {
-                sonuc.Hatalar.Add($"Kritik hata: {ex.Message}");
+                string detay = ex.InnerException != null
+                    ? $"{ex.Message} -> {ex.InnerException.Message}"
+                    : ex.Message;
+
+                sonuc.Hatalar.Add($"Kritik hata: {detay}");
                 sonuc.Basarili = false;
-                _log.Hata($"Fiş oluşturma kritik hata: {ex.Message}");
+                _log.Hata($"Fiş oluşturma kritik hata: {detay}");
             }
 
             return sonuc;
@@ -258,7 +261,11 @@ namespace Defter2Fis.ForMikro.Services
                 catch (Exception ex)
                 {
                     tran.Rollback();
-                    string hata = $"Yevmiye #{yevmiyeFisi.YevmiyeNoSayac} yazma hatası: {ex.Message}";
+                    string detay = ex.InnerException != null
+                        ? $"{ex.Message} -> {ex.InnerException.Message}"
+                        : ex.Message;
+
+                    string hata = $"Yevmiye #{yevmiyeFisi.YevmiyeNoSayac} yazma hatası: {detay}";
                     sonuc.Hatalar.Add(hata);
                     _log.Hata(hata);
 
@@ -328,80 +335,6 @@ namespace Defter2Fis.ForMikro.Services
             }
 
             return eklenen;
-        }
-
-        /// <summary>
-        /// Cari hareketleri güvenli şekilde getirir. Tablo yoksa boş liste döner.
-        /// </summary>
-        private List<CariHesapHareketi> CariHareketleriGetirGuvenli(
-            DateTime baslangic, DateTime bitis, int firmaNo, int subeNo)
-        {
-            try
-            {
-                return _dbService.DonemCariHareketleriGetir(baslangic, bitis, firmaNo, subeNo);
-            }
-            catch (SqlException ex) when (ex.Number == 208) // Invalid object name (tablo yok)
-            {
-                _log.Uyari("CARI_HESAP_HAREKETLERI tablosu bulunamadı — cari senkronizasyonu atlanıyor.");
-                return new List<CariHesapHareketi>();
-            }
-        }
-
-        /// <summary>
-        /// Stok hareketleri güvenli şekilde getirir. Tablo yoksa boş liste döner.
-        /// </summary>
-        private List<StokHareketi> StokHareketleriGetirGuvenli(
-            DateTime baslangic, DateTime bitis, int firmaNo, int subeNo)
-        {
-            try
-            {
-                return _dbService.DonemStokHareketleriGetir(baslangic, bitis, firmaNo, subeNo);
-            }
-            catch (SqlException ex) when (ex.Number == 208)
-            {
-                _log.Uyari("STOK_HAREKETLERI tablosu bulunamadı — stok senkronizasyonu atlanıyor.");
-                return new List<StokHareketi>();
-            }
-        }
-
-        /// <summary>
-        /// Cari hareketlerden evrak anahtarı bazlı index oluşturur.
-        /// </summary>
-        private Dictionary<string, List<CariHesapHareketi>> CariIndexOlustur(
-            List<CariHesapHareketi> hareketler)
-        {
-            var index = new Dictionary<string, List<CariHesapHareketi>>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (var hareket in hareketler)
-            {
-                string anahtar = hareket.EvrakAnahtar;
-                if (!index.ContainsKey(anahtar))
-                    index[anahtar] = new List<CariHesapHareketi>();
-
-                index[anahtar].Add(hareket);
-            }
-
-            return index;
-        }
-
-        /// <summary>
-        /// Stok hareketlerden evrak anahtarı bazlı index oluşturur.
-        /// </summary>
-        private Dictionary<string, List<StokHareketi>> StokIndexOlustur(
-            List<StokHareketi> hareketler)
-        {
-            var index = new Dictionary<string, List<StokHareketi>>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (var hareket in hareketler)
-            {
-                string anahtar = hareket.EvrakAnahtar;
-                if (!index.ContainsKey(anahtar))
-                    index[anahtar] = new List<StokHareketi>();
-
-                index[anahtar].Add(hareket);
-            }
-
-            return index;
         }
 
         /// <summary>
