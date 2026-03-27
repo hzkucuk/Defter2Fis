@@ -107,28 +107,18 @@ namespace Defter2Fis.ForMikro.Services
         #region Cari Hesap Hareketleri
 
         /// <summary>
-        /// Belirtilen dönemdeki cari hesap hareketlerini evrak seri/sıra bilgileri ile getirir.
+        /// Belirtilen dönemdeki cari hesap hareketlerini fiş tarih/sıra bilgileri ile getirir.
         /// </summary>
         List<CariHesapHareketi> DonemCariHareketleriGetir(DateTime baslangic, DateTime bitis, int firmaNo, int subeNo);
-
-        /// <summary>
-        /// Cari hesap hareketinin muhasebe fiş referansını günceller.
-        /// </summary>
-        void CariHareketMuhFisGuncelle(Guid chaGuid, int muhFisNo, DateTime muhFisTarihi, SqlConnection conn, SqlTransaction tran);
 
         #endregion
 
         #region Stok Hareketleri
 
         /// <summary>
-        /// Belirtilen dönemdeki stok hareketlerini evrak seri/sıra bilgileri ile getirir.
+        /// Belirtilen dönemdeki stok hareketlerini fiş tarih/sıra bilgileri ile getirir.
         /// </summary>
         List<StokHareketi> DonemStokHareketleriGetir(DateTime baslangic, DateTime bitis, int firmaNo, int subeNo);
-
-        /// <summary>
-        /// Stok hareketinin muhasebe fiş referansını günceller.
-        /// </summary>
-        void StokHareketMuhFisGuncelle(Guid sthGuid, int muhFisNo, DateTime muhFisTarihi, SqlConnection conn, SqlTransaction tran);
 
         #endregion
 

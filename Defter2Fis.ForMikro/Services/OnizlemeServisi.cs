@@ -157,9 +157,7 @@ namespace Defter2Fis.ForMikro.Services
                                 {
                                     YevmiyeNo = yevmiyeFisi.YevmiyeNoSayac,
                                     CariHesapKod = cha.ChaKod,
-                                    IslemTarihi = cha.ChaTarihi,
-                                    MevcutMuhFisNo = cha.ChaMuhFisNo,
-                                    AtanacakMuhFisNo = siraNo
+                                    IslemTarihi = cha.ChaTarihi
                                 });
                             }
                         }
@@ -172,9 +170,7 @@ namespace Defter2Fis.ForMikro.Services
                                 sonuc.StokEslesmeleri.Add(new OnizlemeStokEslesmesi
                                 {
                                     YevmiyeNo = yevmiyeFisi.YevmiyeNoSayac,
-                                    IslemTarihi = sth.SthTarihi,
-                                    MevcutMuhFisNo = sth.SthMuhFisNo,
-                                    AtanacakMuhFisNo = siraNo
+                                    IslemTarihi = sth.SthTarihi
                                 });
                             }
                         }
@@ -285,24 +281,6 @@ namespace Defter2Fis.ForMikro.Services
                 {
                     Seviye = UyariSeviye.Uyari,
                     Mesaj = $"{eslesmeyenFis} fişte cari/stok eşleşmesi bulunamadı."
-                });
-            }
-
-            // Üzerine yazılacak referans uyarısı
-            int uzerineYazilacakCari = 0;
-            foreach (var c in sonuc.CariEslesmeleri)
-                if (c.UzerineYazilacak) uzerineYazilacakCari++;
-
-            int uzerineYazilacakStok = 0;
-            foreach (var s in sonuc.StokEslesmeleri)
-                if (s.UzerineYazilacak) uzerineYazilacakStok++;
-
-            if (uzerineYazilacakCari > 0 || uzerineYazilacakStok > 0)
-            {
-                sonuc.Uyarilar.Add(new OnizlemeUyari
-                {
-                    Seviye = UyariSeviye.Uyari,
-                    Mesaj = $"Üzerine yazılacak referans: {uzerineYazilacakCari} cari, {uzerineYazilacakStok} stok."
                 });
             }
 

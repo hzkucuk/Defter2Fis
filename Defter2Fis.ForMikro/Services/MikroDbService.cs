@@ -588,28 +588,6 @@ namespace Defter2Fis.ForMikro.Services
             return sonuc;
         }
 
-        /// <summary>
-        /// Cari hesap hareketinin muhasebe fiş referansını günceller.
-        /// </summary>
-        public void CariHareketMuhFisGuncelle(
-            Guid chaGuid, int muhFisNo, DateTime muhFisTarihi,
-            SqlConnection conn, SqlTransaction tran)
-        {
-            const string sql = @"UPDATE CARI_HESAP_HAREKETLERI 
-                SET cha_fis_sirano = @muhFisNo,
-                    cha_fis_tarih = @muhFisTarihi
-                WHERE cha_Guid = @chaGuid AND cha_DBCno = 0";
-
-            using (var cmd = new SqlCommand(sql, conn, tran))
-            {
-                cmd.Parameters.Add("@muhFisNo", SqlDbType.Int).Value = muhFisNo;
-                cmd.Parameters.Add("@muhFisTarihi", SqlDbType.DateTime).Value = muhFisTarihi;
-                cmd.Parameters.Add("@chaGuid", SqlDbType.UniqueIdentifier).Value = chaGuid;
-
-                cmd.ExecuteNonQuery();
-            }
-        }
-
         #endregion
 
         #region Stok Hareketleri
@@ -663,28 +641,6 @@ namespace Defter2Fis.ForMikro.Services
             }
 
             return sonuc;
-        }
-
-        /// <summary>
-        /// Stok hareketinin muhasebe fiş referansını günceller.
-        /// </summary>
-        public void StokHareketMuhFisGuncelle(
-            Guid sthGuid, int muhFisNo, DateTime muhFisTarihi,
-            SqlConnection conn, SqlTransaction tran)
-        {
-            const string sql = @"UPDATE STOK_HAREKETLERI 
-                SET sth_fis_sirano = @muhFisNo,
-                    sth_fis_tarihi = @muhFisTarihi
-                WHERE sth_Guid = @sthGuid AND sth_DBCno = 0";
-
-            using (var cmd = new SqlCommand(sql, conn, tran))
-            {
-                cmd.Parameters.Add("@muhFisNo", SqlDbType.Int).Value = muhFisNo;
-                cmd.Parameters.Add("@muhFisTarihi", SqlDbType.DateTime).Value = muhFisTarihi;
-                cmd.Parameters.Add("@sthGuid", SqlDbType.UniqueIdentifier).Value = sthGuid;
-
-                cmd.ExecuteNonQuery();
-            }
         }
 
         #endregion

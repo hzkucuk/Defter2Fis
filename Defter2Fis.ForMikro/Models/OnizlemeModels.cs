@@ -140,15 +140,6 @@ namespace Defter2Fis.ForMikro.Models
 
         /// <summary>İşlem tarihi</summary>
         public DateTime IslemTarihi { get; set; }
-
-        /// <summary>Mevcut muhasebe fiş no (0 ise atanmamış)</summary>
-        public int MevcutMuhFisNo { get; set; }
-
-        /// <summary>Atanacak yeni muhasebe fiş sıra no</summary>
-        public int AtanacakMuhFisNo { get; set; }
-
-        /// <summary>Üzerine yazılacak mı (mevcut fiş no varsa)</summary>
-        public bool UzerineYazilacak => MevcutMuhFisNo > 0;
     }
 
     /// <summary>
@@ -161,15 +152,6 @@ namespace Defter2Fis.ForMikro.Models
 
         /// <summary>İşlem tarihi</summary>
         public DateTime IslemTarihi { get; set; }
-
-        /// <summary>Mevcut muhasebe fiş no (0 ise atanmamış)</summary>
-        public int MevcutMuhFisNo { get; set; }
-
-        /// <summary>Atanacak yeni muhasebe fiş sıra no</summary>
-        public int AtanacakMuhFisNo { get; set; }
-
-        /// <summary>Üzerine yazılacak mı</summary>
-        public bool UzerineYazilacak => MevcutMuhFisNo > 0;
     }
 
     /// <summary>

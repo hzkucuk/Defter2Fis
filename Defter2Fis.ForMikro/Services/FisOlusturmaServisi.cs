@@ -7,7 +7,7 @@ namespace Defter2Fis.ForMikro.Services
 {
     /// <summary>
     /// E-Defter verilerinden Mikro ERP muhasebe fişleri oluşturur.
-    /// Hesap planı kontrolü, fiş yazımı ve cari/stok hareket senkronizasyonunu orkestre eder.
+    /// Hesap planı kontrolü ve fiş yazımını orkestre eder.
     /// </summary>
     public class FisOlusturmaServisi
     {
@@ -35,8 +35,6 @@ namespace Defter2Fis.ForMikro.Services
             public int OlusturulanFisSayisi { get; set; }
             public int OlusturulanSatirSayisi { get; set; }
             public int EklenenHesapSayisi { get; set; }
-            public int EslestirilenCariSayisi { get; set; }
-            public int EslestirilenStokSayisi { get; set; }
             public int AtlananFisSayisi { get; set; }
             public bool SimulasyonBasarili { get; set; }
             public List<string> Hatalar { get; } = new List<string>();
@@ -53,17 +51,14 @@ namespace Defter2Fis.ForMikro.Services
             public int SiraNo;
             public DateTime FisTarihi;
             public List<MuhasebeFisi> FisSatirlari = new List<MuhasebeFisi>();
-            public List<Guid> EslesmeCariGuidler = new List<Guid>();
-            public List<Guid> EslesmeStokGuidler = new List<Guid>();
         }
 
         /// <summary>
         /// Tüm fiş oluşturma sürecini yönetir (simülasyon-önce yaklaşım).
         /// 1. Eksik hesap planı kontrolü ve ekleme
-        /// 2. Cari/Stok hareketleri sorgulama
+        /// 2. Cari/Stok hareketleri sorgulama (ticari eşleştirme bilgisi için)
         /// 3. SİMÜLASYON: Tüm fişleri bellekte oluştur ve doğrula
         /// 4. YAZIM: Tüm fişleri tek transaction içinde atomik yaz
-        /// 5. Cari/Stok hareket muhasebe fiş referansları güncelleme
         /// Hata durumunda tüm ay için rollback yapılır.
         /// </summary>
         public OlusturmaSonucu FisleriOlustur(
@@ -212,26 +207,6 @@ namespace Defter2Fis.ForMikro.Services
                     // Tarih+SıraNo bazlı eşleştirme (cha_fis_tarih + cha_fis_sirano / sth_fis_tarihi + sth_fis_sirano)
                     string fisAnahtar = $"{fisTarihi:yyyy-MM-dd}|{siraNo}";
 
-                    if (cariIndex.ContainsKey(fisAnahtar))
-                    {
-                        var eslesenCariListe = cariIndex[fisAnahtar];
-                        foreach (var cha in eslesenCariListe)
-                        {
-                            if (!simFis.EslesmeCariGuidler.Contains(cha.ChaGuid))
-                                simFis.EslesmeCariGuidler.Add(cha.ChaGuid);
-                        }
-                    }
-
-                    if (stokIndex.ContainsKey(fisAnahtar))
-                    {
-                        var eslesenStokListe = stokIndex[fisAnahtar];
-                        foreach (var sth in eslesenStokListe)
-                        {
-                            if (!simFis.EslesmeStokGuidler.Contains(sth.SthGuid))
-                                simFis.EslesmeStokGuidler.Add(sth.SthGuid);
-                        }
-                    }
-
                     int satirNo = 0;
                     foreach (var satir in yevmiyeFisi.Satirlar)
                     {
@@ -251,13 +226,13 @@ namespace Defter2Fis.ForMikro.Services
                         // Ticari eşleştirme bilgisini ilk satıra ata
                         if (satirNo == 0)
                         {
-                            if (simFis.EslesmeCariGuidler.Count > 0 && cariIndex.ContainsKey(fisAnahtar))
+                            if (cariIndex.ContainsKey(fisAnahtar))
                             {
                                 fis.FisTicariTip = 1;
                                 fis.FisTicariUid = cariIndex[fisAnahtar][0].ChaGuid;
                                 fis.FisTicariEvrakTip = cariIndex[fisAnahtar][0].ChaEvrakTip;
                             }
-                            else if (simFis.EslesmeStokGuidler.Count > 0 && stokIndex.ContainsKey(fisAnahtar))
+                            else if (stokIndex.ContainsKey(fisAnahtar))
                             {
                                 fis.FisTicariTip = 2;
                                 fis.FisTicariUid = stokIndex[fisAnahtar][0].SthGuid;
@@ -314,20 +289,6 @@ namespace Defter2Fis.ForMikro.Services
 
                         sonuc.OlusturulanFisSayisi++;
                         sonuc.OlusturulanSatirSayisi += simFis.FisSatirlari.Count;
-
-                        // Cari hareket muhasebe fiş referanslarını güncelle
-                        foreach (var chaGuid in simFis.EslesmeCariGuidler)
-                        {
-                            _dbService.CariHareketMuhFisGuncelle(chaGuid, simFis.SiraNo, simFis.FisTarihi, conn, tran);
-                            sonuc.EslestirilenCariSayisi++;
-                        }
-
-                        // Stok hareket muhasebe fiş referanslarını güncelle
-                        foreach (var sthGuid in simFis.EslesmeStokGuidler)
-                        {
-                            _dbService.StokHareketMuhFisGuncelle(sthGuid, simFis.SiraNo, simFis.FisTarihi, conn, tran);
-                            sonuc.EslestirilenStokSayisi++;
-                        }
                     }
 
                     // Tüm ay başarılı — commit
@@ -347,8 +308,6 @@ namespace Defter2Fis.ForMikro.Services
                     sonuc.Hatalar.Add(hata);
                     sonuc.OlusturulanFisSayisi = 0;
                     sonuc.OlusturulanSatirSayisi = 0;
-                    sonuc.EslestirilenCariSayisi = 0;
-                    sonuc.EslestirilenStokSayisi = 0;
 
                     _log.Hata(hata);
                 }
@@ -430,8 +389,6 @@ namespace Defter2Fis.ForMikro.Services
             _log.Bilgi($"  Oluşturulan fiş     : {sonuc.OlusturulanFisSayisi:N0}");
             _log.Bilgi($"  Toplam satır        : {sonuc.OlusturulanSatirSayisi:N0}");
             _log.Bilgi($"  Eklenen hesap       : {sonuc.EklenenHesapSayisi:N0}");
-            _log.Bilgi($"  Eşleşen cari        : {sonuc.EslestirilenCariSayisi:N0}");
-            _log.Bilgi($"  Eşleşen stok        : {sonuc.EslestirilenStokSayisi:N0}");
             _log.Bilgi($"  Atlanan (mükerrer)   : {sonuc.AtlananFisSayisi:N0}");
 
             if (sonuc.Hatalar.Count > 0)

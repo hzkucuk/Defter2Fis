@@ -513,9 +513,6 @@ namespace Defter2Fis.ForMikro.Forms
                 col["CariHesapKod"].HeaderText = "Cari Hesap";
                 col["IslemTarihi"].HeaderText = "Tarih";
                 col["IslemTarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
-                col["MevcutMuhFisNo"].HeaderText = "Mevcut Fis No";
-                col["AtanacakMuhFisNo"].HeaderText = "Yeni Fis No";
-                col["UzerineYazilacak"].HeaderText = "Uzerine Yaz";
             });
 
             // Stok grid
@@ -524,9 +521,6 @@ namespace Defter2Fis.ForMikro.Forms
                 col["YevmiyeNo"].HeaderText = "Yevmiye No";
                 col["IslemTarihi"].HeaderText = "Tarih";
                 col["IslemTarihi"].DefaultCellStyle.Format = "dd.MM.yyyy";
-                col["MevcutMuhFisNo"].HeaderText = "Mevcut Fis No";
-                col["AtanacakMuhFisNo"].HeaderText = "Yeni Fis No";
-                col["UzerineYazilacak"].HeaderText = "Uzerine Yaz";
             });
 
             // Eksik hesaplar grid

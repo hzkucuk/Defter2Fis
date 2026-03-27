@@ -1,5 +1,13 @@
 # Özellikler (Features)
 
+## v2.11.0 — Cari/Stok Yazma İşlemlerini Kaldırma
+
+### Cari/Stok Salt Okunur Mod
+- Cari/stok tablolarına UPDATE yapılmıyor (CARI_HESAP_HAREKETLERI, STOK_HAREKETLERI)
+- Sadece MUHASEBE_FISLERI tablosuna fiş oluşturma yapılır
+- Cari/stok eşleştirme bilgi amaçlı olarak önizleme gridinde gösterilir
+- Ticari eşleştirme bilgisi (FisTicariTip/FisTicariUid) muhasebe fişine yazılır
+
 ## v2.10.0 — Cari/Stok Eşleştirme: Tarih+FişNo Bazlı
 
 ### Tarih+FişNo Bazlı Eşleştirme (YENİ)

@@ -1,5 +1,28 @@
 # Changelog
 
+## [2.11.0] - 2025-08-27 — Cari/Stok Yazma İşlemlerini Kaldırma
+
+### Kaldırılan Özellikler
+- **Cari/stok hareket UPDATE işlemleri kaldırıldı** — Uygulama artık CARI_HESAP_HAREKETLERI ve STOK_HAREKETLERI tablolarına yazma yapmaz. Sadece MUHASEBE_FISLERI tablosuna fiş oluşturur.
+- `CariHareketMuhFisGuncelle` ve `StokHareketMuhFisGuncelle` metotları kaldırıldı
+- `EslesmeCariGuidler` / `EslesmeStokGuidler` Guid listeleri kaldırıldı
+- `EslestirilenCariSayisi` / `EslestirilenStokSayisi` sayaçları kaldırıldı
+- "Üzerine yazılacak referans" uyarısı kaldırıldı
+- `MevcutMuhFisNo`, `AtanacakMuhFisNo`, `UzerineYazilacak` önizleme model özellikleri kaldırıldı
+- Cari/stok gridlerinden "Mevcut Fis No", "Yeni Fis No", "Üzerine Yaz" sütunları kaldırıldı
+
+### Korunan Özellikler
+- Cari/stok eşleştirme **bilgi amaçlı** olarak önizleme gridinde gösterilmeye devam eder
+- Ticari eşleştirme bilgisi (FisTicariTip/FisTicariUid) muhasebe fişi satırına yazılmaya devam eder
+
+### Etkilenen dosyalar
+- Defter2Fis.ForMikro\Services\IMikroDbService.cs (metot kaldırıldı)
+- Defter2Fis.ForMikro\Services\MikroDbService.cs (metot kaldırıldı)
+- Defter2Fis.ForMikro\Services\FisOlusturmaServisi.cs (UPDATE, Guid listeleri, sayaçlar kaldırıldı)
+- Defter2Fis.ForMikro\Services\OnizlemeServisi.cs ("Üzerine yazılacak" uyarısı kaldırıldı)
+- Defter2Fis.ForMikro\Models\OnizlemeModels.cs (model özellikleri kaldırıldı)
+- Defter2Fis.ForMikro\Forms\MainForm.cs (grid sütunları kaldırıldı)
+
 ## [2.10.0] - 2025-08-27 — Cari/Stok Eşleştirme: Tarih+FişNo Bazlı
 
 ### Yeni Özellikler
