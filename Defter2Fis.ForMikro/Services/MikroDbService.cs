@@ -687,10 +687,11 @@ namespace Defter2Fis.ForMikro.Services
         /// DB motoru açıkken çalışır (ONLINE backup).
         /// </summary>
         /// <param name="yedekDizini">Yedek dosyasının yazılacağı dizin. null ise SQL Server default backup dizini kullanılır.</param>
+        /// <param name="ilerlemeCallback">Yedekleme ilerleme bildirimi (yüzde 0-100, durum mesajı). null olabilir.</param>
         /// <returns>Oluşturulan yedek dosyasının tam yolu.</returns>
         /// <exception cref="InvalidOperationException">Bağlantı dizesi geçersizse veya DB adı alınamıyorsa.</exception>
         /// <exception cref="SqlException">SQL Server yedekleme hatası.</exception>
-        public YedeklemeSonucu VeritabaniYedekle(string yedekDizini = null)
+        public YedeklemeSonucu VeritabaniYedekle(string yedekDizini = null, Action<int, string> ilerlemeCallback = null)
         {
             var builder = new SqlConnectionStringBuilder(_connectionString);
             string dbAdi = builder.InitialCatalog;
@@ -707,25 +708,28 @@ namespace Defter2Fis.ForMikro.Services
             string yedekYolu;
             if (!string.IsNullOrWhiteSpace(yedekDizini))
             {
-                if (!Directory.Exists(yedekDizini))
-                    Directory.CreateDirectory(yedekDizini);
-
+                YedekDiziniOlustur(yedekDizini);
                 yedekYolu = Path.Combine(yedekDizini, dosyaAdi);
             }
             else
             {
                 string varsayilanDizin = SqlServerVarsayilanYedekDiziniGetir();
                 if (!string.IsNullOrWhiteSpace(varsayilanDizin))
+                {
+                    YedekDiziniOlustur(varsayilanDizin);
                     yedekYolu = Path.Combine(varsayilanDizin, dosyaAdi);
+                }
                 else
+                {
                     yedekYolu = dosyaAdi;
+                }
             }
 
             // BACKUP DATABASE komutu — INIT: üzerine yaz, COMPRESSION: sıkıştır, STATS: ilerleme
             // Parameterized SQL backup komutunda parametre kullanılamaz, DB adı ve yol doğrudan yazılmalı.
             // SQL injection riski yok çünkü değerler connection string ve dosya sistemi kaynaklı.
             string backupSql = string.Format(
-                "BACKUP DATABASE [{0}] TO DISK = N'{1}' WITH INIT, COMPRESSION, NAME = N'{0} Full Backup {2}', STATS = 10",
+                "BACKUP DATABASE [{0}] TO DISK = N'{1}' WITH INIT, COMPRESSION, NAME = N'{0} Full Backup {2}', STATS = 5",
                 dbAdi.Replace("]", "]]"),
                 yedekYolu.Replace("'", "''"),
                 zaman);
@@ -736,9 +740,32 @@ namespace Defter2Fis.ForMikro.Services
                 BaslangicZamani = DateTime.Now
             };
 
+            ilerlemeCallback?.Invoke(5, "BACKUP DATABASE baslatiliyor...");
+
             // Yedekleme uzun sürebilir, timeout'u artır
             using (var conn = new SqlConnection(_connectionString))
             {
+                // SqlInfoMessage ile STATS ilerleme bilgisi yakala
+                if (ilerlemeCallback != null)
+                {
+                    conn.InfoMessage += (s, e) =>
+                    {
+                        // STATS çıktısı: "5 percent processed." formatında gelir
+                        string mesaj = e.Message;
+                        int percentIdx = mesaj.IndexOf("percent", StringComparison.OrdinalIgnoreCase);
+                        if (percentIdx > 0)
+                        {
+                            string yuzdeStr = mesaj.Substring(0, percentIdx).Trim();
+                            if (int.TryParse(yuzdeStr, out int yuzde))
+                            {
+                                // 5-95 aralığında ölçekle (0-5 bağlantı, 95-100 bitiş için)
+                                int olcekliYuzde = 5 + (int)(yuzde * 0.90);
+                                ilerlemeCallback(Math.Min(olcekliYuzde, 95), $"Yedekleniyor... %{yuzde}");
+                            }
+                        }
+                    };
+                }
+
                 conn.Open();
                 using (var cmd = new SqlCommand(backupSql, conn))
                 {
@@ -751,13 +778,41 @@ namespace Defter2Fis.ForMikro.Services
             sonuc.DosyaYolu = yedekYolu;
             sonuc.Basarili = true;
 
-            // Dosya boyutu (erişilebiliyorsa)
-            if (File.Exists(yedekYolu))
+            // Dosya boyutu — SQL Server kendi dizinine yazdığında uygulama erişemeyebilir
+            try
             {
-                sonuc.DosyaBoyutu = new FileInfo(yedekYolu).Length;
+                if (File.Exists(yedekYolu))
+                    sonuc.DosyaBoyutu = new FileInfo(yedekYolu).Length;
+            }
+            catch
+            {
+                // SQL Server dizinine erişim yoksa boyut bilgisi alınamaz — sorun değil
             }
 
+            ilerlemeCallback?.Invoke(100, "Yedek tamamlandi.");
+
             return sonuc;
+        }
+
+        /// <summary>
+        /// SQL Server servis hesabı ile yedek dizinini oluşturur.
+        /// xp_create_subdir kullanır (SQL Server'ın kendi izinleri ile çalışır — OS error 3 önlemi).
+        /// </summary>
+        private void YedekDiziniOlustur(string dizinYolu)
+        {
+            if (string.IsNullOrWhiteSpace(dizinYolu)) return;
+
+            // Önce SQL Server üzerinden dizini oluşturmayı dene
+            string sql = string.Format(
+                "EXEC master.dbo.xp_create_subdir N'{0}'",
+                dizinYolu.Replace("'", "''"));
+
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                conn.Open();
+                cmd.ExecuteNonQuery();
+            }
         }
 
         #endregion

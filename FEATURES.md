@@ -1,5 +1,26 @@
 # Özellikler (Features)
 
+## v2.5.0 — Yedekleme Düzeltme + İlerleme ve Bilgilendirme İyileştirmesi
+
+### Yedekleme Düzeltmesi
+- **OS error 3 düzeltmesi** — SQL Server varsayılan yedek dizini fiziksel olarak yoksa `xp_create_subdir` ile oluşturulur
+- SQL Server servis hesabı kendi izinleriyle dizin oluşturur (OS izin sorunları önlenir)
+
+### Gerçek Zamanlı İlerleme Çubuğu (YENİ)
+- **BACKUP DATABASE ilerleme** — `STATS=5` çıktısı `SqlInfoMessage` event'i ile yakalanarak ProgressBar'a yansıtılır
+- `VeritabaniYedekle` methodu `Action<int, string>` callback desteği ile ilerleme bildirir
+- Yedekleme sırasında yüzde gösterimi: "Yedekleniyor... %5", "%10", ..., "%95", "Yedek tamamlandi."
+
+### İşlem Sonuç Bilgilendirmesi (YENİ)
+- Tüm 6 işlem tamamlandığında StatusBar'da özet gösterir:
+  - Analiz: fiş sayısı, eksik hesap sayısı
+  - Önizleme: fiş, cari, stok eşleşme sayıları
+  - Yedek: dosya boyutu ve süresi
+  - Fiş Oluşturma: başarı/hata durumu
+  - Silme: silinen satır sayısı
+  - Mevcut Veri Kontrol: yevmiye ve satır sayısı
+- ProgressBar işlem bitiminden 2 sn sonra otomatik sıfırlanır
+
 ## v2.4.0 — IMikroDbService Interface Extraction
 
 ### Mimari İyileştirme

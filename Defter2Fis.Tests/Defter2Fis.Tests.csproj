@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <RootNamespace>Defter2Fis.Tests</RootNamespace>
+    <AssemblyName>Defter2Fis.Tests</AssemblyName>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="Moq" Version="4.20.72" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Defter2Fis.ForMikro\Defter2Fis.ForMikro.csproj" />
+  </ItemGroup>
+</Project>

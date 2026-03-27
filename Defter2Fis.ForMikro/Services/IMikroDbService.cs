@@ -138,7 +138,9 @@ namespace Defter2Fis.ForMikro.Services
         /// <summary>
         /// Veritabanının tam yedeğini (FULL BACKUP) alır.
         /// </summary>
-        YedeklemeSonucu VeritabaniYedekle(string yedekDizini = null);
+        /// <param name="yedekDizini">Yedek dizini. null ise SQL Server varsayılan dizini kullanılır.</param>
+        /// <param name="ilerlemeCallback">İlerleme bildirimi (yüzde 0-100, durum mesajı). null olabilir.</param>
+        YedeklemeSonucu VeritabaniYedekle(string yedekDizini = null, Action<int, string> ilerlemeCallback = null);
 
         #endregion
     }

@@ -1,5 +1,25 @@
 # Changelog
 
+## [2.5.0] - 2025-08-23 — Yedekleme Düzeltme + İlerleme ve Bilgilendirme İyileştirmesi
+
+### Düzeltmeler
+- **Kritik:** `BACKUP DATABASE` OS error 3 (Yol bulunamadı) hatası giderildi
+- SQL Server varsayılan yedek dizini (registry) fiziksel olarak mevcut değilse `xp_create_subdir` ile oluşturuluyor
+- Yedek dosya boyutu okunamasa bile (SQL Server dizin erişimi) hata vermez
+
+### Eklenenler
+- **Gerçek zamanlı yedekleme ilerleme çubuğu** — `BACKUP DATABASE ... STATS=5` çıktısı `SqlInfoMessage` ile yakalanarak ProgressBar'a yansıtılır
+- **İşlem sonuç bilgilendirmesi** — Tüm işlemler (analiz, önizleme, yedek, fiş oluşturma, silme, precheck) tamamlandığında StatusBar'da özet gösterir
+- **ProgressBar otomatik sıfırlama** — İşlem bitiminden 2 saniye sonra progress bar sıfırlanır
+- `İslemSonucBilgisi` yardımcı sınıfı — BackgroundWorker sonuclarını taşır
+- `YedekDiziniOlustur()` — SQL Server `xp_create_subdir` ile dizin oluşturma
+- `VeritabaniYedekle` ilerleme callback desteği (`Action<int, string>`)
+
+### Değişiklikler
+- `IMikroDbService.VeritabaniYedekle` imzasına `ilerlemeCallback` parametresi eklendi
+- `STATS = 10` → `STATS = 5` (daha pürüzsüz ilerleme gösterimi)
+- `YedeklemeCalistirSenkron` işlem öncesi yedekte de ilerleme log'lar
+
 ## [2.4.1] - 2025-08-23 — Yedekleme Erişim Hatası Düzeltmesi
 
 ### Düzeltmeler

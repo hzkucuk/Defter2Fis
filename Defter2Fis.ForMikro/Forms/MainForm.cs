@@ -200,6 +200,9 @@ namespace Defter2Fis.ForMikro.Forms
 
             worker.ReportProgress(100, "Analiz tamamlandi.");
             _log.Basari($"ANALIZ TAMAMLANDI — Dengesiz: {dengesizler.Count}, Eksik hesap: {eksikHesaplar.Count}");
+
+            e.Result = new IslemSonucBilgisi("analiz",
+                $"Analiz tamamlandi — {ozet.ToplamFis:N0} fis, {eksikHesaplar.Count} eksik hesap");
         }
 
         #endregion
@@ -240,7 +243,10 @@ namespace Defter2Fis.ForMikro.Forms
             worker.ReportProgress(100, "Kontrol tamamlandi.");
 
             if (mevcutVeriler.Count == 0)
+            {
                 _log.Basari("Bu donemde mevcut fis verisi yok.");
+                e.Result = new IslemSonucBilgisi("precheck", "Donemde mevcut veri yok");
+            }
             else
             {
                 int toplamSatir = mevcutVeriler.Sum(v => v.SatirSayisi);
@@ -251,6 +257,9 @@ namespace Defter2Fis.ForMikro.Forms
                     MevcutVeriGridYukle(mevcutVeriler);
                     _tabControl.SelectedTab = _tabMevcutVeri;
                 }));
+
+                e.Result = new IslemSonucBilgisi("precheck",
+                    $"{mevcutVeriler.Count} yevmiye ({toplamSatir:N0} satir) mevcut");
             }
         }
 
@@ -321,6 +330,8 @@ namespace Defter2Fis.ForMikro.Forms
                     _lblMevcutVeriOzet.Values.Text = "Donem verisi silindi.";
                     _btnDonemVerisiSil.Enabled = false;
                 }));
+
+                e.Result = new IslemSonucBilgisi("sil", $"{silinenSatir:N0} satir silindi");
             }
             catch (Exception ex)
             {
@@ -366,6 +377,9 @@ namespace Defter2Fis.ForMikro.Forms
                 OnizlemeGridleriYukle(_sonOnizleme);
                 _tabControl.SelectedTab = _tabOnizleme;
             }));
+
+            e.Result = new IslemSonucBilgisi("onizleme",
+                $"{_sonOnizleme.OlusturulacakFisSayisi} fis, {_sonOnizleme.EslesenCariSayisi} cari, {_sonOnizleme.EslesenStokSayisi} stok");
         }
 
         private void OnizlemeGridleriYukle(OnizlemeSonucu oz)
@@ -558,18 +572,18 @@ namespace Defter2Fis.ForMikro.Forms
                 return;
             }
 
-            _log.Bilgi("BACKUP DATABASE komutu calistiriliyor (bu islem birkac dakika surebilir)...");
-            worker.ReportProgress(20, "BACKUP DATABASE calisiyor...");
+            _log.Bilgi("BACKUP DATABASE komutu calistiriliyor...");
 
-            // SQL Server'in varsayilan yedek dizinine yazar (servis hesabi erisim sorunu olmaz)
-            var sonuc = _dbService.VeritabaniYedekle();
+            var sonuc = _dbService.VeritabaniYedekle(
+                ilerlemeCallback: (yuzde, durum) => worker.ReportProgress(yuzde, durum));
 
-            worker.ReportProgress(100, "Yedek tamamlandi.");
             _log.Basari($"Veritabani yedegi alindi:");
             _log.Bilgi($"  DB     : {sonuc.VeritabaniAdi}");
             _log.Bilgi($"  Dosya  : {sonuc.DosyaYolu}");
             _log.Bilgi($"  Boyut  : {sonuc.DosyaBoyutuFormatli}");
             _log.Bilgi($"  Sure   : {sonuc.Sure.TotalSeconds:N1} sn");
+
+            e.Result = new IslemSonucBilgisi("yedek", $"Yedek alindi ({sonuc.DosyaBoyutuFormatli}, {sonuc.Sure.TotalSeconds:N1} sn)");
         }
 
         /// <summary>
@@ -579,8 +593,8 @@ namespace Defter2Fis.ForMikro.Forms
         {
             if (_dbService == null) _dbService = new MikroDbService();
 
-            // SQL Server'in varsayilan yedek dizinine yazar (servis hesabi erisim sorunu olmaz)
-            var sonuc = _dbService.VeritabaniYedekle();
+            var sonuc = _dbService.VeritabaniYedekle(
+                ilerlemeCallback: (yuzde, durum) => _log.Bilgi($"  Yedek: {durum}"));
             _log.Bilgi($"Yedek: {sonuc.DosyaYolu} ({sonuc.DosyaBoyutuFormatli}, {sonuc.Sure.TotalSeconds:N1} sn)");
         }
 
@@ -633,7 +647,10 @@ namespace Defter2Fis.ForMikro.Forms
             var sonuc = servis.FisleriOlustur(_defterler, FirmaNo, SubeNo, DBCNo,
                 (yuzde, durum) => worker.ReportProgress(yuzde, durum));
 
-            worker.ReportProgress(100, sonuc.Basarili ? "Fis olusturma tamamlandi." : "Fis olusturma hatalarla tamamlandi.");
+            string durumMetni = sonuc.Basarili ? "Fis olusturma tamamlandi." : "Fis olusturma hatalarla tamamlandi.";
+            worker.ReportProgress(100, durumMetni);
+
+            e.Result = new IslemSonucBilgisi("fisolustur", durumMetni);
         }
 
         #endregion
@@ -682,9 +699,29 @@ namespace Defter2Fis.ForMikro.Forms
                     $"Islem sirasinda hata olustu:\n\n{detay}",
                     "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            else if (e.Result is IslemSonucBilgisi sonuc)
+            {
+                _lblDurum.Text = $"✔ {sonuc.Ozet}";
+                _log.Bilgi($"[TAMAMLANDI] {sonuc.Ozet}");
+
+                // 2 saniye sonra progress bar'i sifirla
+                var timer = new Timer { Interval = 2000 };
+                timer.Tick += (s, args) =>
+                {
+                    timer.Stop();
+                    timer.Dispose();
+                    if (!_islemDevam)
+                    {
+                        _progressBar.Value = 0;
+                        _lblDurum.Text = "Hazir";
+                    }
+                };
+                timer.Start();
+            }
             else
             {
                 _lblDurum.Text = "Hazir";
+                _progressBar.Value = 0;
             }
         }
 
@@ -719,6 +756,21 @@ namespace Defter2Fis.ForMikro.Forms
         }
 
         #endregion
+    }
+
+    /// <summary>
+    /// BackgroundWorker islem sonuc bilgisi (e.Result icin).
+    /// </summary>
+    internal sealed class IslemSonucBilgisi
+    {
+        public string IslemTipi { get; }
+        public string Ozet { get; }
+
+        public IslemSonucBilgisi(string islemTipi, string ozet)
+        {
+            IslemTipi = islemTipi;
+            Ozet = ozet;
+        }
     }
 }
 
