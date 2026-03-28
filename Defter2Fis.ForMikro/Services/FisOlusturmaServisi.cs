@@ -224,9 +224,8 @@ namespace Defter2Fis.ForMikro.Services
                         ticariEvrakTip = stok.SthEvrakTip;
                     }
 
-                    // Satırları lineNumber (SatirNoSayac) sırasına göre işle — fis_satir_no bu sırayla 0-based atanır
                     int satirNo = 0;
-                    foreach (var satir in yevmiyeFisi.Satirlar.OrderBy(s => s.SatirNoSayac))
+                    foreach (var satir in yevmiyeFisi.Satirlar)
                     {
                         var evrak = _evrakParser.Parse(
                             satir.DetayAciklama, satir.BelgeNo, satir.BelgeReferansi);

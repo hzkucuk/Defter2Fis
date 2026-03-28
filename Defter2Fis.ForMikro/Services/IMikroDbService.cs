@@ -94,12 +94,6 @@ namespace Defter2Fis.ForMikro.Services
         /// </summary>
         YevmiyeSureklilkBilgisi YevmiyeSureklilkBilgisiGetir(int maliYil, int calislanMinYevmiye, int firmaNo, int subeNo);
 
-        /// <summary>
-        /// Belirtilen yevmiye numarasından önceki toplam fiş satır sayısını döner.
-        /// XML lineNumber sürekliliği kontrolü için kullanılır.
-        /// </summary>
-        SatirSureklilkBilgisi SatirSureklilkBilgisiGetir(int maliYil, int calislanMinYevmiye, int firmaNo, int subeNo);
-
         #endregion
 
         #region Dönem Veri Kontrolü

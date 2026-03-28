@@ -320,12 +320,6 @@ namespace Defter2Fis.ForMikro.Models
         /// <summary>En geç fiş tarihi</summary>
         public DateTime MaxTarih { get; set; }
 
-        /// <summary>En küçük satır numarası (lineNumberCounter, XML kaynaklı)</summary>
-        public int MinSatirNo { get; set; }
-
-        /// <summary>En büyük satır numarası (lineNumberCounter, XML kaynaklı)</summary>
-        public int MaxSatirNo { get; set; }
-
         /// <summary>DB'de veri var mı?</summary>
         public bool VeriMevcut => FisSayisi > 0;
     }
@@ -354,18 +348,6 @@ namespace Defter2Fis.ForMikro.Models
         /// <summary>DB'deki toplam benzersiz yevmiye sayısı (çalışılan aydan önceki)</summary>
         public int DbYevmiyeSayisi { get; set; }
 
-        /// <summary>Satır numarası (lineNumber) sürekliliği sağlanıyor mu?</summary>
-        public bool SatirSurekli { get; set; }
-
-        /// <summary>DB'deki toplam fiş satır sayısı (çalışılan aydan önceki tüm dönemler)</summary>
-        public int DbToplamSatirSayisi { get; set; }
-
-        /// <summary>XML'deki en küçük lineNumberCounter (çalışılan ayın ilk satırı)</summary>
-        public int XmlMinSatirNo { get; set; }
-
-        /// <summary>XML'deki en büyük lineNumberCounter (çalışılan ayın son satırı)</summary>
-        public int XmlMaxSatirNo { get; set; }
-
         /// <summary>Önceki aya ait DB bilgisi (tarih bazlı, bilgilendirme amaçlı)</summary>
         public AyFisBilgisi OncekiAyBilgisi { get; set; }
 
@@ -389,16 +371,6 @@ namespace Defter2Fis.ForMikro.Models
 
         /// <summary>DB'de hiç yevmiye var mı?</summary>
         public bool VeriMevcut => YevmiyeSayisi > 0;
-    }
-
-    /// <summary>
-    /// Mali yıl genelinde satır numarası (lineNumber) süreklilik bilgisi.
-    /// DB'deki toplam fiş satır sayısı ile XML'deki lineNumberCounter karşılaştırılır.
-    /// </summary>
-    public class SatirSureklilkBilgisi
-    {
-        /// <summary>Çalışılan yevmiyeden önceki toplam fiş satır sayısı</summary>
-        public int ToplamSatirSayisi { get; set; }
     }
 
     /// <summary>

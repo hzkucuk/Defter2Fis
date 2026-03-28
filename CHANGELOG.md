@@ -1,30 +1,32 @@
 # Changelog
 
-## [2.14.0] - 2025-08-28 — Satır Numarası (lineNumber) Sürekliliği & Sıralı Yazım
+## [2.14.1] - 2025-08-28 — lineNumber Kodu Kaldırıldı (Gerçek Veri Analizi)
 
-### Yeni Özellikler
-- **Satır numarası (lineNumber) sürekliliği** — XML `gl-cor:lineNumber` global sayacı üzerinden aylar arası ve ay içi süreklilik kontrolü
-  - DB-XML arası: DB toplam fiş satır sayısı + 1 = XML ilk lineNumber
-  - Ay içi: tüm lineNumber'lar ardışık ve boşluksuz
-  - İlk ay: lineNumber 1'den başlamalı
-- **lineNumber sıralı fiş yazımı** — Fiş satırları `SatirNoSayac` (lineNumberCounter) sırasına göre DB'ye yazılır, `fis_satir_no` bu sıraya göre 0-based atanır
-- **SatirSureklilkBilgisiGetir** — DB'deki belirtilen yevmiye aralığı öncesindeki toplam fiş satır sayısını sorgular
-- **SatirIcSureklilkKontrol** — Ay içi satır numarası boşluk tespiti (ilk 3 boşluk detaylı, sonrası özet)
-- 6 yeni birim testi (satır DB uyum, DB uyumsuzluk, ilk ay satır, iç boşluk, DB fazla satır)
+### Kaldırılan
+- Satır numarası (lineNumber) süreklilik kontrolü — gerçek e-Defter verileriyle yapılan analizde `lineNumberCounter` = `fis_yevmiye_no` (yevmiye numarası) olduğu tespit edildi; ayrı bir satır sayacı DEĞİL
+- `SatirSureklilkBilgisiGetir` servisi ve SQL sorgusu
+- `SatirIcSureklilkKontrol` metodu
+- `SatirSureklilkBilgisi` modeli, `SureklilkKontrolSonucu` ve `AyFisBilgisi` satır alanları
+- `FisOlusturmaServisi` OrderBy SatirNoSayac sıralaması
+- 6 satır sürekliliği birim testi
 
-### Değişiklikler
-- `SureklilkKontrolSonucu`: SatirSurekli, DbToplamSatirSayisi, XmlMinSatirNo, XmlMaxSatirNo alanları eklendi
-- `AyFisBilgisi`: MinSatirNo, MaxSatirNo alanları eklendi
-- `AktarimIzinli` artık hem yevmiye hem satır numarası sürekliliği gerektirir
-- FisOlusturmaServisi: Satırlar `SatirNoSayac` sırasına göre işlenir
+### Açıklama
+- Türk e-Defter XML yapısında `lineNumberCounter` her fiş satırı için ayrı bir global sayaç DEĞİL, `entryNumberCounter` (yevmiye numarası) ile aynı değeri taşır
+- Mikro DB eşleşmesi: `fis_yevmiye_no` = `lineNumberCounter`
+- Yevmiye sürekliliği kontrolleri (aylar arası + ay içi boşluk) aynen korunuyor
 
 ### Etkilenen dosyalar
-- Defter2Fis.ForMikro\Models\MikroDbModels.cs (SatirSureklilkBilgisi, SureklilkKontrolSonucu, AyFisBilgisi)
-- Defter2Fis.ForMikro\Services\IMikroDbService.cs (SatirSureklilkBilgisiGetir)
-- Defter2Fis.ForMikro\Services\MikroDbService.cs (SatirSureklilkBilgisiGetir)
-- Defter2Fis.ForMikro\Services\DefterAnalyzer.cs (OncekiAyDogrula, SatirIcSureklilkKontrol)
-- Defter2Fis.ForMikro\Services\FisOlusturmaServisi.cs (OrderBy SatirNoSayac)
-- Defter2Fis.Tests\DefterAnalyzerMockTests.cs (6 yeni test, 3 helper güncelleme)
+- Defter2Fis.ForMikro\Models\MikroDbModels.cs
+- Defter2Fis.ForMikro\Services\IMikroDbService.cs
+- Defter2Fis.ForMikro\Services\MikroDbService.cs
+- Defter2Fis.ForMikro\Services\DefterAnalyzer.cs
+- Defter2Fis.ForMikro\Services\FisOlusturmaServisi.cs
+- Defter2Fis.Tests\DefterAnalyzerMockTests.cs
+
+## [2.14.0] - 2025-08-28 — Satır Numarası (lineNumber) Sürekliliği & Sıralı Yazım (REVERTED in 2.14.1)
+
+> **Not:** Bu sürümdeki satır numarası özellikleri v2.14.1'de kaldırılmıştır.
+> Gerçek veri analizi sonucu `lineNumberCounter` = `fis_yevmiye_no` olduğu tespit edilmiştir.
 
 ## [2.13.0] - 2025-08-28 — Mikro Uyumlu Fiş Yazma
 
