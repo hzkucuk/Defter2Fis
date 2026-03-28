@@ -66,7 +66,11 @@
     <Compile Include="Forms\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\AnalyzerModels.cs" />
     <Compile Include="Models\EdDefterModels.cs" />
+    <Compile Include="Models\EvrakBilgisi.cs" />
+    <Compile Include="Models\FisOlusturmaModels.cs" />
+    <Compile Include="Models\LogModels.cs" />
     <Compile Include="Models\MikroDbModels.cs" />
     <Compile Include="Models\OnizlemeModels.cs" />
     <Compile Include="Program.cs" />

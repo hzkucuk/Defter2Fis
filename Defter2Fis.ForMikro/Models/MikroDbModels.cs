@@ -50,6 +50,9 @@ namespace Defter2Fis.ForMikro.Models
         public int FisTicEvrakSira { get; set; }
         public string FisTicBelgeNo { get; set; }
         public DateTime FisTicBelgeTarihi { get; set; }
+        /// <summary>
+        /// Yevmiye numarası. XML eşleşmesi: fis_yevmiye_no = lineNumberCounter = entryNumberCounter.
+        /// </summary>
         public int FisYevmiyeNo { get; set; }
         public short FisKatagori { get; set; }
         public short FisEvrakDBCno { get; set; }

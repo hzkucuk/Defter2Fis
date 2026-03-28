@@ -1,5 +1,21 @@
 # Özellikler (Features)
 
+## v2.15.0 — Model Sınıfları Refactoring
+
+### Yapısal İyileştirme
+- Servis dosyalarında gömülü model/DTO sınıfları ayrı Models/ dosyalarına taşındı
+- [x] `EvrakBilgisi` → `Models/EvrakBilgisi.cs`
+- [x] `OlusturmaSonucu` → `Models/FisOlusturmaModels.cs`
+- [x] `LogSeviye` + `LogEventArgs` → `Models/LogModels.cs`
+- [x] `AnalizOzeti`, `DosyaOzeti`, `DbDurumBilgisi`, `EksikHesap`, `DengeSizFis` → `Models/AnalyzerModels.cs`
+
+### Doc Yorum Güncellemeleri
+- [x] `EdDefterModels.cs` — SatirNo, SatirNoSayac, YevmiyeNoSayac XML doc yorumları lineNumberCounter = fis_yevmiye_no notu ile güncellendi
+- [x] `MikroDbModels.cs` — FisYevmiyeNo yorum güncellendi
+
+### Birim Testleri (84/84) ✅
+- Tüm mevcut testler regresyonsuz geçiyor
+
 ## v2.14.1 — lineNumber Kodu Kaldırıldı
 
 ### Gerçek Veri Analizi Sonucu

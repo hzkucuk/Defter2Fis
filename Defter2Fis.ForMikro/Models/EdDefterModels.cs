@@ -54,7 +54,10 @@ namespace Defter2Fis.ForMikro.Models
         /// <summary>Yevmiye numarası (entryNumber). Ör: 0000000001</summary>
         public string YevmiyeNo { get; set; }
 
-        /// <summary>Yevmiye sayaç değeri (entryNumberCounter). DB'ye yevmiye_no olarak yazılır.</summary>
+        /// <summary>
+        /// Yevmiye sayaç değeri (entryNumberCounter).
+        /// Mikro DB eşleşmesi: fis_yevmiye_no = entryNumberCounter = lineNumberCounter.
+        /// </summary>
         public int YevmiyeNoSayac { get; set; }
 
         /// <summary>Fişin girildiği tarih (enteredDate)</summary>
@@ -81,10 +84,18 @@ namespace Defter2Fis.ForMikro.Models
     /// </summary>
     public class FisDetaySatiri
     {
-        /// <summary>Satır numarası (lineNumber)</summary>
+        /// <summary>
+        /// XML lineNumber değeri.
+        /// Not: Türk e-Defter uygulamasında lineNumber, per-line global sayaç DEĞİL;
+        /// aynı yevmiyedeki tüm satırlar aynı lineNumber değerini taşır.
+        /// </summary>
         public int SatirNo { get; set; }
 
-        /// <summary>Satır sayaç değeri (lineNumberCounter)</summary>
+        /// <summary>
+        /// XML lineNumberCounter değeri.
+        /// Mikro DB eşleşmesi: fis_yevmiye_no = lineNumberCounter.
+        /// entryNumberCounter (yevmiye numarası) ile aynı değeri taşır.
+        /// </summary>
         public int SatirNoSayac { get; set; }
 
         /// <summary>Ana hesap kodu (accountMainID). Ör: 770</summary>

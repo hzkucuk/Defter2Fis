@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.15.0] - 2025-08-28 — Model Sınıfları Refactoring
+
+### Değiştirilen
+- Model/DTO sınıfları servis dosyalarından ayrı Models/ klasörüne çıkarıldı
+- `EvrakBilgisi` → `Models/EvrakBilgisi.cs` (EvrakBilgisiParser.cs'den ayrıldı)
+- `OlusturmaSonucu` → `Models/FisOlusturmaModels.cs` (FisOlusturmaServisi.cs nested class'tan ayrıldı)
+- `LogSeviye` enum + `LogEventArgs` → `Models/LogModels.cs` (LogService.cs'den ayrıldı)
+- `AnalizOzeti`, `DosyaOzeti`, `DbDurumBilgisi`, `EksikHesap`, `DengeSizFis` → `Models/AnalyzerModels.cs` (DefterAnalyzer.cs'den ayrıldı)
+- `EdDefterModels.cs` ve `MikroDbModels.cs` XML doc yorumları güncellendi (lineNumberCounter = fis_yevmiye_no eşleşme notu)
+
+### Etkilenen dosyalar
+- Defter2Fis.ForMikro\Models\AnalyzerModels.cs (YENİ)
+- Defter2Fis.ForMikro\Models\EvrakBilgisi.cs (YENİ)
+- Defter2Fis.ForMikro\Models\FisOlusturmaModels.cs (YENİ)
+- Defter2Fis.ForMikro\Models\LogModels.cs (YENİ)
+- Defter2Fis.ForMikro\Models\EdDefterModels.cs
+- Defter2Fis.ForMikro\Models\MikroDbModels.cs
+- Defter2Fis.ForMikro\Services\DefterAnalyzer.cs
+- Defter2Fis.ForMikro\Services\EvrakBilgisiParser.cs
+- Defter2Fis.ForMikro\Services\FisOlusturmaServisi.cs
+- Defter2Fis.ForMikro\Services\LogService.cs
+
 ## [2.14.1] - 2025-08-28 — lineNumber Kodu Kaldırıldı (Gerçek Veri Analizi)
 
 ### Kaldırılan
