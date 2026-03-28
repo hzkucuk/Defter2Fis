@@ -157,9 +157,10 @@ namespace Defter2Fis.Tests
         public void WhenAyIciYevmiyeBooslukVarsaThenAktarimEngellenir()
         {
             // DB sürekli ama XML içinde boşluk: 11, 12, 14 (13 eksik)
-            var defterler = DefterlerOlusturOzel(new[] { 11, 12, 14 });
+            // Her fis 1 satır, satirBaslangic=11 → satirlar: 11,12,13 (iç süreklilik OK)
+            var defterler = DefterlerOlusturOzel(new[] { 11, 12, 14 }, satirBaslangic: 11);
 
-            MockDbSureklilk(calislanMinYevmiye: 11, dbYevmiyeSayisi: 10, dbMaxYevmiyeNo: 10);
+            MockDbSureklilk(calislanMinYevmiye: 11, dbYevmiyeSayisi: 10, dbMaxYevmiyeNo: 10, dbToplamSatir: 10);
             MockAyFisBilgisi();
 
             var sonuc = _analyzer.OncekiAyDogrula(_mockDbService.Object, defterler, 0, 0);
@@ -194,6 +195,102 @@ namespace Defter2Fis.Tests
         {
             Assert.Throws<ArgumentException>(
                 () => _analyzer.OncekiAyDogrula(_mockDbService.Object, new List<YevmiyeDefteri>(), 0, 0));
+        }
+
+        #endregion
+
+        #region OncekiAyDogrula — Satır Numarası (lineNumber) Sürekliliği
+
+        [Test]
+        public void WhenSatirDbUyumluThenSatirSurekli()
+        {
+            // DB'de 20 satır (yevmiye 1-10 arası, her fis 2 satır), XML satırlar 21'den başlıyor
+            var defterler = DefterlerOlustur(yevmiyeBaslangic: 11, yevmiyeSayisi: 3);
+
+            MockDbSureklilk(calislanMinYevmiye: 11, dbYevmiyeSayisi: 10, dbMaxYevmiyeNo: 10, dbToplamSatir: 20);
+            MockAyFisBilgisi();
+
+            var sonuc = _analyzer.OncekiAyDogrula(_mockDbService.Object, defterler, 0, 0);
+
+            Assert.That(sonuc.SatirSurekli, Is.True);
+            Assert.That(sonuc.AktarimIzinli, Is.True);
+            Assert.That(sonuc.Mesajlar.Any(m => m.Contains("Satır numarası sürekliliği OK")), Is.True);
+        }
+
+        [Test]
+        public void WhenSatirDbUyumsuzThenSatirSurekliDegil()
+        {
+            // DB'de 18 satır var ama XML 21'den başlıyor → 18+1=19 ≠ 21 → boşluk
+            var defterler = DefterlerOlustur(yevmiyeBaslangic: 11, yevmiyeSayisi: 3);
+
+            MockDbSureklilk(calislanMinYevmiye: 11, dbYevmiyeSayisi: 10, dbMaxYevmiyeNo: 10, dbToplamSatir: 18);
+            MockAyFisBilgisi();
+
+            var sonuc = _analyzer.OncekiAyDogrula(_mockDbService.Object, defterler, 0, 0);
+
+            Assert.That(sonuc.SatirSurekli, Is.False);
+            Assert.That(sonuc.AktarimIzinli, Is.False);
+            Assert.That(sonuc.Mesajlar.Any(m => m.Contains("Satır numarası sürekliliği BOZUK")), Is.True);
+        }
+
+        [Test]
+        public void WhenIlkAySatir1denBasliyorsaThenSatirSurekli()
+        {
+            // İlk ay, satırlar 1'den başlıyor → OK
+            var defterler = DefterlerOlustur(yevmiyeBaslangic: 1, yevmiyeSayisi: 3);
+
+            var sonuc = _analyzer.OncekiAyDogrula(_mockDbService.Object, defterler, 0, 0);
+
+            Assert.That(sonuc.IlkAy, Is.True);
+            Assert.That(sonuc.SatirSurekli, Is.True);
+            Assert.That(sonuc.AktarimIzinli, Is.True);
+        }
+
+        [Test]
+        public void WhenIlkAySatir1denBaslamiyorsaThenAktarimEngellenir()
+        {
+            // İlk ay, ama satırlar 5'ten başlıyor → lineNumber sürekliliği bozuk
+            var defterler = DefterlerOlustur(yevmiyeBaslangic: 1, yevmiyeSayisi: 2, satirBaslangic: 5);
+
+            var sonuc = _analyzer.OncekiAyDogrula(_mockDbService.Object, defterler, 0, 0);
+
+            Assert.That(sonuc.IlkAy, Is.True);
+            Assert.That(sonuc.SatirSurekli, Is.False);
+            Assert.That(sonuc.AktarimIzinli, Is.False);
+            Assert.That(sonuc.Mesajlar.Any(m => m.Contains("lineNumber 1'den başlamıyor")), Is.True);
+        }
+
+        [Test]
+        public void WhenSatirIcBoslukVarsaThenAktarimEngellenir()
+        {
+            // Satır numaralarında iç boşluk: 21,22,24 (23 eksik)
+            var defterler = DefterlerOlusturOzelSatirlar(
+                yevmiyeBaslangic: 11, yevmiyeSayisi: 3,
+                satirNoSayaclar: new[] { 21, 22, 24 });
+
+            MockDbSureklilk(calislanMinYevmiye: 11, dbYevmiyeSayisi: 10, dbMaxYevmiyeNo: 10, dbToplamSatir: 20);
+            MockAyFisBilgisi();
+
+            var sonuc = _analyzer.OncekiAyDogrula(_mockDbService.Object, defterler, 0, 0);
+
+            Assert.That(sonuc.SatirSurekli, Is.True); // DB sürekliliği OK (21 = 20+1)
+            Assert.That(sonuc.AktarimIzinli, Is.False); // Ama iç satır boşluğu var
+            Assert.That(sonuc.Mesajlar.Any(m => m.Contains("Satır numarası boşluğu")), Is.True);
+        }
+
+        [Test]
+        public void WhenSatirDbFazlaThenSatirSurekliDegil()
+        {
+            // DB'de 25 satır var ama XML 21'den başlıyor → 25+1=26 ≠ 21 → çakışma
+            var defterler = DefterlerOlustur(yevmiyeBaslangic: 11, yevmiyeSayisi: 3);
+
+            MockDbSureklilk(calislanMinYevmiye: 11, dbYevmiyeSayisi: 10, dbMaxYevmiyeNo: 10, dbToplamSatir: 25);
+            MockAyFisBilgisi();
+
+            var sonuc = _analyzer.OncekiAyDogrula(_mockDbService.Object, defterler, 0, 0);
+
+            Assert.That(sonuc.SatirSurekli, Is.False);
+            Assert.That(sonuc.AktarimIzinli, Is.False);
         }
 
         #endregion
@@ -255,8 +352,12 @@ namespace Defter2Fis.Tests
 
         #region Yardımcı Metodlar
 
-        private static List<YevmiyeDefteri> DefterlerOlustur(int yevmiyeBaslangic, int yevmiyeSayisi)
+        private static List<YevmiyeDefteri> DefterlerOlustur(int yevmiyeBaslangic, int yevmiyeSayisi, int satirBaslangic = -1)
         {
+            int satirPerFis = 2;
+            if (satirBaslangic < 0)
+                satirBaslangic = (yevmiyeBaslangic - 1) * satirPerFis + 1;
+
             var defter = new YevmiyeDefteri
             {
                 DosyaAdi = "test.xml",
@@ -266,6 +367,8 @@ namespace Defter2Fis.Tests
                 MaliYilBaslangic = new DateTime(2025, 1, 1),
                 MaliYilBitis = new DateTime(2025, 12, 31)
             };
+
+            int satirSayac = satirBaslangic;
 
             for (int i = 0; i < yevmiyeSayisi; i++)
             {
@@ -281,23 +384,27 @@ namespace Defter2Fis.Tests
 
                 fis.Satirlar.Add(new FisDetaySatiri
                 {
-                    SatirNo = 0,
+                    SatirNo = satirSayac,
+                    SatirNoSayac = satirSayac,
                     AnaHesapKod = "770",
                     AltHesapKod = "770.50",
                     Tutar = 1000m,
                     BorcAlacakKodu = "D",
                     KayitTarihi = new DateTime(2025, 4, 1)
                 });
+                satirSayac++;
 
                 fis.Satirlar.Add(new FisDetaySatiri
                 {
-                    SatirNo = 1,
+                    SatirNo = satirSayac,
+                    SatirNoSayac = satirSayac,
                     AnaHesapKod = "100",
                     AltHesapKod = "100.01",
                     Tutar = 1000m,
                     BorcAlacakKodu = "C",
                     KayitTarihi = new DateTime(2025, 4, 1)
                 });
+                satirSayac++;
 
                 defter.Fisler.Add(fis);
             }
@@ -305,8 +412,14 @@ namespace Defter2Fis.Tests
             return new List<YevmiyeDefteri> { defter };
         }
 
-        private static List<YevmiyeDefteri> DefterlerOlusturOzel(int[] yevmiyeNolar)
+        private static List<YevmiyeDefteri> DefterlerOlusturOzel(int[] yevmiyeNolar, int satirBaslangic = -1)
         {
+            if (satirBaslangic < 0)
+            {
+                int minYev = yevmiyeNolar.Min();
+                satirBaslangic = minYev == 1 ? 1 : (minYev - 1) + 1;
+            }
+
             var defter = new YevmiyeDefteri
             {
                 DosyaAdi = "test.xml",
@@ -316,6 +429,8 @@ namespace Defter2Fis.Tests
                 MaliYilBaslangic = new DateTime(2025, 1, 1),
                 MaliYilBitis = new DateTime(2025, 12, 31)
             };
+
+            int satirSayac = satirBaslangic;
 
             foreach (int yevNo in yevmiyeNolar)
             {
@@ -330,13 +445,15 @@ namespace Defter2Fis.Tests
 
                 fis.Satirlar.Add(new FisDetaySatiri
                 {
-                    SatirNo = 0,
+                    SatirNo = satirSayac,
+                    SatirNoSayac = satirSayac,
                     AnaHesapKod = "100",
                     AltHesapKod = "100.01",
                     Tutar = 500m,
                     BorcAlacakKodu = "D",
                     KayitTarihi = new DateTime(2025, 4, 1)
                 });
+                satirSayac++;
 
                 defter.Fisler.Add(fis);
             }
@@ -344,14 +461,25 @@ namespace Defter2Fis.Tests
             return new List<YevmiyeDefteri> { defter };
         }
 
-        private void MockDbSureklilk(int calislanMinYevmiye, int dbYevmiyeSayisi, int dbMaxYevmiyeNo)
+        private void MockDbSureklilk(
+            int calislanMinYevmiye, int dbYevmiyeSayisi, int dbMaxYevmiyeNo, int dbToplamSatir = -1)
         {
+            if (dbToplamSatir < 0)
+                dbToplamSatir = (calislanMinYevmiye - 1) * 2;
+
             _mockDbService
                 .Setup(s => s.YevmiyeSureklilkBilgisiGetir(2025, calislanMinYevmiye, 0, 0))
                 .Returns(new YevmiyeSureklilkBilgisi
                 {
                     YevmiyeSayisi = dbYevmiyeSayisi,
                     MaxYevmiyeNo = dbMaxYevmiyeNo
+                });
+
+            _mockDbService
+                .Setup(s => s.SatirSureklilkBilgisiGetir(2025, calislanMinYevmiye, 0, 0))
+                .Returns(new SatirSureklilkBilgisi
+                {
+                    ToplamSatirSayisi = dbToplamSatir
                 });
         }
 
@@ -371,6 +499,54 @@ namespace Defter2Fis.Tests
                     DonemBaslangic = new DateTime(2025, 3, 1),
                     DonemBitis = new DateTime(2025, 3, 31)
                 });
+        }
+
+        /// <summary>
+        /// Her fişe tam 1 satır ekler; satır numaraları dışarıdan explicit verilir (boşluk testi için).
+        /// </summary>
+        private static List<YevmiyeDefteri> DefterlerOlusturOzelSatirlar(
+            int yevmiyeBaslangic, int yevmiyeSayisi, int[] satirNoSayaclar)
+        {
+            if (satirNoSayaclar.Length != yevmiyeSayisi)
+                throw new ArgumentException("satirNoSayaclar sayısı yevmiyeSayisi ile eşit olmalı.");
+
+            var defter = new YevmiyeDefteri
+            {
+                DosyaAdi = "test.xml",
+                BenzersizId = "BID001",
+                DonemBaslangic = new DateTime(2025, 4, 1),
+                DonemBitis = new DateTime(2025, 4, 30),
+                MaliYilBaslangic = new DateTime(2025, 1, 1),
+                MaliYilBitis = new DateTime(2025, 12, 31)
+            };
+
+            for (int i = 0; i < yevmiyeSayisi; i++)
+            {
+                int yevNo = yevmiyeBaslangic + i;
+                var fis = new YevmiyeFisi
+                {
+                    YevmiyeNo = yevNo.ToString("D10"),
+                    YevmiyeNoSayac = yevNo,
+                    GirisTarihi = new DateTime(2025, 4, 1),
+                    ToplamBorc = 500m,
+                    ToplamAlacak = 500m
+                };
+
+                fis.Satirlar.Add(new FisDetaySatiri
+                {
+                    SatirNo = satirNoSayaclar[i],
+                    SatirNoSayac = satirNoSayaclar[i],
+                    AnaHesapKod = "100",
+                    AltHesapKod = "100.01",
+                    Tutar = 500m,
+                    BorcAlacakKodu = "D",
+                    KayitTarihi = new DateTime(2025, 4, 1)
+                });
+
+                defter.Fisler.Add(fis);
+            }
+
+            return new List<YevmiyeDefteri> { defter };
         }
 
         #endregion

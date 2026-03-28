@@ -1,5 +1,31 @@
 # Changelog
 
+## [2.14.0] - 2025-08-28 — Satır Numarası (lineNumber) Sürekliliği & Sıralı Yazım
+
+### Yeni Özellikler
+- **Satır numarası (lineNumber) sürekliliği** — XML `gl-cor:lineNumber` global sayacı üzerinden aylar arası ve ay içi süreklilik kontrolü
+  - DB-XML arası: DB toplam fiş satır sayısı + 1 = XML ilk lineNumber
+  - Ay içi: tüm lineNumber'lar ardışık ve boşluksuz
+  - İlk ay: lineNumber 1'den başlamalı
+- **lineNumber sıralı fiş yazımı** — Fiş satırları `SatirNoSayac` (lineNumberCounter) sırasına göre DB'ye yazılır, `fis_satir_no` bu sıraya göre 0-based atanır
+- **SatirSureklilkBilgisiGetir** — DB'deki belirtilen yevmiye aralığı öncesindeki toplam fiş satır sayısını sorgular
+- **SatirIcSureklilkKontrol** — Ay içi satır numarası boşluk tespiti (ilk 3 boşluk detaylı, sonrası özet)
+- 6 yeni birim testi (satır DB uyum, DB uyumsuzluk, ilk ay satır, iç boşluk, DB fazla satır)
+
+### Değişiklikler
+- `SureklilkKontrolSonucu`: SatirSurekli, DbToplamSatirSayisi, XmlMinSatirNo, XmlMaxSatirNo alanları eklendi
+- `AyFisBilgisi`: MinSatirNo, MaxSatirNo alanları eklendi
+- `AktarimIzinli` artık hem yevmiye hem satır numarası sürekliliği gerektirir
+- FisOlusturmaServisi: Satırlar `SatirNoSayac` sırasına göre işlenir
+
+### Etkilenen dosyalar
+- Defter2Fis.ForMikro\Models\MikroDbModels.cs (SatirSureklilkBilgisi, SureklilkKontrolSonucu, AyFisBilgisi)
+- Defter2Fis.ForMikro\Services\IMikroDbService.cs (SatirSureklilkBilgisiGetir)
+- Defter2Fis.ForMikro\Services\MikroDbService.cs (SatirSureklilkBilgisiGetir)
+- Defter2Fis.ForMikro\Services\DefterAnalyzer.cs (OncekiAyDogrula, SatirIcSureklilkKontrol)
+- Defter2Fis.ForMikro\Services\FisOlusturmaServisi.cs (OrderBy SatirNoSayac)
+- Defter2Fis.Tests\DefterAnalyzerMockTests.cs (6 yeni test, 3 helper güncelleme)
+
 ## [2.13.0] - 2025-08-28 — Mikro Uyumlu Fiş Yazma
 
 ### Düzeltmeler

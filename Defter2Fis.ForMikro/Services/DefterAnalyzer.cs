@@ -254,19 +254,30 @@ namespace Defter2Fis.ForMikro.Services
             int calislanMinYevmiye = tumFisler.Min(f => f.YevmiyeNoSayac);
             int calislanMaxYevmiye = tumFisler.Max(f => f.YevmiyeNoSayac);
 
+            // Çalışılan ayın E-Defter satır (lineNumber) bilgisi
+            var tumSatirlar = tumFisler.SelectMany(f => f.Satirlar).ToList();
+            int calislanMinSatirNo = tumSatirlar.Min(s => s.SatirNoSayac);
+            int calislanMaxSatirNo = tumSatirlar.Max(s => s.SatirNoSayac);
+
+            sonuc.XmlMinSatirNo = calislanMinSatirNo;
+            sonuc.XmlMaxSatirNo = calislanMaxSatirNo;
+
             sonuc.CalislanAyBilgisi = new AyFisBilgisi
             {
                 DonemBaslangic = donemBas,
                 DonemBitis = donemBit,
                 FisSayisi = tumFisler.Count,
-                SatirSayisi = tumFisler.Sum(f => f.Satirlar.Count),
+                SatirSayisi = tumSatirlar.Count,
                 MinYevmiyeNo = calislanMinYevmiye,
                 MaxYevmiyeNo = calislanMaxYevmiye,
                 MinTarih = donemBas,
-                MaxTarih = donemBit
+                MaxTarih = donemBit,
+                MinSatirNo = calislanMinSatirNo,
+                MaxSatirNo = calislanMaxSatirNo
             };
 
             sonuc.Mesajlar.Add($"Çalışılan ay yevmiye aralığı: {calislanMinYevmiye} - {calislanMaxYevmiye} ({tumFisler.Count} fiş)");
+            sonuc.Mesajlar.Add($"Çalışılan ay satır numarası (lineNumber) aralığı: {calislanMinSatirNo} - {calislanMaxSatirNo} ({tumSatirlar.Count} satır)");
 
             // İlk ay kontrolü: yevmiye 1'den başlıyorsa ilk aydır
             sonuc.IlkAy = calislanMinYevmiye == 1;
@@ -278,16 +289,28 @@ namespace Defter2Fis.ForMikro.Services
                 sonuc.Surekli = true;
                 sonuc.DbMaxYevmiyeNo = 0;
                 sonuc.DbYevmiyeSayisi = 0;
+                sonuc.DbToplamSatirSayisi = 0;
 
-                // Çalışılan ay içi süreklilik kontrolü
+                // Satır numarası ilk ay 1'den başlamalı
+                sonuc.SatirSurekli = calislanMinSatirNo == 1;
+                if (sonuc.SatirSurekli)
+                    sonuc.Mesajlar.Add($"Satır numarası sürekliliği OK: İlk ay, lineNumber 1'den başlıyor.");
+                else
+                    sonuc.Mesajlar.Add($"UYARI: İlk ay lineNumber 1'den başlamıyor! İlk satır numarası={calislanMinSatirNo}");
+
+                // Çalışılan ay içi yevmiye süreklilik kontrolü
                 var yevmiyeNolar = tumFisler.Select(f => f.YevmiyeNoSayac).OrderBy(n => n).ToList();
                 bool icSurekli = YevmiyeIcSureklilkKontrol(yevmiyeNolar, sonuc.Mesajlar);
 
-                sonuc.AktarimIzinli = icSurekli;
-                if (icSurekli)
+                // Çalışılan ay içi satır numarası süreklilik kontrolü
+                var satirNolar = tumSatirlar.Select(s => s.SatirNoSayac).OrderBy(n => n).ToList();
+                bool icSatirSurekli = SatirIcSureklilkKontrol(satirNolar, sonuc.Mesajlar);
+
+                sonuc.AktarimIzinli = icSurekli && sonuc.SatirSurekli && icSatirSurekli;
+                if (sonuc.AktarimIzinli)
                     sonuc.Mesajlar.Add("Tüm kontroller başarılı — aktarıma izin verildi.");
                 else
-                    sonuc.Mesajlar.Add("Aktarım ENGELLENDI — yevmiye numaralarında boşluk tespit edildi.");
+                    sonuc.Mesajlar.Add("Aktarım ENGELLENDI — yevmiye veya satır numaralarında sorun tespit edildi.");
 
                 return sonuc;
             }
@@ -298,6 +321,10 @@ namespace Defter2Fis.ForMikro.Services
             sonuc.DbYevmiyeSayisi = dbBilgi.YevmiyeSayisi;
             sonuc.OncekiAyMevcut = dbBilgi.VeriMevcut;
 
+            // Satır numarası sürekliliği için DB toplam satır sayısı
+            var satirBilgi = dbService.SatirSureklilkBilgisiGetir(maliYil, calislanMinYevmiye, firmaNo, subeNo);
+            sonuc.DbToplamSatirSayisi = satirBilgi.ToplamSatirSayisi;
+
             // Bilgilendirme amaçlı önceki ay tarih bazlı bilgisi
             DateTime oncekiAyBas = donemBas.AddMonths(-1);
             DateTime oncekiAyBit = donemBas.AddDays(-1);
@@ -306,6 +333,7 @@ namespace Defter2Fis.ForMikro.Services
             if (!sonuc.OncekiAyMevcut)
             {
                 sonuc.Surekli = false;
+                sonuc.SatirSurekli = false;
                 sonuc.AktarimIzinli = false;
                 sonuc.Mesajlar.Add($"HATA: Yevmiye {calislanMinYevmiye} öncesinde DB'de hiç yevmiye bulunamadı!");
                 sonuc.Mesajlar.Add("Aktarım yapılamaz — önce önceki dönemlerin fişleri oluşturulmalıdır.");
@@ -315,8 +343,9 @@ namespace Defter2Fis.ForMikro.Services
             // DB bilgilerini logla
             sonuc.Mesajlar.Add($"DB'deki yevmiye sayısı (yevmiye < {calislanMinYevmiye}): {dbBilgi.YevmiyeSayisi:N0}");
             sonuc.Mesajlar.Add($"DB'deki son yevmiye no: {dbBilgi.MaxYevmiyeNo}");
+            sonuc.Mesajlar.Add($"DB'deki toplam fiş satır sayısı (yevmiye < {calislanMinYevmiye}): {satirBilgi.ToplamSatirSayisi:N0}");
 
-            // Süreklilik: DB'deki max yevmiye + 1 = çalışılan ayın ilk yevmiyesi
+            // Yevmiye sürekliliği: DB'deki max yevmiye + 1 = çalışılan ayın ilk yevmiyesi
             int beklenenBaslangic = dbBilgi.MaxYevmiyeNo + 1;
             sonuc.Surekli = (calislanMinYevmiye == beklenenBaslangic);
 
@@ -330,7 +359,6 @@ namespace Defter2Fis.ForMikro.Services
                 sonuc.Mesajlar.Add($"UYARI: Yevmiye sürekliliği BOZUK! " +
                                    $"Beklenen başlangıç={beklenenBaslangic}, gerçek={calislanMinYevmiye}");
 
-                // Ek bilgi: eksik yevmiye sayısı
                 int beklenenSayisi = calislanMinYevmiye - 1;
                 if (dbBilgi.YevmiyeSayisi < beklenenSayisi)
                 {
@@ -339,19 +367,44 @@ namespace Defter2Fis.ForMikro.Services
                 }
             }
 
+            // Satır numarası sürekliliği: DB toplam satır + 1 = çalışılan ayın ilk lineNumber'ı
+            int beklenenSatirBaslangic = satirBilgi.ToplamSatirSayisi + 1;
+            sonuc.SatirSurekli = (calislanMinSatirNo == beklenenSatirBaslangic);
+
+            if (sonuc.SatirSurekli)
+            {
+                sonuc.Mesajlar.Add($"Satır numarası sürekliliği OK: DB toplam satır={satirBilgi.ToplamSatirSayisi:N0}, " +
+                                   $"çalışılan ay ilk lineNumber={calislanMinSatirNo}");
+            }
+            else
+            {
+                sonuc.Mesajlar.Add($"UYARI: Satır numarası sürekliliği BOZUK! " +
+                                   $"Beklenen başlangıç={beklenenSatirBaslangic}, gerçek={calislanMinSatirNo} " +
+                                   $"(DB'de {satirBilgi.ToplamSatirSayisi:N0} satır, fark: {calislanMinSatirNo - beklenenSatirBaslangic})");
+            }
+
             // Çalışılan ay içinde yevmiye numaralarının sıralı ve boşluksuz olduğunu kontrol et
             var yevmiyeNolarList = tumFisler.Select(f => f.YevmiyeNoSayac).OrderBy(n => n).ToList();
             bool icSurekliSonuc = YevmiyeIcSureklilkKontrol(yevmiyeNolarList, sonuc.Mesajlar);
 
-            sonuc.AktarimIzinli = sonuc.OncekiAyMevcut && sonuc.Surekli && icSurekliSonuc;
+            // Çalışılan ay içinde satır numaralarının sıralı ve boşluksuz olduğunu kontrol et
+            var satirNolarList = tumSatirlar.Select(s => s.SatirNoSayac).OrderBy(n => n).ToList();
+            bool icSatirSurekliSonuc = SatirIcSureklilkKontrol(satirNolarList, sonuc.Mesajlar);
+
+            sonuc.AktarimIzinli = sonuc.OncekiAyMevcut && sonuc.Surekli && icSurekliSonuc
+                                  && sonuc.SatirSurekli && icSatirSurekliSonuc;
 
             if (sonuc.AktarimIzinli)
             {
                 sonuc.Mesajlar.Add("Tüm kontroller başarılı — aktarıma izin verildi.");
             }
-            else if (!icSurekliSonuc)
+            else if (!icSurekliSonuc || !icSatirSurekliSonuc)
             {
-                sonuc.Mesajlar.Add("Aktarım ENGELLENDI — yevmiye numaralarında boşluk tespit edildi.");
+                sonuc.Mesajlar.Add("Aktarım ENGELLENDI — yevmiye veya satır numaralarında boşluk tespit edildi.");
+            }
+            else if (!sonuc.SatirSurekli)
+            {
+                sonuc.Mesajlar.Add("Aktarım ENGELLENDI — satır numarası (lineNumber) sürekliliği sağlanamadı.");
             }
             else
             {
@@ -382,6 +435,45 @@ namespace Defter2Fis.ForMikro.Services
             if (surekli)
             {
                 mesajlar.Add($"Ay içi yevmiye sürekliliği OK: {siraliYevmiyeNolar.First()} - {siraliYevmiyeNolar.Last()} (boşluk yok)");
+            }
+
+            return surekli;
+        }
+
+        /// <summary>
+        /// Ay içindeki satır numaralarının (lineNumberCounter) boşluksuz ve ardışık olduğunu kontrol eder.
+        /// </summary>
+        private bool SatirIcSureklilkKontrol(List<int> siraliSatirNolar, List<string> mesajlar)
+        {
+            if (siraliSatirNolar.Count <= 1) return true;
+
+            bool surekli = true;
+            int boşlukSayisi = 0;
+
+            for (int i = 1; i < siraliSatirNolar.Count; i++)
+            {
+                int fark = siraliSatirNolar[i] - siraliSatirNolar[i - 1];
+                if (fark != 1)
+                {
+                    surekli = false;
+                    boşlukSayisi++;
+
+                    // İlk 3 boşluğu detaylı logla, sonrası özet
+                    if (boşlukSayisi <= 3)
+                    {
+                        mesajlar.Add($"UYARI: Satır numarası boşluğu: {siraliSatirNolar[i - 1]} → {siraliSatirNolar[i]} (fark: {fark})");
+                    }
+                }
+            }
+
+            if (boşlukSayisi > 3)
+            {
+                mesajlar.Add($"UYARI: Toplam {boşlukSayisi} satır numarası boşluğu tespit edildi (ilk 3'ü gösterildi).");
+            }
+
+            if (surekli)
+            {
+                mesajlar.Add($"Ay içi satır numarası sürekliliği OK: {siraliSatirNolar.First()} - {siraliSatirNolar.Last()} (boşluk yok)");
             }
 
             return surekli;

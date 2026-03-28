@@ -452,6 +452,37 @@ namespace Defter2Fis.ForMikro.Services
             return new YevmiyeSureklilkBilgisi();
         }
 
+        /// <summary>
+        /// Belirtilen yevmiye numarasından önceki toplam fiş satır sayısını döner.
+        /// XML lineNumber sürekliliği kontrolü için kullanılır.
+        /// </summary>
+        public SatirSureklilkBilgisi SatirSureklilkBilgisiGetir(int maliYil, int calislanMinYevmiye, int firmaNo, int subeNo)
+        {
+            const string sql = @"SELECT 
+                COUNT(*) AS ToplamSatirSayisi
+            FROM MUHASEBE_FISLERI
+            WHERE fis_maliyil = @maliYil
+                AND fis_yevmiye_no < @calislanMinYevmiye
+                AND fis_firmano = @firmaNo
+                AND fis_subeno = @subeNo
+                AND fis_tur = 0
+                AND fis_iptal = 0
+                AND fis_DBCno = 0";
+
+            using (var conn = new SqlConnection(_connectionString))
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.Add("@maliYil", SqlDbType.Int).Value = maliYil;
+                cmd.Parameters.Add("@calislanMinYevmiye", SqlDbType.Int).Value = calislanMinYevmiye;
+                cmd.Parameters.Add("@firmaNo", SqlDbType.Int).Value = firmaNo;
+                cmd.Parameters.Add("@subeNo", SqlDbType.Int).Value = subeNo;
+                conn.Open();
+
+                int toplamSatir = (int)cmd.ExecuteScalar();
+                return new SatirSureklilkBilgisi { ToplamSatirSayisi = toplamSatir };
+            }
+        }
+
         #endregion
 
         #region Dönem Veri Kontrolü (Pre-check)

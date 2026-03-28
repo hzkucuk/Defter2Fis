@@ -1,5 +1,23 @@
 # Özellikler (Features)
 
+## v2.14.0 — Satır Numarası (lineNumber) Sürekliliği & Sıralı Yazım
+
+### Satır Numarası Süreklilik Kontrolü
+- XML `<gl-cor:lineNumber>` global sayacı, mali yıl boyunca tüm fiş satırlarını eşsiz numaralar
+- **Aylar arası kontrol**: DB'deki toplam fiş satır sayısı + 1 = XML'deki ilk lineNumber
+- **Ay içi kontrol**: Tüm lineNumber'lar ardışık, boşluksuz (ilk 3 boşluk detaylı loglanır)
+- **İlk ay kontrolü**: lineNumber 1'den başlamalı
+- `AktarimIzinli` artık hem yevmiye hem satır numarası sürekliliğini gerektirir
+
+### lineNumber Sıralı Yazım
+- Fiş satırları `SatirNoSayac` (lineNumberCounter) sırasına göre DB'ye yazılır
+- `fis_satir_no` (0-based fiş içi satır indeksi) bu sıraya göre atanır
+- XML'deki satır sırası ile DB kayıt sırası birebir eşleşir
+
+### Birim Testleri (90/90)
+- 6 yeni satır sürekliliği testi eklendi
+- DefterlerOlusturOzelSatirlar helper metodu (explicit satır numarası ataması)
+
 ## v2.13.0 — Mikro Uyumlu Fiş Yazma
 
 ### Ticari Tip Düzeltmesi
