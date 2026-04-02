@@ -72,7 +72,7 @@ jobs:
         shell: pwsh
 
       - name: Upload installer artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: installer
           path: Installer/Output/Defter2Fis_Setup_v${{ steps.version.outputs.VERSION }}.exe
