@@ -1,14 +1,14 @@
 # Özellikler (Features)
 
-## v2.18.0 — SQL Connection Builder ve Bağlantı Uyarı Sistemi
+## v2.19.0+ — Özel SQL Bağlantı Formu (SqlBaglantiForm)
 
 ### SQL Connection Builder
-- Microsoft DataConnectionDialog entegrasyonu (Visual Studio tarzı bağlantı dialog'u)
-- SQL Server sunucu tarama ve veritabanı listeleme
-- Windows Authentication / SQL Server Authentication seçimi
-- Bağlantı testi (başarılı/başarısız geri bildirim)
-- Mevcut bağlantı dizesi otomatik yükleme ve düzenleme
-- MIT lisanslı açık kaynak Microsoft bileşeni
+- VS bağımlılığı olmayan özel SQL Server bağlantı dialog'u
+- Sunucu adı girişi, Windows/SQL kimlik doğrulama seçimi
+- "Listele" butonu ile sunucudaki veritabanlarını ComboBox'a sorgulama
+- Bağlantı testi butonu dialog içinde
+- Mevcut connection string'i parse edip forma doldurma
+- Bağlantı dizesi elle de girilebilir (ReadOnly kaldırıldı)
 
 ### Bağlantı Uyarı Sistemi
 - Uygulama açıldığında bağlantı yapılandırılmamışsa belirgin uyarı paneli

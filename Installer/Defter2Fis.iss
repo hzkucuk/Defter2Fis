@@ -2,7 +2,7 @@
 ; E-Defter XML'den Mikro ERP V16 Jump Muhasebe Fişi Oluşturucu
 
 #define MyAppName "Defter2Fis"
-#define MyAppVersion "2.19.1"
+#define MyAppVersion "2.19.2"
 #define MyAppPublisher "Zafer Bilgisayar"
 #define MyAppExeName "Defter2Fis.ForMikro.exe"
 #define MyAppDescription "E-Defter XML'den Mikro ERP V16 Jump Muhasebe Fişi Oluşturucu"

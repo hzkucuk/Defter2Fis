@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.19.2] - 2025-07-18 — Bug Fix Release
+
+### Düzeltilen
+- AyarlarForm: Bağlantı TextBox'undaki `ReadOnly = true` kaldırıldı — artık connection string elle de yazılabilir
+- SqlBaglantiForm: `sys.databases` sorgusundaki `state_online` sütun hatası düzeltildi (`state = 0`)
+- SqlBaglantiForm: Tüm kontrollere TabIndex eklendi, form açılışında sunucu alanına odak ayarlandı
+
+### Etkilenen Dosyalar
+- `Defter2Fis.ForMikro/Forms/AyarlarForm.Designer.cs`
+- `Defter2Fis.ForMikro/Forms/SqlBaglantiForm.cs`
+- `Defter2Fis.ForMikro/Forms/SqlBaglantiForm.Designer.cs`
+
+---
+
 ## [2.19.1] - 2025-07-18 — Veritabanı Listeleme Hatası Düzeltmesi
 
 ### Düzeltilen
