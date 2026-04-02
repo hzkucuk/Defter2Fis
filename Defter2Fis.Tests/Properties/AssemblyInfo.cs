@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("Defter2Fis.Tests")]
 [assembly: AssemblyDescription("Defter2Fis unit testleri")]
-[assembly: AssemblyCompany("Prima Havacılık")]
+[assembly: AssemblyCompany("Zafer Bilgisayar")]
 [assembly: AssemblyProduct("Defter2Fis.Tests")]
 [assembly: AssemblyCopyright("Copyright © 2025")]
 [assembly: ComVisible(false)]

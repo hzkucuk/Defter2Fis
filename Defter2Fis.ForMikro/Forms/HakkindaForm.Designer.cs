@@ -90,7 +90,7 @@ namespace Defter2Fis.ForMikro.Forms
             _lblTelif.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             _lblTelif.Name = "_lblTelif";
             _lblTelif.Size = new System.Drawing.Size(200, 15);
-            _lblTelif.Text = "\u00A9 2025 Prima Havac\u0131l\u0131k. T\u00fcm haklar\u0131 sakl\u0131d\u0131r.";
+            _lblTelif.Text = "\u00A9 2025 Zafer Bilgisayar. T\u00fcm haklar\u0131 sakl\u0131d\u0131r.";
 
             // _btnTamam
             _btnTamam.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;

@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("Defter2Fis.ForMikro")]
 [assembly: AssemblyDescription("E-Defter XML'den Mikro ERP V16 Jump Muhasebe Fişi Oluşturucu")]
-[assembly: AssemblyCompany("Prima Havacılık")]
+[assembly: AssemblyCompany("Zafer Bilgisayar")]
 [assembly: AssemblyProduct("Defter2Fis")]
 [assembly: AssemblyCopyright("Copyright © 2025")]
 [assembly: ComVisible(false)]

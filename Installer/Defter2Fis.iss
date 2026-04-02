@@ -3,7 +3,7 @@
 
 #define MyAppName "Defter2Fis"
 #define MyAppVersion "2.17.0"
-#define MyAppPublisher "Prima Havacılık"
+#define MyAppPublisher "Zafer Bilgisayar"
 #define MyAppExeName "Defter2Fis.ForMikro.exe"
 #define MyAppDescription "E-Defter XML'den Mikro ERP V16 Jump Muhasebe Fişi Oluşturucu"
 

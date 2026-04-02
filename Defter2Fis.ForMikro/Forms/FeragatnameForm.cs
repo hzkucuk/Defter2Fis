@@ -22,7 +22,7 @@ namespace Defter2Fis.ForMikro.Forms
 @"DEFTER2FİS YAZILIMI
 KULLANIM KOŞULLARI, SORUMLULUK REDDİ VE FERAGATNAMESİ
 
-Yayımcı: Prima Havacılık
+Yayımcı: Zafer Bilgisayar
 Son Güncelleme: " + DateTime.Now.ToString("dd.MM.yyyy") + @"
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -30,7 +30,7 @@ Son Güncelleme: " + DateTime.Now.ToString("dd.MM.yyyy") + @"
 MADDE 1 — TANIMLAR
 
 1.1. ""Yazılım"": Defter2Fis adlı, E-Defter (XBRL-GL formatı) Yevmiye XML dosyalarını parse ederek Mikro ERP V16 Jump MSSQL veritabanına muhasebe fişleri oluşturan masaüstü uygulamasını ifade eder.
-1.2. ""Yayımcı"": Prima Havacılık unvanı altında yazılımı geliştiren ve dağıtan tarafı ifade eder.
+1.2. ""Yayımcı"": Zafer Bilgisayar unvanı altında yazılımı geliştiren ve dağıtan tarafı ifade eder.
 1.3. ""Kullanıcı"": Bu yazılımı indiren, kuran, çalıştıran veya herhangi bir şekilde kullanan gerçek veya tüzel kişiyi ifade eder.
 1.4. ""Mikro ERP Veritabanı"": Kullanıcının Mikro ERP V16 Jump sistemine ait MSSQL veritabanını ifade eder.
 1.5. ""E-Defter Verileri"": GİB (Gelir İdaresi Başkanlığı) tarafından onaylanmış XBRL-GL formatındaki e-Defter Yevmiye XML dosyalarını ifade eder.
@@ -103,7 +103,7 @@ MADDE 8 — UYGULANACAK HUKUK VE YETKİLİ MAHKEME
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-© " + DateTime.Now.Year + @" Prima Havacılık — Tüm hakları saklıdır.";
+© " + DateTime.Now.Year + @" Zafer Bilgisayar — Tüm hakları saklıdır.";
 
         private void ChkKabulEdiyorum_CheckedChanged(object sender, EventArgs e)
         {

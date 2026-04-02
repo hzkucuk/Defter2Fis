@@ -26,7 +26,7 @@ namespace Defter2Fis.ForMikro.Services
             Path.Combine(EvidenceDirectory, ".d2f_acceptance.sig");
 
         // İmza tuzlama anahtarı — sadece kaynak kodda bilinen gizli değer
-        private const string Salt = "D2F-Prima-2025-Legal-Salt-X7k9Qm";
+        private const string Salt = "D2F-Zafer-2025-Legal-Salt-X7k9Qm";
 
         /// <summary>
         /// Kullanıcının feragatnameyi daha önce kabul edip etmediğini kontrol eder.
