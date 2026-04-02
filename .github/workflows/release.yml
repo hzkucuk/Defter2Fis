@@ -13,22 +13,22 @@ on:
 permissions:
   contents: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build-and-release:
     runs-on: windows-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v3
-
-      - name: Setup NuGet
-        uses: NuGet/setup-nuget@v3
+        uses: microsoft/setup-msbuild@v2
 
       - name: Restore NuGet packages
-        run: nuget restore Defter2Fis.slnx
+        run: msbuild Defter2Fis.ForMikro\Defter2Fis.ForMikro.csproj /t:Restore /p:Configuration=Release /v:minimal
 
       - name: Build Release
         run: msbuild Defter2Fis.ForMikro\Defter2Fis.ForMikro.csproj /p:Configuration=Release /v:minimal
@@ -57,11 +57,25 @@ jobs:
           echo "Extracted version: $version"
         shell: pwsh
 
+      - name: Verify installer output
+        run: |
+          $file = "Installer\Output\Defter2Fis_Setup_v${{ steps.version.outputs.VERSION }}.exe"
+          if (Test-Path $file) {
+            $size = (Get-Item $file).Length / 1MB
+            Write-Host "Installer OK: $file ($([math]::Round($size,2)) MB)"
+          } else {
+            Write-Host "Installer/Output/ icerik:"
+            Get-ChildItem Installer\Output\ -ErrorAction SilentlyContinue
+            Write-Error "Installer bulunamadi: $file"
+            exit 1
+          }
+        shell: pwsh
+
       - name: Upload installer artifact
         uses: actions/upload-artifact@v4
         with:
           name: installer
-          path: Installer/Output/Defter2Fis_Setup_*.exe
+          path: Installer/Output/Defter2Fis_Setup_v${{ steps.version.outputs.VERSION }}.exe
           if-no-files-found: error
 
       - name: Create GitHub Release
@@ -81,7 +95,7 @@ jobs:
 
             Detaylar için [CHANGELOG.md](CHANGELOG.md) dosyasına bakın.
           files: |
-            Installer/Output/Defter2Fis_Setup_*.exe
+            Installer/Output/Defter2Fis_Setup_v${{ steps.version.outputs.VERSION }}.exe
           draft: false
           prerelease: false
           generate_release_notes: true
