@@ -50,10 +50,6 @@
       <HintPath>lib\Microsoft.Data.ConnectionUI.Dialog.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.Data.SqlClient">
-      <HintPath>lib\Microsoft.Data.SqlClient.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -84,6 +80,12 @@
     <Compile Include="Forms\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\SqlBaglantiForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\SqlBaglantiForm.Designer.cs">
+      <DependentUpon>SqlBaglantiForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\AnalyzerModels.cs" />
     <Compile Include="Models\EdDefterModels.cs" />
     <Compile Include="Models\EvrakBilgisi.cs" />
@@ -103,14 +105,6 @@
     <Compile Include="Services\LogService.cs" />
     <Compile Include="Services\MikroDbService.cs" />
     <Compile Include="Services\OnizlemeServisi.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="lib\Microsoft.Data.SqlClient.SNI.x86.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="lib\Microsoft.Data.SqlClient.SNI.x64.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

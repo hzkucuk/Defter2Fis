@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.19.0] - 2025-07-17 — Özel SQL Bağlantı Formu
+
+### Eklenen
+- SqlBaglantiForm: VS bağımlılığı olmayan özel SQL Server bağlantı dialog’u
+- Sunucu adı, Windows/SQL kimlik doğrulama, veritabanı listesi (ComboBox ile seçim)
+- "Listele" butonu ile sunucudaki veritabanlarını otomatik sorgulama
+- Bağlantı testi butonu dialog içinde
+- Mevcut connection string’i parse edip forma doldurma
+
+### Kaldırılan
+- Microsoft.Data.ConnectionUI / ConnectionUI.Dialog bağımlılığı (VS 2026 runtime bağımlılık sorunu)
+- Microsoft.Data.SqlClient / SNI DLL’leri (artık gerekli değil)
+- lib/ klasöründeki tüm harici DLL’ler temizlendi
+
+### Değişen
+- AyarlarForm: DataConnectionDialog yerine SqlBaglantiForm kullanıyor
+- Installer: ConnectionUI/SqlClient DLL’leri kaldırıldı
+- Versiyon 2.18.1 → 2.19.0
+
+---
+
 ## [2.18.1] - 2025-07-17 — Microsoft.Data.SqlClient Bağımlılık Düzeltmesi
 
 ### Düzeltilen

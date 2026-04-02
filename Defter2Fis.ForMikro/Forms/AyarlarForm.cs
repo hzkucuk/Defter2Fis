@@ -3,7 +3,6 @@ using System.Configuration;
 using System.Data.SqlClient;
 using System.Windows.Forms;
 using Krypton.Toolkit;
-using Microsoft.Data.ConnectionUI;
 
 namespace Defter2Fis.ForMikro.Forms
 {
@@ -33,27 +32,11 @@ namespace Defter2Fis.ForMikro.Forms
 
         private void BtnBaglantiOlustur_Click(object sender, EventArgs e)
         {
-            using (var dlg = new DataConnectionDialog())
+            using (var dlg = new SqlBaglantiForm())
             {
-                dlg.DataSources.Add(DataSource.SqlDataSource);
-                dlg.SelectedDataSource = DataSource.SqlDataSource;
-                dlg.SelectedDataProvider = DataProvider.SqlDataProvider;
+                dlg.MevcutBaglantiDizesiniYukle(_txtConnectionString.Text.Trim());
 
-                // Mevcut bağlantı dizesini yükle
-                string mevcutBaglanti = _txtConnectionString.Text.Trim();
-                if (!string.IsNullOrWhiteSpace(mevcutBaglanti))
-                {
-                    try
-                    {
-                        dlg.ConnectionString = mevcutBaglanti;
-                    }
-                    catch
-                    {
-                        // Geçersiz connection string ise sessizce atla
-                    }
-                }
-
-                if (DataConnectionDialog.Show(dlg) == DialogResult.OK)
+                if (dlg.ShowDialog(this) == DialogResult.OK)
                 {
                     _txtConnectionString.Text = dlg.ConnectionString;
                 }
