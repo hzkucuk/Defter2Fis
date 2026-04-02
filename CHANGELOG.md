@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.19.1] - 2025-07-18 — Veritabanı Listeleme Hatası Düzeltmesi
+
+### Düzeltilen
+- SqlBaglantiForm: `sys.databases` sorgusundaki `state_online` sütun adı hatası düzeltildi (`state = 0` olarak güncellendi)
+
+### Etkilenen Dosyalar
+- `Defter2Fis.ForMikro/Forms/SqlBaglantiForm.cs`
+
 ## [2.19.0] - 2025-07-17 — Özel SQL Bağlantı Formu
 
 ### Eklenen

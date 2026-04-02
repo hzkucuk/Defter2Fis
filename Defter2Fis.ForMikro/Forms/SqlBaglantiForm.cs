@@ -102,7 +102,7 @@ namespace Defter2Fis.ForMikro.Forms
                     conn.Open();
 
                     using (var cmd = new SqlCommand(
-                        "SELECT name FROM sys.databases WHERE state_online = 0 OR state = 0 ORDER BY name", conn))
+                        "SELECT name FROM sys.databases WHERE state = 0 ORDER BY name", conn))
                     {
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
