@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.16.0] - 2025-07-17 — Inno Setup Installer
+
+### Eklenen
+- Inno Setup installer script (`Installer/Defter2Fis.iss`)
+- Kurulum sırasında .NET Framework 4.8 varlık kontrolü
+- Türkçe kurulum dili desteği
+- Masaüstü kısayolu seçeneği
+- GitHub Releases üzerinden installer dağıtımı
+
+### Değişen
+- Versiyon 2.15.0 → 2.16.0
+
+---
+
 ## [2.15.0] - 2025-08-28 — Model Sınıfları Refactoring
 
 ### Değiştirilen

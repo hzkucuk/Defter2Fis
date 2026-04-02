@@ -1,10 +1,35 @@
 ﻿# Kurulum (Installation)
 
 ## Gereksinimler
+- Windows 10/11 (64-bit)
 - .NET Framework 4.8 Runtime
 - MSSQL Server (Mikro ERP V16 Jump veritabanı erişimi)
 - E-Defter Yevmiye XML dosyaları
-- NuGet: **Krypton.Toolkit** v85.24.6.176 (otomatik restore edilir)
+
+## Installer ile Kurulum (Önerilen)
+
+1. [Releases](https://github.com/hzkucuk/Defter2Fis/releases) sayfasından `Defter2Fis_Setup_vX.Y.Z.exe` indirin
+2. Setup dosyasını çalıştırın
+3. Kurulum sihirbazını takip edin
+4. Kurulum tamamlandığında uygulamayı başlatın
+
+> **Not:** Installer, .NET Framework 4.8 yüklü olup olmadığını otomatik kontrol eder. Yüklü değilse indirme bağlantısı gösterilir.
+
+## Kaynak Koddan Derleme
+
+```bash
+msbuild Defter2Fis.ForMikro\Defter2Fis.ForMikro.csproj /p:Configuration=Release
+```
+
+### Installer Yeniden Derleme
+
+Inno Setup 6 kurulu olmalıdır:
+
+```bash
+"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" Installer\Defter2Fis.iss
+```
+
+Çıktı: `Installer\Output\Defter2Fis_Setup_vX.Y.Z.exe`
 
 ## Yapılandırma
 

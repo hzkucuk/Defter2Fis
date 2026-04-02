@@ -1,6 +1,6 @@
 # Defter2Fis — E-Defter → Mikro ERP Muhasebe Fişi Oluşturucu
 
-![Version](https://img.shields.io/badge/version-2.15.0-blue)
+![Version](https://img.shields.io/badge/version-2.16.0-blue)
 ![.NET](https://img.shields.io/badge/.NET%20Framework-4.8-purple)
 
 ## Açıklama
@@ -39,6 +39,14 @@ E-Defter Yevmiye XML dosyalarını (XBRL-GL formatı) parse edip **Mikro ERP V16
 - E-Defter Yevmiye XML dosyaları
 
 ## Kurulum
+
+### Installer ile (Önerilen)
+
+[Releases](https://github.com/hzkucuk/Defter2Fis/releases) sayfasından en güncel `Defter2Fis_Setup_vX.Y.Z.exe` dosyasını indirip çalıştırın.
+
+> **Not:** Installer, .NET Framework 4.8 yüklü olup olmadığını otomatik kontrol eder.
+
+### Kaynak Koddan Derleme
 
 1. Projeyi derleyin (`Debug` veya `Release`)
 2. `App.config` içindeki ayarları ortamınıza göre düzenleyin (veya uygulama içi **Araçlar > Ayarlar** menüsünden):
@@ -82,4 +90,6 @@ Defter2Fis.ForMikro/
 ├── App.config                       # Yapılandırma
 └── Properties/
     └── AssemblyInfo.cs
+Installer/
+└── Defter2Fis.iss               # Inno Setup script
 ```

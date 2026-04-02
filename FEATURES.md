@@ -1,5 +1,17 @@
 # Özellikler (Features)
 
+## v2.16.0 — Inno Setup Installer
+
+### Windows Installer
+- Inno Setup 6 tabanlı profesyonel Windows installer
+- .NET Framework 4.8 varlık kontrolü (kurulum başlamadan önce)
+- Türkçe kurulum dili
+- Masaüstü kısayolu seçeneği
+- LZMA2 ultra sıkıştırma (~3 MB setup dosyası)
+- Program Files altına kurulum, Başlat menüsü girişi
+- Temiz kaldırma (uninstall) desteği
+- GitHub Releases üzerinden dağıtım
+
 ## v2.15.0 — Model Sınıfları Refactoring
 
 ### Yapısal İyileştirme
