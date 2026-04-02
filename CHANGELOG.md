@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.17.0] - 2025-07-17 — Feragatname ve Kabul Kanıt Sistemi
+
+### Eklenen
+- Uygulama başlangıcında hukuki feragatname formu (FeragatnameForm)
+- 8 maddelik resmi dilde sorumluluk reddi ve kullanım koşulları metni
+- Kabul kanıtı sistemi (DisclaimerService): Windows Registry + gizli dosya + SHA256 imza
+- Kabul edilmeden uygulama çalışmaz
+- Krypton temalı feragatname UI (dark theme uyumlu)
+
+### Değişen
+- Program.cs: MainForm öncesi feragatname kontrolü eklendi
+- Versiyon 2.16.0 → 2.17.0
+
+---
+
 ## [2.16.0] - 2025-07-17 — Inno Setup Installer
 
 ### Eklenen

@@ -1,6 +1,6 @@
 # Defter2Fis — E-Defter → Mikro ERP Muhasebe Fişi Oluşturucu
 
-![Version](https://img.shields.io/badge/version-2.16.0-blue)
+![Version](https://img.shields.io/badge/version-2.17.0-blue)
 ![.NET](https://img.shields.io/badge/.NET%20Framework-4.8-purple)
 
 ## Açıklama
@@ -30,6 +30,7 @@ E-Defter Yevmiye XML dosyalarını (XBRL-GL formatı) parse edip **Mikro ERP V16
 - **Renkli log paneli** (RichTextBox) + **ProgressBar** ilerleme göstergesi
 - **Ayarlar diyalogu** — App.config düzenleme (DB, E-Defter, Mikro parametreleri)
 - **Global hata yönetimi** — Application.ThreadException + AppDomain.UnhandledException
+- **Hukuki feragatname** — Başlangıçta sorumluluk reddi, kabul kanıtı (Registry + SHA256 imza)
 - App.config üzerinden tam yapılandırılabilir
 
 ## Gereksinimler

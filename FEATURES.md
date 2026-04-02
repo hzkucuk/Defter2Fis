@@ -1,5 +1,20 @@
 # Özellikler (Features)
 
+## v2.17.0 — Feragatname ve Kabul Kanıt Sistemi
+
+### Hukuki Feragatname
+- Uygulama başlangıcında gösterilen 8 maddelik resmi feragatname
+- Yazılımın işlevi, kapsamı, sorumluluk reddi, e-Defter veri koruması
+- Veritabanı yedekleme yükümlülüğü uyarısı
+- Kabul/Reddet seçenekleri, reddetme durumunda uygulama çıkışı
+
+### Kabul Kanıt Sistemi
+- Windows Registry (HKCU\SOFTWARE\PrimaHavacilik\Defter2Fis)
+- Gizli dosya (ProgramData\PrimaHavacilik\Defter2Fis\Legal)
+- SHA256 + Salt ile makine/kullanıcı/tarih/versiyon imzası
+- Çift doğrulama: Hem Registry hem dosya bütünlüğü kontrolü
+- Hukuki ihtilaf durumunda delil niteliğinde kanıt
+
 ## v2.16.0 — Inno Setup Installer
 
 ### Windows Installer

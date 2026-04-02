@@ -54,6 +54,12 @@
       <DependentUpon>AyarlarForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\DarkMenuColorTable.cs" />
+    <Compile Include="Forms\FeragatnameForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FeragatnameForm.Designer.cs">
+      <DependentUpon>FeragatnameForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\HakkindaForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -83,6 +89,7 @@
     <Compile Include="Services\IMikroDbService.cs" />
     <Compile Include="Services\LogService.cs" />
     <Compile Include="Services\MikroDbService.cs" />
+    <Compile Include="Services\DisclaimerService.cs" />
     <Compile Include="Services\OnizlemeServisi.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

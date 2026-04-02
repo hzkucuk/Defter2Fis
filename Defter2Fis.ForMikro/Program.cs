@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Windows.Forms;
 using Defter2Fis.ForMikro.Forms;
+using Defter2Fis.ForMikro.Services;
 
 namespace Defter2Fis.ForMikro
 {
@@ -23,6 +24,23 @@ namespace Defter2Fis.ForMikro
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
+            // Feragatname kontrolü — kabul edilmemişse göster
+            if (!DisclaimerService.FeragatnameKabulEdildiMi())
+            {
+                using (var feragatnameForm = new FeragatnameForm())
+                {
+                    if (feragatnameForm.ShowDialog() != DialogResult.OK)
+                    {
+                        // Kullanıcı reddettiğinde uygulama çıkışı
+                        return;
+                    }
+
+                    // Kabul kanıtını Registry + dosyaya kaydet
+                    DisclaimerService.KabulKaydet();
+                }
+            }
+
             Application.Run(new MainForm());
         }
 
