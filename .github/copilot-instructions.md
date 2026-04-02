@@ -104,12 +104,18 @@ Versiyon **3 noktada** senkron tutulmalı:
 
 Kullanıcı "release derle", "release yap", "release oluştur" veya benzeri dediğinde aşağıdaki adımları **sırayla** uygula:
 
-1. **Versiyon güncelle** — Yukarıdaki 3 noktayı yeni versiyon numarasıyla senkronize et
+1. **Versiyon güncelle** — Yukarıdaki 3 noktayı yeni versiyon numarasıyla senkronize et. Installer (`Defter2Fis.iss`) `MyAppVersion` değerini de güncelle.
 2. **Dokümantasyon güncelle** — CHANGELOG.md, README.md, FEATURES.md, INSTALL.md gerekli bölümlerini güncelle
-3. **Build doğrula** — `msbuild Defter2Fis.slnx /p:Configuration=Release` çalıştır, hata olmadığından emin ol
-4. **Git commit** — Tüm değişiklikleri commit et: `git add -A && git commit -m "release: vX.Y.Z"`
-5. **Git tag** — Versiyon tag'i oluştur: `git tag vX.Y.Z`
-6. **Git push** — Tag ile birlikte push et: `git push origin master --tags`
+3. **Build doğrula** — `msbuild Defter2Fis.ForMikro\Defter2Fis.ForMikro.csproj /p:Configuration=Release` çalıştır, hata olmadığından emin ol
+4. **Inno Setup derle** — Installer'ı derle:
+   ```
+   & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" Installer\Defter2Fis.iss
+   ```
+   `Installer\Output\Defter2Fis_Setup_vX.Y.Z.exe` dosyasının oluştuğunu doğrula
+5. **Git commit** — Tüm değişiklikleri commit et: `git add -A && git commit -m "release: vX.Y.Z"`
+6. **Git tag** — Versiyon tag'i oluştur: `git tag vX.Y.Z`
+7. **Git push** — Tag ile birlikte push et: `git push origin master --tags`
+8. **Bilgilendir** — GitHub Actions otomatik tetiklenecek (`.github/workflows/release.yml`), CI tarafında build + installer + GitHub Release oluşturulacak. Lokal olarak da setup dosyası `Installer\Output\` altında hazır.
 
 ## Yanıt Formatı
 1. Değişiklik özeti (1-2 cümle)
