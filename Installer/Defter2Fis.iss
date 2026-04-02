@@ -43,6 +43,8 @@ Source: "..\Defter2Fis.ForMikro\bin\Release\Defter2Fis.ForMikro.exe"; DestDir: "
 Source: "..\Defter2Fis.ForMikro\bin\Release\Defter2Fis.ForMikro.exe.config"; DestDir: "{app}"; Flags: ignoreversion
 ; Bağımlılıklar
 Source: "..\Defter2Fis.ForMikro\bin\Release\Krypton.Toolkit.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\Defter2Fis.ForMikro\bin\Release\Microsoft.Data.ConnectionUI.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\Defter2Fis.ForMikro\bin\Release\Microsoft.Data.ConnectionUI.Dialog.dll"; DestDir: "{app}"; Flags: ignoreversion
 ; PDB (debug sembolü - opsiyonel, hata raporlama için faydalı)
 Source: "..\Defter2Fis.ForMikro\bin\Release\Defter2Fis.ForMikro.pdb"; DestDir: "{app}"; Flags: ignoreversion
 

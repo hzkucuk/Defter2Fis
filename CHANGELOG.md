@@ -3,18 +3,20 @@
 ## [2.18.0] - 2025-07-17 — SQL Connection Builder ve Bağlantı Uyarı Sistemi
 
 ### Eklenen
-- Ayarlar ekranına SQL Connection Builder formu (ConnectionBuilderForm)
-- Sunucu, Veritabanı, Kimlik Doğrulama (Windows/SQL) yapılandırma arayüzü
-- Bağlantı test butonu (Ayarlar ve ConnectionBuilder içinde)
+- Microsoft DataConnectionDialog entegrasyonu (SQL Server bağlantı yapılandırma)
+- Sunucu tarama, veritabanı seçimi, Windows/SQL kimlik doğrulama desteği
+- Bağlantı test butonu (Ayarlar ekranında)
 - MainForm'da bağlantı yapılandırılmamışsa görsel uyarı paneli
 - Uyarı panelinde doğrudan "Ayarları Aç" bağlantısı
 - Bağlantı yoksa veritabanı gerektiren butonlar devre dışı bırakılıyor
+- Microsoft.Data.ConnectionUI DLL'leri projeye eklendi (MIT lisanslı)
 
 ### Değişen
 - App.config: Varsayılan hardcoded connection string kaldırıldı (güvenlik)
-- AyarlarForm: "Bağlantı Oluştur" ve "Bağlantıyı Test Et" butonları eklendi
-- AyarlarForm: Connection string alanı salt-okunur yapıldı (Builder üzerinden düzenlenir)
+- AyarlarForm: "Bağlantı Oluştur" Microsoft dialog'ı açıyor, "Bağlantıyı Test Et" butonu eklendi
+- AyarlarForm: Connection string alanı salt-okunur yapıldı
 - MainForm: Ayarlar kaydedildikten sonra bağlantı durumu yeniden kontrol ediliyor
+- Installer: Microsoft.Data.ConnectionUI DLL'leri dağıtıma eklendi
 - Versiyon 2.17.0 → 2.18.0
 
 ---

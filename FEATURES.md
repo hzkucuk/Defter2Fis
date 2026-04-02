@@ -3,11 +3,12 @@
 ## v2.18.0 — SQL Connection Builder ve Bağlantı Uyarı Sistemi
 
 ### SQL Connection Builder
-- Ayarlar ekranından erişilebilen ayrı SQL Server bağlantı yapılandırma formu
-- Sunucu adı, Veritabanı adı yapılandırma
+- Microsoft DataConnectionDialog entegrasyonu (Visual Studio tarzı bağlantı dialog'u)
+- SQL Server sunucu tarama ve veritabanı listeleme
 - Windows Authentication / SQL Server Authentication seçimi
 - Bağlantı testi (başarılı/başarısız geri bildirim)
-- Mevcut bağlantı dizesi otomatik ayrıştırma ve düzenleme
+- Mevcut bağlantı dizesi otomatik yükleme ve düzenleme
+- MIT lisanslı açık kaynak Microsoft bileşeni
 
 ### Bağlantı Uyarı Sistemi
 - Uygulama açıldığında bağlantı yapılandırılmamışsa belirgin uyarı paneli
