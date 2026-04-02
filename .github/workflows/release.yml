@@ -1,0 +1,87 @@
+# ============================================================
+#  Defter2Fis — GitHub Actions Release Workflow
+#  Tag push (v*) tetiklemesiyle otomatik build + installer + release
+# ============================================================
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
+
+      - name: Restore NuGet packages
+        run: nuget restore Defter2Fis.slnx
+
+      - name: Build Release
+        run: msbuild Defter2Fis.ForMikro\Defter2Fis.ForMikro.csproj /p:Configuration=Release /v:minimal
+
+      - name: Install Inno Setup 6
+        run: choco install innosetup --yes --no-progress
+        shell: pwsh
+
+      - name: Compile Inno Setup installer
+        run: |
+          $isccPaths = @(
+            "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe",
+            "$env:ProgramFiles\Inno Setup 6\ISCC.exe"
+          )
+          $iscc = $isccPaths | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $iscc) { Write-Error "ISCC.exe bulunamadi!"; exit 1 }
+          Write-Host "ISCC: $iscc"
+          & $iscc Installer\Defter2Fis.iss
+        shell: pwsh
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          $version = "${{ github.ref_name }}".TrimStart('v')
+          echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+          echo "Extracted version: $version"
+        shell: pwsh
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer
+          path: Installer/Output/Defter2Fis_Setup_*.exe
+          if-no-files-found: error
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Defter2Fis v${{ steps.version.outputs.VERSION }}"
+          body: |
+            ## Defter2Fis v${{ steps.version.outputs.VERSION }}
+
+            E-Defter XML'den Mikro ERP V16 Jump Muhasebe Fişi Oluşturucu
+
+            ### Kurulum
+            1. `.NET Framework 4.8 Runtime` yüklü olmalıdır
+            2. `Defter2Fis_Setup_v${{ steps.version.outputs.VERSION }}.exe` dosyasını indirip çalıştırın
+
+            > ⚠️ Installer imzasız olduğundan Windows SmartScreen uyarısı gösterebilir. "Daha fazla bilgi" → "Yine de çalıştır" ile devam edin.
+
+            Detaylar için [CHANGELOG.md](CHANGELOG.md) dosyasına bakın.
+          files: |
+            Installer/Output/Defter2Fis_Setup_*.exe
+          draft: false
+          prerelease: false
+          generate_release_notes: true
