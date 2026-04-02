@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.18.1] - 2025-07-17 — Microsoft.Data.SqlClient Bağımlılık Düzeltmesi
+
+### Düzeltilen
+- Microsoft.Data.ConnectionUI.Dialog çalışma zamanı hatası düzeltildi (FileNotFoundException: Microsoft.Data.SqlClient)
+- Microsoft.Data.SqlClient 5.2.2 (net462) lib klasörüne eklendi ve proje referansı tanımlandı
+- Microsoft.Data.SqlClient.SNI 5.2.0 native DLL'leri build hedefine eklendi (x86/x64/arm64)
+
+### Değişen
+- Defter2Fis.ForMikro.csproj: Microsoft.Data.SqlClient referansı ve SNI targets import'u eklendi
+- Versiyon 2.18.0 → 2.18.1
+
+---
+
 ## [2.18.0] - 2025-07-17 — SQL Connection Builder ve Bağlantı Uyarı Sistemi
 
 ### Eklenen
