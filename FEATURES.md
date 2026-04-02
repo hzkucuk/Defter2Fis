@@ -1,5 +1,25 @@
 # Özellikler (Features)
 
+## v2.18.0 — SQL Connection Builder ve Bağlantı Uyarı Sistemi
+
+### SQL Connection Builder
+- Ayarlar ekranından erişilebilen ayrı SQL Server bağlantı yapılandırma formu
+- Sunucu adı, Veritabanı adı yapılandırma
+- Windows Authentication / SQL Server Authentication seçimi
+- Bağlantı testi (başarılı/başarısız geri bildirim)
+- Mevcut bağlantı dizesi otomatik ayrıştırma ve düzenleme
+
+### Bağlantı Uyarı Sistemi
+- Uygulama açıldığında bağlantı yapılandırılmamışsa belirgin uyarı paneli
+- Uyarı panelinde "Veritabanı bağlantısı yapılandırılmamış!" mesajı ve yönlendirme
+- "Ayarları Aç" bağlantısı ile doğrudan Ayarlar formuna erişim
+- Bağlantı yoksa veritabanı gerektiren butonlar otomatik devre dışı
+- Ayarlar kaydedildikten sonra durum otomatik güncellenir
+
+### Güvenlik İyileştirmesi
+- Varsayılan hardcoded connection string kaldırıldı
+- Kullanıcı kendi ortamına uygun bağlantıyı kendisi oluşturur
+
 ## v2.17.0 — Feragatname ve Kabul Kanıt Sistemi
 
 ### Hukuki Feragatname

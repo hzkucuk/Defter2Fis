@@ -33,21 +33,40 @@ Inno Setup 6 kurulu olmalıdır:
 
 ## Yapılandırma
 
+### İlk Kurulum — Veritabanı Bağlantısı (Zorunlu)
+
+Uygulama ilk açıldığında veritabanı bağlantısı yapılandırılmamıştır. Ekranın üstünde bir uyarı paneli göreceksiniz:
+
+1. **Araçlar > Ayarlar** menüsünü açın (veya uyarı panelindeki "Ayarları Aç" bağlantısına tıklayın)
+2. **"Bağlantı Oluştur..."** butonuna tıklayın
+3. SQL Server bağlantı bilgilerinizi girin:
+   - **Sunucu:** SQL Server adınız (ör: `localhost\sqlexpress`)
+   - **Veritabanı:** Mikro ERP veritabanı adı (ör: `MikroDB_V16_FIRMA2024`)
+   - **Kimlik Doğrulama:** Windows veya SQL Server Authentication
+4. **"Bağlantıyı Test Et"** butonu ile bağlantıyı doğrulayın
+5. **Tamam** ile bağlantıyı kaydedin
+6. Ayarlar formunda **Kaydet** ile onaylayın
+
+> **Not:** Bağlantı yapılandırılmadan veritabanı gerektiren işlemler (Mevcut Veri Kontrol, Önizleme, Fiş Oluştur, Yedek Al) devre dışıdır.
+
+### Diğer Ayarlar
+
 Ayarları 2 yoldan düzenleyebilirsiniz:
 
-### Yol 1: Uygulama İçinden (Önerilen)
+#### Yol 1: Uygulama İçinden (Önerilen)
 Uygulamayı çalıştırın → **Araçlar > Ayarlar** menüsünden tüm parametreleri düzenleyin.
 
-### Yol 2: App.config Dosyasından
+#### Yol 2: App.config Dosyasından
 
 #### Connection String
 ```xml
 <connectionStrings>
     <add name="MikroDB"
-         connectionString="Data Source=hzk-pc\sqlexpress;Initial Catalog=MikroDB_V16_PRIMA2022;Integrated Security=True"
+         connectionString=""
          providerName="System.Data.SqlClient" />
 </connectionStrings>
 ```
+> **Not:** Connection string varsayılan olarak boştur. Uygulama içi "Bağlantı Oluştur" ile yapılandırın.
 
 #### E-Defter Ayarları
 ```xml

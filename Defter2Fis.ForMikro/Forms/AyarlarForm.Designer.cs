@@ -22,6 +22,8 @@ namespace Defter2Fis.ForMikro.Forms
             _tblDb = new System.Windows.Forms.TableLayoutPanel();
             _lblConnectionString = new System.Windows.Forms.Label();
             _txtConnectionString = new System.Windows.Forms.TextBox();
+            _btnBaglantiOlustur = new System.Windows.Forms.Button();
+            _btnBaglantiTest = new System.Windows.Forms.Button();
             _grpEdDefter = new System.Windows.Forms.GroupBox();
             _tblEdDefter = new System.Windows.Forms.TableLayoutPanel();
             _lblEdDefterKok = new System.Windows.Forms.Label();
@@ -94,9 +96,12 @@ namespace Defter2Fis.ForMikro.Forms
             _tblDb.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             _tblDb.Controls.Add(_lblConnectionString, 0, 0);
             _tblDb.Controls.Add(_txtConnectionString, 1, 0);
+            _tblDb.Controls.Add(_btnBaglantiOlustur, 0, 1);
+            _tblDb.Controls.Add(_btnBaglantiTest, 1, 1);
             _tblDb.Dock = System.Windows.Forms.DockStyle.Fill;
             _tblDb.Name = "_tblDb";
-            _tblDb.RowCount = 1;
+            _tblDb.RowCount = 2;
+            _tblDb.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
             _tblDb.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
 
             // _lblConnectionString
@@ -111,6 +116,30 @@ namespace Defter2Fis.ForMikro.Forms
             _txtConnectionString.ForeColor = System.Drawing.Color.FromArgb(220, 220, 220);
             _txtConnectionString.Margin = new System.Windows.Forms.Padding(3);
             _txtConnectionString.Name = "_txtConnectionString";
+            _txtConnectionString.ReadOnly = true;
+
+            // _btnBaglantiOlustur
+            _btnBaglantiOlustur.BackColor = System.Drawing.Color.FromArgb(0, 122, 204);
+            _btnBaglantiOlustur.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(0, 100, 180);
+            _btnBaglantiOlustur.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            _btnBaglantiOlustur.ForeColor = System.Drawing.Color.White;
+            _btnBaglantiOlustur.Margin = new System.Windows.Forms.Padding(3, 6, 3, 3);
+            _btnBaglantiOlustur.Name = "_btnBaglantiOlustur";
+            _btnBaglantiOlustur.Size = new System.Drawing.Size(130, 28);
+            _btnBaglantiOlustur.Text = "\u2699 Ba\u011flant\u0131 Olu\u015ftur...";
+            _btnBaglantiOlustur.Click += BtnBaglantiOlustur_Click;
+
+            // _btnBaglantiTest
+            _btnBaglantiTest.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            _btnBaglantiTest.BackColor = System.Drawing.Color.FromArgb(62, 62, 64);
+            _btnBaglantiTest.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(63, 63, 70);
+            _btnBaglantiTest.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            _btnBaglantiTest.ForeColor = System.Drawing.Color.FromArgb(220, 220, 220);
+            _btnBaglantiTest.Margin = new System.Windows.Forms.Padding(3, 6, 3, 3);
+            _btnBaglantiTest.Name = "_btnBaglantiTest";
+            _btnBaglantiTest.Size = new System.Drawing.Size(120, 28);
+            _btnBaglantiTest.Text = "\u26A1 Ba\u011flant\u0131y\u0131 Test Et";
+            _btnBaglantiTest.Click += BtnBaglantiTest_Click;
 
             // _grpEdDefter
             _grpEdDefter.AutoSize = true;
@@ -341,6 +370,8 @@ namespace Defter2Fis.ForMikro.Forms
         private System.Windows.Forms.TableLayoutPanel _tblDb;
         private System.Windows.Forms.Label _lblConnectionString;
         private System.Windows.Forms.TextBox _txtConnectionString;
+        private System.Windows.Forms.Button _btnBaglantiOlustur;
+        private System.Windows.Forms.Button _btnBaglantiTest;
         private System.Windows.Forms.GroupBox _grpEdDefter;
         private System.Windows.Forms.TableLayoutPanel _tblEdDefter;
         private System.Windows.Forms.Label _lblEdDefterKok;

@@ -36,6 +36,7 @@ namespace Defter2Fis.ForMikro.Forms
             InitializeComponent();
             _log.LogEklendi += Log_LogEklendi;
             AyarOzetiniGuncelle();
+            BaglantiDurumunuKontrolEt();
             FiltreHelperBaslat();
         }
 
@@ -53,12 +54,50 @@ namespace Defter2Fis.ForMikro.Forms
 
         #endregion
 
+        #region Baglanti Durumu
+
+        /// <summary>
+        /// Veritabani baglanti yapilandirmasini kontrol eder.
+        /// Boşsa uyari panelini gosterir ve islem butonlarini devre disi birakir.
+        /// </summary>
+        private void BaglantiDurumunuKontrolEt()
+        {
+            string connStr = ConfigurationManager.ConnectionStrings["MikroDB"]?.ConnectionString;
+            bool baglantiYok = string.IsNullOrWhiteSpace(connStr);
+
+            _pnlBaglantiUyari.Visible = baglantiYok;
+
+            // Veritabani gerektiren butonlari devre disi birak
+            _btnMevcutVeriKontrol.Enabled = !baglantiYok;
+            _btnOnizleme.Enabled = !baglantiYok;
+            _btnFisOlustur.Enabled = !baglantiYok;
+            _btnYedekAl.Enabled = !baglantiYok;
+
+            if (baglantiYok)
+            {
+                _lblDbBilgi.Values.Text = "DB: \u26A0 Baglanti yapilandirilmamis!";
+                _log.Uyari("Veritabani baglanti dizesi bos. Araclar > Ayarlar > Baglanti Olustur ile yapilandirin.");
+            }
+        }
+
+        private void LnkAyarlaraGit_Click(object sender, EventArgs e)
+        {
+            TsmAyarlar_Click(sender, e);
+        }
+
+        #endregion
+
         #region Ayar Ozeti
 
         private void AyarOzetiniGuncelle()
         {
             _lblEdDefterYolu.Values.Text = $"E-Defter: {KlasorYolu}";
-            _lblDbBilgi.Values.Text = $"DB: {ConfigurationManager.ConnectionStrings["MikroDB"]?.ConnectionString ?? "?"}";
+
+            string connStr = ConfigurationManager.ConnectionStrings["MikroDB"]?.ConnectionString;
+            _lblDbBilgi.Values.Text = string.IsNullOrWhiteSpace(connStr)
+                ? "DB: \u26A0 Baglanti yapilandirilmamis!"
+                : $"DB: {connStr}";
+
             _lblFirmaBilgi.Values.Text = $"Sicil: {SicilNo}  |  Mali YIl: {MaliYilAraligi}  |  Ay: {AyKlasoru}  |  Firma: {FirmaNo}/{SubeNo}  DBC: {DBCNo}";
         }
 
@@ -108,6 +147,7 @@ namespace Defter2Fis.ForMikro.Forms
                 if (frm.ShowDialog(this) == DialogResult.OK)
                 {
                     AyarOzetiniGuncelle();
+                    BaglantiDurumunuKontrolEt();
                     _log.Bilgi("Ayarlar guncellendi.");
                 }
             }

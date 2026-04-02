@@ -1,5 +1,6 @@
 using System;
 using System.Configuration;
+using System.Data.SqlClient;
 using System.Windows.Forms;
 using Krypton.Toolkit;
 
@@ -27,6 +28,57 @@ namespace Defter2Fis.ForMikro.Forms
             _txtFirmaNo.Text = ConfigurationManager.AppSettings["FirmaNo"] ?? "0";
             _txtSubeNo.Text = ConfigurationManager.AppSettings["SubeNo"] ?? "0";
             _txtDBCNo.Text = ConfigurationManager.AppSettings["DBCNo"] ?? "0";
+        }
+
+        private void BtnBaglantiOlustur_Click(object sender, EventArgs e)
+        {
+            using (var frm = new ConnectionBuilderForm(_txtConnectionString.Text))
+            {
+                if (frm.ShowDialog(this) == DialogResult.OK)
+                {
+                    _txtConnectionString.Text = frm.ConnectionString;
+                }
+            }
+        }
+
+        private void BtnBaglantiTest_Click(object sender, EventArgs e)
+        {
+            string connStr = _txtConnectionString.Text.Trim();
+            if (string.IsNullOrWhiteSpace(connStr))
+            {
+                MessageBox.Show(
+                    "Bağlantı dizesi boş. Önce \"Bağlantı Oluştur\" ile bir bağlantı tanımlayın.",
+                    "Uyarı",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+                return;
+            }
+
+            Cursor = Cursors.WaitCursor;
+            try
+            {
+                using (var conn = new SqlConnection(connStr))
+                {
+                    conn.Open();
+                }
+                MessageBox.Show(
+                    "✅ Veritabanı bağlantısı başarılı!",
+                    "Bağlantı Testi",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"❌ Bağlantı başarısız:\n\n{ex.Message}",
+                    "Bağlantı Testi",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
         }
 
         private void BtnKaydet_Click(object sender, EventArgs e)

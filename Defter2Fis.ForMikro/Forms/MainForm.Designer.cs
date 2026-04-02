@@ -81,6 +81,11 @@ namespace Defter2Fis.ForMikro.Forms
             _tblOzStok = new System.Windows.Forms.TableLayoutPanel();
             _tblOzHesap = new System.Windows.Forms.TableLayoutPanel();
             _tblOzUyari = new System.Windows.Forms.TableLayoutPanel();
+            _pnlBaglantiUyari = new System.Windows.Forms.Panel();
+            _tblUyari = new System.Windows.Forms.TableLayoutPanel();
+            _lblUyariIcon = new System.Windows.Forms.Label();
+            _lblUyariMesaj = new System.Windows.Forms.Label();
+            _lnkAyarlaraGit = new System.Windows.Forms.LinkLabel();
             _statusStrip = new System.Windows.Forms.StatusStrip();
             _lblDurum = new System.Windows.Forms.ToolStripStatusLabel();
             _progressBar = new System.Windows.Forms.ToolStripProgressBar();
@@ -88,6 +93,8 @@ namespace Defter2Fis.ForMikro.Forms
 
             components = new System.ComponentModel.Container();
 
+            _pnlBaglantiUyari.SuspendLayout();
+            _tblUyari.SuspendLayout();
             _menuStrip.SuspendLayout();
             _tblAna.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)_grpAyarOzet).BeginInit();
@@ -167,18 +174,70 @@ namespace Defter2Fis.ForMikro.Forms
             _tsmHakkinda.Text = "&Hakk\u0131nda...";
             _tsmHakkinda.Click += TsmHakkinda_Click;
 
+            // _pnlBaglantiUyari
+            _pnlBaglantiUyari.AutoSize = true;
+            _pnlBaglantiUyari.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            _pnlBaglantiUyari.BackColor = System.Drawing.Color.FromArgb(120, 60, 0);
+            _pnlBaglantiUyari.Controls.Add(_tblUyari);
+            _pnlBaglantiUyari.Dock = System.Windows.Forms.DockStyle.Fill;
+            _pnlBaglantiUyari.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
+            _pnlBaglantiUyari.Name = "_pnlBaglantiUyari";
+            _pnlBaglantiUyari.Padding = new System.Windows.Forms.Padding(8, 6, 8, 6);
+            _pnlBaglantiUyari.Visible = false;
+
+            // _tblUyari
+            _tblUyari.AutoSize = true;
+            _tblUyari.ColumnCount = 3;
+            _tblUyari.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
+            _tblUyari.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            _tblUyari.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
+            _tblUyari.Controls.Add(_lblUyariIcon, 0, 0);
+            _tblUyari.Controls.Add(_lblUyariMesaj, 1, 0);
+            _tblUyari.Controls.Add(_lnkAyarlaraGit, 2, 0);
+            _tblUyari.Dock = System.Windows.Forms.DockStyle.Fill;
+            _tblUyari.Name = "_tblUyari";
+            _tblUyari.RowCount = 1;
+            _tblUyari.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+
+            // _lblUyariIcon
+            _lblUyariIcon.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            _lblUyariIcon.AutoSize = true;
+            _lblUyariIcon.Font = new System.Drawing.Font("Segoe UI", 14F);
+            _lblUyariIcon.ForeColor = System.Drawing.Color.FromArgb(255, 200, 60);
+            _lblUyariIcon.Margin = new System.Windows.Forms.Padding(0, 0, 6, 0);
+            _lblUyariIcon.Name = "_lblUyariIcon";
+            _lblUyariIcon.Text = "\u26A0";
+
+            // _lblUyariMesaj
+            _lblUyariMesaj.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            _lblUyariMesaj.AutoSize = true;
+            _lblUyariMesaj.ForeColor = System.Drawing.Color.FromArgb(255, 230, 180);
+            _lblUyariMesaj.Name = "_lblUyariMesaj";
+            _lblUyariMesaj.Text = "Veritaban\u0131 ba\u011flant\u0131s\u0131 yap\u0131land\u0131r\u0131lmam\u0131\u015F! \u0130\u015Flem yapabilmek i\u00e7in \u00f6nce Ara\u00e7lar > Ayarlar men\u00fcs\u00fcnden SQL Server ba\u011flant\u0131n\u0131z\u0131 olu\u015Fturun.";
+
+            // _lnkAyarlaraGit
+            _lnkAyarlaraGit.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            _lnkAyarlaraGit.AutoSize = true;
+            _lnkAyarlaraGit.LinkColor = System.Drawing.Color.FromArgb(100, 200, 255);
+            _lnkAyarlaraGit.ActiveLinkColor = System.Drawing.Color.FromArgb(150, 220, 255);
+            _lnkAyarlaraGit.Name = "_lnkAyarlaraGit";
+            _lnkAyarlaraGit.Text = "Ayarlar\u0131 A\u00e7";
+            _lnkAyarlaraGit.Click += LnkAyarlaraGit_Click;
+
             // _tblAna
             _tblAna.ColumnCount = 1;
             _tblAna.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            _tblAna.Controls.Add(_grpAyarOzet, 0, 0);
-            _tblAna.Controls.Add(_flpButonlar, 0, 1);
-            _tblAna.Controls.Add(_tabControl, 0, 2);
+            _tblAna.Controls.Add(_pnlBaglantiUyari, 0, 0);
+            _tblAna.Controls.Add(_grpAyarOzet, 0, 1);
+            _tblAna.Controls.Add(_flpButonlar, 0, 2);
+            _tblAna.Controls.Add(_tabControl, 0, 3);
             _tblAna.Dock = System.Windows.Forms.DockStyle.Fill;
             _tblAna.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             _tblAna.Location = new System.Drawing.Point(0, 24);
             _tblAna.Name = "_tblAna";
             _tblAna.Padding = new System.Windows.Forms.Padding(6, 4, 6, 0);
-            _tblAna.RowCount = 3;
+            _tblAna.RowCount = 4;
+            _tblAna.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
             _tblAna.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
             _tblAna.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
             _tblAna.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -597,6 +656,10 @@ namespace Defter2Fis.ForMikro.Forms
             _tblOzUyari.PerformLayout();
             _tabOzUyari.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)_dgvOzUyari).EndInit();
+            _tblUyari.ResumeLayout(false);
+            _tblUyari.PerformLayout();
+            _pnlBaglantiUyari.ResumeLayout(false);
+            _pnlBaglantiUyari.PerformLayout();
             _statusStrip.ResumeLayout(false);
             _statusStrip.PerformLayout();
             ResumeLayout(false);
@@ -671,5 +734,10 @@ namespace Defter2Fis.ForMikro.Forms
         private System.Windows.Forms.ToolStripStatusLabel _lblDurum;
         private System.Windows.Forms.ToolStripProgressBar _progressBar;
         private System.ComponentModel.BackgroundWorker _bgwIslem;
+        private System.Windows.Forms.Panel _pnlBaglantiUyari;
+        private System.Windows.Forms.TableLayoutPanel _tblUyari;
+        private System.Windows.Forms.Label _lblUyariIcon;
+        private System.Windows.Forms.Label _lblUyariMesaj;
+        private System.Windows.Forms.LinkLabel _lnkAyarlaraGit;
     }
 }
