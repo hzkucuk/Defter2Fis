@@ -116,7 +116,6 @@ namespace Defter2Fis.ForMikro.Forms
             _txtConnectionString.ForeColor = System.Drawing.Color.FromArgb(220, 220, 220);
             _txtConnectionString.Margin = new System.Windows.Forms.Padding(3);
             _txtConnectionString.Name = "_txtConnectionString";
-            _txtConnectionString.ReadOnly = true;
 
             // _btnBaglantiOlustur
             _btnBaglantiOlustur.BackColor = System.Drawing.Color.FromArgb(0, 122, 204);

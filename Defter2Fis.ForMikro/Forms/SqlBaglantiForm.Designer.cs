@@ -104,6 +104,7 @@ namespace Defter2Fis.ForMikro.Forms
             _txtSunucu.ForeColor = System.Drawing.Color.FromArgb(220, 220, 220);
             _txtSunucu.Margin = new System.Windows.Forms.Padding(3);
             _txtSunucu.Name = "_txtSunucu";
+            _txtSunucu.TabIndex = 0;
 
             // _grpKimlik
             _grpKimlik.AutoSize = true;
@@ -139,6 +140,7 @@ namespace Defter2Fis.ForMikro.Forms
             _chkWindowsAuth.ForeColor = System.Drawing.Color.FromArgb(220, 220, 220);
             _chkWindowsAuth.Margin = new System.Windows.Forms.Padding(3, 3, 3, 6);
             _chkWindowsAuth.Name = "_chkWindowsAuth";
+            _chkWindowsAuth.TabIndex = 1;
             _chkWindowsAuth.Text = "Windows Kimlik Do\u011frulamas\u0131 kullan";
             _chkWindowsAuth.CheckedChanged += ChkWindowsAuth_CheckedChanged;
 
@@ -154,6 +156,7 @@ namespace Defter2Fis.ForMikro.Forms
             _txtKullaniciAdi.ForeColor = System.Drawing.Color.FromArgb(220, 220, 220);
             _txtKullaniciAdi.Margin = new System.Windows.Forms.Padding(3);
             _txtKullaniciAdi.Name = "_txtKullaniciAdi";
+            _txtKullaniciAdi.TabIndex = 2;
 
             // _lblSifre
             _lblSifre.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
@@ -167,6 +170,7 @@ namespace Defter2Fis.ForMikro.Forms
             _txtSifre.ForeColor = System.Drawing.Color.FromArgb(220, 220, 220);
             _txtSifre.Margin = new System.Windows.Forms.Padding(3);
             _txtSifre.Name = "_txtSifre";
+            _txtSifre.TabIndex = 3;
             _txtSifre.UseSystemPasswordChar = true;
 
             // _grpVeritabani
@@ -209,6 +213,7 @@ namespace Defter2Fis.ForMikro.Forms
             _cmbVeritabani.FormattingEnabled = true;
             _cmbVeritabani.Margin = new System.Windows.Forms.Padding(3);
             _cmbVeritabani.Name = "_cmbVeritabani";
+            _cmbVeritabani.TabIndex = 4;
 
             // _btnVeritabaniListele
             _btnVeritabaniListele.BackColor = System.Drawing.Color.FromArgb(0, 122, 204);
@@ -217,6 +222,7 @@ namespace Defter2Fis.ForMikro.Forms
             _btnVeritabaniListele.ForeColor = System.Drawing.Color.White;
             _btnVeritabaniListele.Name = "_btnVeritabaniListele";
             _btnVeritabaniListele.Size = new System.Drawing.Size(85, 25);
+            _btnVeritabaniListele.TabIndex = 5;
             _btnVeritabaniListele.Text = "Listele";
             _btnVeritabaniListele.Click += BtnVeritabaniListele_Click;
 
@@ -229,6 +235,7 @@ namespace Defter2Fis.ForMikro.Forms
             _btnBaglantiTest.Margin = new System.Windows.Forms.Padding(3, 6, 3, 3);
             _btnBaglantiTest.Name = "_btnBaglantiTest";
             _btnBaglantiTest.Size = new System.Drawing.Size(130, 28);
+            _btnBaglantiTest.TabIndex = 6;
             _btnBaglantiTest.Text = "\u26A1 Ba\u011flant\u0131y\u0131 Test Et";
             _btnBaglantiTest.Click += BtnBaglantiTest_Click;
 
@@ -250,6 +257,7 @@ namespace Defter2Fis.ForMikro.Forms
             _btnIptal.ForeColor = System.Drawing.Color.FromArgb(220, 220, 220);
             _btnIptal.Name = "_btnIptal";
             _btnIptal.Size = new System.Drawing.Size(85, 30);
+            _btnIptal.TabIndex = 8;
             _btnIptal.Text = "\u0130ptal";
             _btnIptal.Click += BtnIptal_Click;
 
@@ -260,6 +268,7 @@ namespace Defter2Fis.ForMikro.Forms
             _btnTamam.ForeColor = System.Drawing.Color.White;
             _btnTamam.Name = "_btnTamam";
             _btnTamam.Size = new System.Drawing.Size(85, 30);
+            _btnTamam.TabIndex = 7;
             _btnTamam.Text = "Tamam";
             _btnTamam.Click += BtnTamam_Click;
 

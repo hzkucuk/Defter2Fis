@@ -21,6 +21,7 @@ namespace Defter2Fis.ForMikro.Forms
             InitializeComponent();
             _chkWindowsAuth.Checked = true;
             KimlikDogrulamaGuncelle();
+            ActiveControl = _txtSunucu;
         }
 
         /// <summary>
