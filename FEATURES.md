@@ -9,8 +9,8 @@
 - Kabul/Reddet seçenekleri, reddetme durumunda uygulama çıkışı
 
 ### Kabul Kanıt Sistemi
-- Windows Registry (HKCU\SOFTWARE\PrimaHavacilik\Defter2Fis)
-- Gizli dosya (ProgramData\PrimaHavacilik\Defter2Fis\Legal)
+- Windows Registry (HKCU\SOFTWARE\ZaferBilgisayar\Defter2Fis)
+- Gizli dosya (ProgramData\ZaferBilgisayar\Defter2Fis\Legal)
 - SHA256 + Salt ile makine/kullanıcı/tarih/versiyon imzası
 - Çift doğrulama: Hem Registry hem dosya bütünlüğü kontrolü
 - Hukuki ihtilaf durumunda delil niteliğinde kanıt

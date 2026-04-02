@@ -14,13 +14,13 @@ namespace Defter2Fis.ForMikro.Services
     internal static class DisclaimerService
     {
         // Registry yolu — HKCU altında, admin yetkisi gerektirmez
-        private const string RegistryKeyPath = @"SOFTWARE\PrimaHavacilik\Defter2Fis";
+        private const string RegistryKeyPath = @"SOFTWARE\ZaferBilgisayar\Defter2Fis";
         private const string RegistryValueName = "DisclaimerAccepted";
 
         // Gizli dosya — ProgramData altında sadece bizim bildiğimiz konum
         private static readonly string EvidenceDirectory =
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-                          "PrimaHavacilik", "Defter2Fis", "Legal");
+                          "ZaferBilgisayar", "Defter2Fis", "Legal");
 
         private static readonly string EvidenceFilePath =
             Path.Combine(EvidenceDirectory, ".d2f_acceptance.sig");
